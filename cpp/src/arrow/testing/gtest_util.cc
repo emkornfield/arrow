@@ -177,7 +177,9 @@ void AssertZeroPadded(const Array& array) {
       const int64_t padding = buffer->capacity() - buffer->size();
       if (padding > 0) {
         std::vector<uint8_t> zeros(padding);
-        ASSERT_EQ(0, memcmp(buffer->data() + buffer->size(), zeros.data(), padding));
+        DCHECK_GE(padding, 0);
+        ASSERT_EQ(0, memcmp(buffer->data() + buffer->size(), zeros.data(),
+                                  static_cast<size_t>(padding)));
       }
     }
   }

@@ -114,7 +114,10 @@ class ARROW_EXPORT StructBuilder : public ArrayBuilder {
 
   void Reset() override;
 
-  ArrayBuilder* field_builder(int i) const { return children_[i].get(); }
+  ArrayBuilder* field_builder(int i) const {
+    DCHECK_GE(i, 0);
+    return children_[static_cast<size_t>(i)].get();
+  }
 
   int num_fields() const { return static_cast<int>(children_.size()); }
 };

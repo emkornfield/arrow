@@ -265,6 +265,10 @@ using std::operator<<;
 #define nssv_HAVE_WCHAR16_T             nssv_CPP11_100
 #define nssv_HAVE_WCHAR32_T             nssv_CPP11_100
 
+#ifndef nssv_CPP11 
+#define nssv_CPP11 0
+#endif
+
 #if ! ( ( nssv_CPP11 && nssv_COMPILER_CLANG_VERSION ) || nssv_BETWEEN( nssv_COMPILER_CLANG_VERSION, 300, 400 ) )
 # define nssv_HAVE_STD_DEFINED_LITERALS  nssv_CPP11_140
 #endif
@@ -797,7 +801,7 @@ private:
     {
         const basic_string_view v;
 
-        nssv_constexpr not_in_view( basic_string_view v ) : v( v ) {}
+        nssv_constexpr not_in_view( basic_string_view view ) : v( view ) {}
 
         nssv_constexpr bool operator()( CharT c ) const
         {

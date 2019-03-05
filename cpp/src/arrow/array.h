@@ -20,6 +20,7 @@
 
 #include <cstdint>
 #include <iosfwd>
+#include <limits>
 #include <memory>
 #include <string>
 #include <type_traits>
@@ -88,31 +89,34 @@ class Status;
 struct ARROW_EXPORT ArrayData {
   ArrayData() : length(0), null_count(0), offset(0) {}
 
-  ArrayData(const std::shared_ptr<DataType>& type, int64_t length,
-            int64_t null_count = kUnknownNullCount, int64_t offset = 0)
-      : type(type), length(length), null_count(null_count), offset(offset) {}
+  ArrayData(const std::shared_ptr<DataType>& data_type, int64_t array_length,
+            int64_t array_null_count = kUnknownNullCount, int64_t slice_offset = 0)
+      : type(data_type),
+        length(array_length),
+        null_count(array_null_count),
+        offset(slice_offset) {}
 
-  ArrayData(const std::shared_ptr<DataType>& type, int64_t length,
-            const std::vector<std::shared_ptr<Buffer>>& buffers,
-            int64_t null_count = kUnknownNullCount, int64_t offset = 0)
-      : ArrayData(type, length, null_count, offset) {
-    this->buffers = buffers;
+  ArrayData(const std::shared_ptr<DataType>& data_type, int64_t array_length,
+            const std::vector<std::shared_ptr<Buffer>>& array_buffers,
+            int64_t array_null_count = kUnknownNullCount, int64_t slice_offset = 0)
+      : ArrayData(data_type, array_length, array_null_count, slice_offset) {
+    this->buffers = array_buffers;
   }
 
-  ArrayData(const std::shared_ptr<DataType>& type, int64_t length,
-            const std::vector<std::shared_ptr<Buffer>>& buffers,
-            const std::vector<std::shared_ptr<ArrayData>>& child_data,
-            int64_t null_count = kUnknownNullCount, int64_t offset = 0)
-      : ArrayData(type, length, null_count, offset) {
-    this->buffers = buffers;
-    this->child_data = child_data;
+  ArrayData(const std::shared_ptr<DataType>& data_type, int64_t array_length,
+            const std::vector<std::shared_ptr<Buffer>>& array_buffers,
+            const std::vector<std::shared_ptr<ArrayData>>& child_data_arrays,
+            int64_t array_null_count = kUnknownNullCount, int64_t slice_offset = 0)
+      : ArrayData(data_type, array_length, array_null_count, slice_offset) {
+    this->buffers = array_buffers;
+    this->child_data = child_data_arrays;
   }
 
-  ArrayData(const std::shared_ptr<DataType>& type, int64_t length,
-            std::vector<std::shared_ptr<Buffer>>&& buffers,
-            int64_t null_count = kUnknownNullCount, int64_t offset = 0)
-      : ArrayData(type, length, null_count, offset) {
-    this->buffers = std::move(buffers);
+  ArrayData(const std::shared_ptr<DataType>& data_type, int64_t array_length,
+            std::vector<std::shared_ptr<Buffer>>&& array_buffers,
+            int64_t array_null_count = kUnknownNullCount, int64_t slice_offset = 0)
+      : ArrayData(data_type, array_length, array_null_count, slice_offset) {
+    this->buffers = std::move(array_buffers);
   }
 
   static std::shared_ptr<ArrayData> Make(const std::shared_ptr<DataType>& type,
@@ -170,8 +174,10 @@ struct ARROW_EXPORT ArrayData {
   // Access a buffer's data as a typed C pointer
   template <typename T>
   inline const T* GetValues(int i, int64_t absolute_offset) const {
-    if (buffers[i]) {
-      return reinterpret_cast<const T*>(buffers[i]->data()) + absolute_offset;
+    DCHECK_GE(i, 0);
+    size_t index = static_cast<size_t>(i);
+    if (buffers[index]) {
+      return reinterpret_cast<const T*>(buffers[index]->data()) + absolute_offset;
     } else {
       return NULLPTR;
     }
@@ -185,8 +191,10 @@ struct ARROW_EXPORT ArrayData {
   // Access a buffer's data as a typed C pointer
   template <typename T>
   inline T* GetMutableValues(int i, int64_t absolute_offset) {
-    if (buffers[i]) {
-      return reinterpret_cast<T*>(buffers[i]->mutable_data()) + absolute_offset;
+    DCHECK_GE(i, 0);
+    size_t index = static_cast<size_t>(i);
+    if (buffers[index]) {
+      return reinterpret_cast<T*>(buffers[index]->mutable_data()) + absolute_offset;
     } else {
       return NULLPTR;
     }
@@ -236,15 +244,19 @@ class ARROW_EXPORT Array {
 
   /// \brief Return true if value at index is null. Does not boundscheck
   bool IsNull(int64_t i) const {
+    DCHECK_GE(i, 0);
+    DCHECK_GE(data_->offset, 0);
     return null_bitmap_data_ != NULLPTR &&
-           !BitUtil::GetBit(null_bitmap_data_, i + data_->offset);
+           !BitUtil::GetBit(null_bitmap_data_, static_cast<size_t>(i + data_->offset));
   }
 
   /// \brief Return true if value at index is valid (not null). Does not
   /// boundscheck
   bool IsValid(int64_t i) const {
+    DCHECK_GE(i, 0);
+    DCHECK_GE(data_->offset, 0);
     return null_bitmap_data_ == NULLPTR ||
-           BitUtil::GetBit(null_bitmap_data_, i + data_->offset);
+           BitUtil::GetBit(null_bitmap_data_, static_cast<size_t>(i + data_->offset));
   }
 
   /// Size in the number of elements this array contains.
@@ -444,8 +456,9 @@ class ARROW_EXPORT BooleanArray : public PrimitiveArray {
                int64_t null_count = 0, int64_t offset = 0);
 
   bool Value(int64_t i) const {
+    DCHECK_GE(i, 0);
     return BitUtil::GetBit(reinterpret_cast<const uint8_t*>(raw_values_),
-                           i + data_->offset);
+                           static_cast<size_t>(i + data_->offset));
   }
 
   bool GetView(int64_t i) const { return Value(i); }
@@ -545,10 +558,12 @@ class ARROW_EXPORT BinaryArray : public FlatArray {
   /// \return the view over the selected value
   util::string_view GetView(int64_t i) const {
     // Account for base offset
-    i += data_->offset;
-    const int32_t pos = raw_value_offsets_[i];
+    DCHECK_GE(i, 0);
+    DCHECK_GE(std::numeric_limits<uint32_t>::max(), i);
+    uint32_t index = static_cast<uint32_t>(i + data_->offset);
+    const uint32_t pos = static_cast<uint32_t>(raw_value_offsets_[index]);
     return util::string_view(reinterpret_cast<const char*>(raw_data_ + pos),
-                             raw_value_offsets_[i + 1] - pos);
+                             static_cast<uint32_t>(raw_value_offsets_[index + 1]) - pos);
   }
 
   /// \brief Get binary value as a std::string
@@ -623,7 +638,9 @@ class ARROW_EXPORT FixedSizeBinaryArray : public PrimitiveArray {
   const uint8_t* Value(int64_t i) const { return GetValue(i); }
 
   util::string_view GetView(int64_t i) const {
-    return util::string_view(reinterpret_cast<const char*>(GetValue(i)), byte_width());
+    DCHECK_GE(byte_width(), 0);
+    return util::string_view(reinterpret_cast<const char*>(GetValue(i)),
+                             static_cast<size_t>(byte_width()));
   }
 
   std::string GetString(int64_t i) const { return std::string(GetView(i)); }

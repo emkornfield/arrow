@@ -328,6 +328,7 @@ class ARROW_EXPORT Status {
  private:
   struct State {
     StatusCode code;
+    char unused0[7];
     std::string msg;
   };
   // OK status has a `NULL` state_.  Otherwise, `state_` points to
@@ -372,9 +373,7 @@ Status& Status::operator=(Status&& s) noexcept {
   return *this;
 }
 
-/// \cond FALSE
-// (note: emits warnings on Doxygen < 1.8.15,
-//  see https://github.com/doxygen/doxygen/issues/6295)
+/// \brief Returns OK if both this and s are true.
 Status Status::operator&(const Status& s) const noexcept {
   if (ok()) {
     return s;

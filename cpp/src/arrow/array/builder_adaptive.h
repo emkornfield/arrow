@@ -110,11 +110,11 @@ class ARROW_EXPORT AdaptiveUIntBuilder : public internal::AdaptiveIntBuilderBase
   template <typename new_type, typename old_type>
   typename std::enable_if<sizeof(old_type) >= sizeof(new_type), Status>::type
   ExpandIntSizeInternal();
-#define __LESS(a, b) (a) < (b)
+#define ARROW_LESS(a, b) (a) < (b)
   template <typename new_type, typename old_type>
-  typename std::enable_if<__LESS(sizeof(old_type), sizeof(new_type)), Status>::type
+  typename std::enable_if<ARROW_LESS(sizeof(old_type), sizeof(new_type)), Status>::type
   ExpandIntSizeInternal();
-#undef __LESS
+#undef ARROW_LESS
 
   template <typename new_type>
   Status ExpandIntSizeN();

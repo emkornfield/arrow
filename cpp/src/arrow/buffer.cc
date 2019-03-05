@@ -93,6 +93,9 @@ std::string Buffer::ToString() const {
 
 void Buffer::CheckMutable() const { DCHECK(is_mutable()) << "buffer not mutable"; }
 
+ResizableBuffer::ResizableBuffer(uint8_t* data, int64_t size)
+    : MutableBuffer(data, size) {}
+
 /// A Buffer whose lifetime is tied to a particular MemoryPool
 class PoolBuffer : public ResizableBuffer {
  public:

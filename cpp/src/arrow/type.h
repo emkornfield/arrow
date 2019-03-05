@@ -31,6 +31,7 @@
 #include "arrow/type_fwd.h"  // IWYU pragma: export
 #include "arrow/util/checked_cast.h"
 #include "arrow/util/key_value_metadata.h"  // IWYU pragma: export
+#include "arrow/util/logging.h"
 #include "arrow/util/macros.h"
 #include "arrow/util/visibility.h"
 #include "arrow/visitor.h"  // IWYU pragma: keep
@@ -163,7 +164,10 @@ class ARROW_EXPORT DataType {
   /// \brief Return whether the types are equal
   bool Equals(const std::shared_ptr<DataType>& other) const;
 
-  std::shared_ptr<Field> child(int i) const { return children_[i]; }
+  std::shared_ptr<Field> child(int i) const {
+    DCHECK_GE(i, 0);
+    return children_[static_cast<size_t>(i)];
+  }
 
   const std::vector<std::shared_ptr<Field>>& children() const { return children_; }
 
@@ -811,7 +815,10 @@ class ARROW_EXPORT Schema {
   bool Equals(const Schema& other, bool check_metadata = true) const;
 
   /// Return the ith schema element. Does not boundscheck
-  std::shared_ptr<Field> field(int i) const { return fields_[i]; }
+  std::shared_ptr<Field> field(int i) const {
+    DCHECK_GE(i, 0);
+    return fields_[static_cast<size_t>(i)];
+  }
 
   /// Returns null if name not found
   std::shared_ptr<Field> GetFieldByName(const std::string& name) const;

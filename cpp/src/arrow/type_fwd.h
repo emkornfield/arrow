@@ -102,26 +102,26 @@ class NumericTensor;
 template <typename TypeClass>
 struct NumericScalar;
 
-#define _NUMERIC_TYPE_DECL(KLASS)                     \
+#define ARROW_NUMERIC_TYPE_DECL(KLASS)                \
   class KLASS##Type;                                  \
   using KLASS##Array = NumericArray<KLASS##Type>;     \
   using KLASS##Builder = NumericBuilder<KLASS##Type>; \
   using KLASS##Scalar = NumericScalar<KLASS##Type>;   \
   using KLASS##Tensor = NumericTensor<KLASS##Type>;
 
-_NUMERIC_TYPE_DECL(Int8)
-_NUMERIC_TYPE_DECL(Int16)
-_NUMERIC_TYPE_DECL(Int32)
-_NUMERIC_TYPE_DECL(Int64)
-_NUMERIC_TYPE_DECL(UInt8)
-_NUMERIC_TYPE_DECL(UInt16)
-_NUMERIC_TYPE_DECL(UInt32)
-_NUMERIC_TYPE_DECL(UInt64)
-_NUMERIC_TYPE_DECL(HalfFloat)
-_NUMERIC_TYPE_DECL(Float)
-_NUMERIC_TYPE_DECL(Double)
+ARROW_NUMERIC_TYPE_DECL(Int8)
+ARROW_NUMERIC_TYPE_DECL(Int16)
+ARROW_NUMERIC_TYPE_DECL(Int32)
+ARROW_NUMERIC_TYPE_DECL(Int64)
+ARROW_NUMERIC_TYPE_DECL(UInt8)
+ARROW_NUMERIC_TYPE_DECL(UInt16)
+ARROW_NUMERIC_TYPE_DECL(UInt32)
+ARROW_NUMERIC_TYPE_DECL(UInt64)
+ARROW_NUMERIC_TYPE_DECL(HalfFloat)
+ARROW_NUMERIC_TYPE_DECL(Float)
+ARROW_NUMERIC_TYPE_DECL(Double)
 
-#undef _NUMERIC_TYPE_DECL
+#undef ARROW_NUMERIC_TYPE_DECL
 
 class Date64Type;
 using Date64Array = NumericArray<Date64Type>;

@@ -26,6 +26,7 @@
 #include "arrow/array.h"
 #include "arrow/record_batch.h"
 #include "arrow/type.h"
+#include "arrow/util/logging.h"
 #include "arrow/util/macros.h"
 #include "arrow/util/visibility.h"
 
@@ -63,7 +64,10 @@ class ARROW_EXPORT ChunkedArray {
   int num_chunks() const { return static_cast<int>(chunks_.size()); }
 
   /// \return chunk a particular chunk from the chunked array
-  std::shared_ptr<Array> chunk(int i) const { return chunks_[i]; }
+  std::shared_ptr<Array> chunk(int i) const {
+    DCHECK_GE(i, 0);
+    return chunks_[static_cast<size_t>(i)];
+  }
 
   const ArrayVector& chunks() const { return chunks_; }
 

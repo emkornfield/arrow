@@ -431,7 +431,27 @@ static inline bool is_integer(Type::type type_id) {
     case Type::UINT64:
     case Type::INT64:
       return true;
-    default:
+    case Type::NA:
+    case Type::BOOL:
+    case Type::HALF_FLOAT:
+    case Type::FLOAT:
+    case Type::DOUBLE:
+    case Type::FIXED_SIZE_BINARY:
+    case Type::STRING:
+    case Type::BINARY:
+    case Type::DATE32:
+    case Type::DATE64:
+    case Type::TIMESTAMP:
+    case Type::TIME32:
+    case Type::TIME64:
+    case Type::INTERVAL:
+    case Type::DECIMAL:
+    case Type::LIST:
+    case Type::STRUCT:
+    case Type::UNION:
+    case Type::DICTIONARY:
+    case Type::MAP:
+    case Type::EXTENSION:
       break;
   }
   return false;
@@ -443,7 +463,32 @@ static inline bool is_floating(Type::type type_id) {
     case Type::FLOAT:
     case Type::DOUBLE:
       return true;
-    default:
+    case Type::BOOL:
+    case Type::UINT8:
+    case Type::INT8:
+    case Type::UINT16:
+    case Type::INT16:
+    case Type::UINT32:
+    case Type::INT32:
+    case Type::UINT64:
+    case Type::INT64:
+    case Type::NA:
+    case Type::FIXED_SIZE_BINARY:
+    case Type::STRING:
+    case Type::BINARY:
+    case Type::DATE32:
+    case Type::DATE64:
+    case Type::TIMESTAMP:
+    case Type::TIME32:
+    case Type::TIME64:
+    case Type::INTERVAL:
+    case Type::DECIMAL:
+    case Type::LIST:
+    case Type::STRUCT:
+    case Type::UNION:
+    case Type::DICTIONARY:
+    case Type::MAP:
+    case Type::EXTENSION:
       break;
   }
   return false;

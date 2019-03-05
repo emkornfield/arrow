@@ -72,7 +72,7 @@ class ARROW_EXPORT Buffer {
       : Buffer(reinterpret_cast<const uint8_t*>(data.c_str()),
                static_cast<int64_t>(data.size())) {}
 
-  virtual ~Buffer() = default;
+  ~Buffer() = default;
 
   /// An offset into data that is owned by another buffer, but we want to be
   /// able to retain a valid pointer to it even after other shared_ptr's to the
@@ -260,6 +260,7 @@ class ARROW_EXPORT MutableBuffer : public Buffer {
 /// \brief A mutable buffer that can be resized
 class ARROW_EXPORT ResizableBuffer : public MutableBuffer {
  public:
+  virtual ~ResizableBuffer() = default;
   /// Change buffer reported size to indicated size, allocating memory if
   /// necessary.  This will ensure that the capacity of the buffer is a multiple
   /// of 64 bytes as defined in Layout.md.
@@ -286,7 +287,7 @@ class ARROW_EXPORT ResizableBuffer : public MutableBuffer {
   }
 
  protected:
-  ResizableBuffer(uint8_t* data, int64_t size) : MutableBuffer(data, size) {}
+  ResizableBuffer(uint8_t* data, int64_t size);
 };
 
 /// \defgroup buffer-allocation-functions Functions for allocating buffers

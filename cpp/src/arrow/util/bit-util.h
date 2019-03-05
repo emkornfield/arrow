@@ -60,6 +60,8 @@
 #include <type_traits>
 #include <vector>
 
+
+#include "arrow/util/logging.h"
 #include "arrow/util/macros.h"
 #include "arrow/util/type_traits.h"
 #include "arrow/util/visibility.h"
@@ -284,11 +286,15 @@ static inline int Log2(uint64_t x) {
 //
 
 // Swap the byte order (i.e. endianess)
-static inline int64_t ByteSwap(int64_t value) { return ARROW_BYTE_SWAP64(value); }
+static inline int64_t ByteSwap(int64_t value) {
+  return static_cast<int64_t>(ARROW_BYTE_SWAP64(static_cast<uint64_t>(value)));
+}
 static inline uint64_t ByteSwap(uint64_t value) {
   return static_cast<uint64_t>(ARROW_BYTE_SWAP64(value));
 }
-static inline int32_t ByteSwap(int32_t value) { return ARROW_BYTE_SWAP32(value); }
+static inline int32_t ByteSwap(int32_t value) {
+  return static_cast<int32_t>(ARROW_BYTE_SWAP32(static_cast<uint32_t>(value)));
+}
 static inline uint32_t ByteSwap(uint32_t value) {
   return static_cast<uint32_t>(ARROW_BYTE_SWAP32(value));
 }
@@ -819,7 +825,9 @@ class BitsetStack {
   /// \param value initial value for bits in the pushed bitset
   void Push(int size, bool value) {
     offsets_.push_back(bit_count());
-    bits_.resize(bit_count() + size, value);
+    DCHECK_GE(bit_count(), 0);
+    DCHECK_GE(size, 0);
+    bits_.resize(static_cast<size_t>(bit_count() + size), value);
   }
 
   /// \brief number of bits in the bitset at the top of the stack
@@ -830,17 +838,26 @@ class BitsetStack {
 
   /// \brief pop a bitset off the stack
   void Pop() {
-    bits_.resize(offsets_.back());
+    DCHECK_GE(offsets_.back(), 0);
+    bits_.resize(static_cast<size_t>(offsets_.back()));
     offsets_.pop_back();
   }
 
   /// \brief get the value of a bit in the top bitset
   /// \param i index of the bit to access
-  bool operator[](int i) const { return bits_[offsets_.back() + i]; }
+  bool operator[](int i) const {
+    DCHECK_GE(offsets_.back(), 0);
+    DCHECK_GE(i, 0);
+    return bits_[static_cast<size_t>(offsets_.back() + i)];
+  }
 
   /// \brief get a mutable reference to a bit in the top bitset
   /// \param i index of the bit to access
-  reference operator[](int i) { return bits_[offsets_.back() + i]; }
+  reference operator[](int i) {
+    DCHECK_GE(offsets_.back(), 0);
+    DCHECK_GE(i, 0);
+    return bits_[static_cast<size_t>(offsets_.back() + i)];
+  }
 
  private:
   int bit_count() const { return static_cast<int>(bits_.size()); }

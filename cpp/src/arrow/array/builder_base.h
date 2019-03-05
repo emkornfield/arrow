@@ -35,6 +35,7 @@
 #include "arrow/type.h"
 #include "arrow/type_traits.h"
 #include "arrow/util/bit-util.h"
+#include "arrow/util/logging.h"
 #include "arrow/util/macros.h"
 #include "arrow/util/string_view.h"
 #include "arrow/util/type_traits.h"
@@ -65,7 +66,10 @@ class ARROW_EXPORT ArrayBuilder {
 
   /// For nested types. Since the objects are owned by this class instance, we
   /// skip shared pointers and just return a raw pointer
-  ArrayBuilder* child(int i) { return children_[i].get(); }
+  ArrayBuilder* child(int i) {
+    DCHECK_GE(i, 0);
+    return children_[static_cast<size_t>(i)].get();
+  }
 
   int num_children() const { return static_cast<int>(children_.size()); }
 

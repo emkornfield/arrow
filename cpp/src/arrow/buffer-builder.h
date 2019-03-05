@@ -29,6 +29,7 @@
 #include "arrow/buffer.h"
 #include "arrow/status.h"
 #include "arrow/util/bit-util.h"
+#include "arrow/util/logging.h"
 #include "arrow/util/macros.h"
 #include "arrow/util/visibility.h"
 
@@ -66,7 +67,7 @@ class ARROW_EXPORT BufferBuilder {
     capacity_ = buffer_->capacity();
     data_ = buffer_->mutable_data();
     if (capacity_ > old_capacity) {
-      memset(data_ + old_capacity, 0, capacity_ - old_capacity);
+      memset(data_ + old_capacity, 0, static_cast<size_t>(capacity_ - old_capacity));
     }
     return Status::OK();
   }
