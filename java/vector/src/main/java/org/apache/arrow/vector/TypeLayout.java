@@ -104,6 +104,15 @@ public class TypeLayout {
       }
 
       @Override
+      public TypeLayout visit(org.apache.arrow.vector.types.pojo.ArrowType.LargeList type) {
+        List<BufferLayout> vectors = asList(
+            BufferLayout.validityVector(),
+            BufferLayout.offsetBuffer()
+        );
+        return new TypeLayout(vectors);
+      }
+
+      @Override
       public TypeLayout visit(FixedSizeList type) {
         List<BufferLayout> vectors = asList(
             BufferLayout.validityVector()

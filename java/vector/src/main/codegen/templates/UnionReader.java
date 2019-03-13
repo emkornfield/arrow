@@ -83,7 +83,10 @@ public class UnionReader extends AbstractFieldReader {
     case STRUCT:
       return (FieldReader) getStruct();
     case LIST:
-      return (FieldReader) getList();
+
+        return (FieldReader) getList();
+      case LARGE_LIST:
+        return (FieldReader) getLargeList();
     <#list vv.types as type>
       <#list type.minor as minor>
         <#assign name = minor.class?cap_first />
@@ -120,6 +123,19 @@ public class UnionReader extends AbstractFieldReader {
     }
     return listReader;
   }
+
+
+  private UnionListReader largeListReader;
+
+  private FieldReader getLargeList() {
+    if (largeListReader == null) {
+      largeListReader = new UnionListReader(data.getLargeList());
+      largeListReader.setPosition(idx());
+      readers[MinorType.LARGE_LIST.ordinal()] = largeListReader;
+    }
+    return largeListReader;
+  }
+
 
   @Override
   public java.util.Iterator<String> iterator() {

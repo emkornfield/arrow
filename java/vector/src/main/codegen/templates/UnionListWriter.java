@@ -16,6 +16,8 @@
  */
 
 import io.netty.buffer.ArrowBuf;
+
+import org.apache.arrow.vector.complex.BaseRepeatedValueVector;
 import org.apache.arrow.vector.complex.writer.DecimalWriter;
 import org.apache.arrow.vector.holders.DecimalHolder;
 
@@ -39,23 +41,22 @@ package org.apache.arrow.vector.complex.impl;
 @SuppressWarnings("unused")
 public class UnionListWriter extends AbstractFieldWriter {
 
-  private ListVector vector;
+  private BaseRepeatedValueVector vector;
   private PromotableWriter writer;
   private boolean inStruct = false;
   private String structName;
   private int lastIndex = 0;
-  private static final int OFFSET_WIDTH = 4;
 
-  public UnionListWriter(ListVector vector) {
+  public UnionListWriter(BaseRepeatedValueVector vector) {
     this(vector, NullableStructWriterFactory.getNullableStructWriterFactoryInstance());
   }
 
-  public UnionListWriter(ListVector vector, NullableStructWriterFactory nullableStructWriterFactory) {
+  public UnionListWriter(BaseRepeatedValueVector vector, NullableStructWriterFactory nullableStructWriterFactory) {
     this.vector = vector;
     this.writer = new PromotableWriter(vector.getDataVector(), vector, nullableStructWriterFactory);
   }
 
-  public UnionListWriter(ListVector vector, AbstractFieldWriter parent) {
+  public UnionListWriter(BaseRepeatedValueVector vector, AbstractFieldWriter parent) {
     this(vector);
   }
 
@@ -152,12 +153,12 @@ public class UnionListWriter extends AbstractFieldWriter {
   @Override
   public void startList() {
     vector.startNewValue(idx());
-    writer.setPosition(vector.getOffsetBuffer().getInt((idx() + 1) * OFFSET_WIDTH));
+    writer.setPosition(vector.getOffsetValue((idx() + 1)));
   }
 
   @Override
   public void endList() {
-    vector.getOffsetBuffer().setInt((idx() + 1) * OFFSET_WIDTH, writer.idx());
+    vector.setOffsetValue((idx() + 1), writer.idx());
     setPosition(idx() + 1);
   }
 

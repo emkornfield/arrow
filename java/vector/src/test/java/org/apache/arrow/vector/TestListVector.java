@@ -17,15 +17,16 @@
 
 package org.apache.arrow.vector;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.arrow.memory.BufferAllocator;
+import org.apache.arrow.vector.complex.BaseRepeatedValueVector;
+import org.apache.arrow.vector.complex.LargeListVector;
 import org.apache.arrow.vector.complex.ListVector;
 import org.apache.arrow.vector.complex.impl.UnionListWriter;
 import org.apache.arrow.vector.complex.reader.FieldReader;
@@ -36,12 +37,22 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import io.netty.buffer.ArrowBuf;
 
+/**
+ * Test for both {@link ListVector} and {@link LargeListVector}.
+ */
+@RunWith(Parameterized.class)
 public class TestListVector {
-
+  private Class<?> targetClass;
   private BufferAllocator allocator;
+
+  public TestListVector(Class<?> targetClass) {
+    this.targetClass = targetClass;
+  }
 
   @Before
   public void init() {
@@ -53,10 +64,28 @@ public class TestListVector {
     allocator.close();
   }
 
+  BaseRepeatedValueVector makeVector(String name) {
+    if (ListVector.class.equals(targetClass)) {
+      return ListVector.empty(name, allocator);
+    }
+    if (LargeListVector.class.equals(targetClass)) {
+      return LargeListVector.empty(name, allocator);
+    }
+    throw new IllegalArgumentException("Unrecognized class: " + targetClass);
+  }
+
+  @Parameterized.Parameters
+  public static Collection<?> primeNumbers() {
+    return Arrays.asList(new Object[][] {
+        { ListVector.class },
+        {LargeListVector.class }
+    });
+  }
+
   @Test
-  public void testCopyFrom() throws Exception {
-    try (ListVector inVector = ListVector.empty("input", allocator);
-         ListVector outVector = ListVector.empty("output", allocator)) {
+  public void testCopyFrom() {
+    try (BaseRepeatedValueVector inVector = makeVector("input");
+         BaseRepeatedValueVector outVector = makeVector("output")) {
       UnionListWriter writer = inVector.getWriter();
       writer.allocate();
 
@@ -116,8 +145,8 @@ public class TestListVector {
   }
 
   @Test
-  public void testSetLastSetUsage() throws Exception {
-    try (ListVector listVector = ListVector.empty("input", allocator)) {
+  public void testSetLastSetUsage() {
+    try (BaseRepeatedValueVector listVector = makeVector("input")) {
 
       /* Explicitly add the dataVector */
       MinorType type = MinorType.BIGINT;
@@ -129,7 +158,6 @@ public class TestListVector {
       /* get inner buffers; validityBuffer and offsetBuffer */
 
       ArrowBuf validityBuffer = listVector.getValidityBuffer();
-      ArrowBuf offsetBuffer = listVector.getOffsetBuffer();
 
       /* get the underlying data vector -- BigIntVector */
       BigIntVector dataVector = (BigIntVector) listVector.getDataVector();
@@ -145,7 +173,7 @@ public class TestListVector {
       dataVector.setSafe(0, 1, 10);
       dataVector.setSafe(1, 1, 11);
       dataVector.setSafe(2, 1, 12);
-      offsetBuffer.setInt((index + 1) * ListVector.OFFSET_WIDTH, 3);
+      listVector.setOffsetValue((index + 1), 3);
 
       index += 1;
 
@@ -153,7 +181,7 @@ public class TestListVector {
       BitVectorHelper.setValidityBitToOne(validityBuffer, index);
       dataVector.setSafe(3, 1, 13);
       dataVector.setSafe(4, 1, 14);
-      offsetBuffer.setInt((index + 1) * ListVector.OFFSET_WIDTH, 5);
+      listVector.setOffsetValue((index + 1), 5);
 
       index += 1;
 
@@ -162,7 +190,7 @@ public class TestListVector {
       dataVector.setSafe(5, 1, 15);
       dataVector.setSafe(6, 1, 16);
       dataVector.setSafe(7, 1, 17);
-      offsetBuffer.setInt((index + 1) * ListVector.OFFSET_WIDTH, 8);
+      listVector.setOffsetValue((index + 1), 8);
 
       /* check current lastSet */
       assertEquals(Integer.toString(0), Integer.toString(listVector.getLastSet()));
@@ -213,7 +241,7 @@ public class TestListVector {
       assertEquals(0.8D, listVector.getDensity(), 0);
 
       index = 0;
-      offset = offsetBuffer.getInt(index * ListVector.OFFSET_WIDTH);
+      offset = listVector.getOffsetValue(index );
       assertEquals(Integer.toString(0), Integer.toString(offset));
 
       Object actual = dataVector.getObject(offset);
@@ -226,7 +254,7 @@ public class TestListVector {
       assertEquals(new Long(12), (Long) actual);
 
       index++;
-      offset = offsetBuffer.getInt(index * ListVector.OFFSET_WIDTH);
+      offset = listVector.getOffsetValue(index);
       assertEquals(Integer.toString(3), Integer.toString(offset));
 
       actual = dataVector.getObject(offset);
@@ -236,7 +264,7 @@ public class TestListVector {
       assertEquals(new Long(14), (Long) actual);
 
       index++;
-      offset = offsetBuffer.getInt(index * ListVector.OFFSET_WIDTH);
+      offset = listVector.getOffsetValue(index);
       assertEquals(Integer.toString(5), Integer.toString(offset));
 
       actual = dataVector.getObject(offset);
@@ -249,7 +277,7 @@ public class TestListVector {
       assertEquals(new Long(17), (Long) actual);
 
       index++;
-      offset = offsetBuffer.getInt(index * ListVector.OFFSET_WIDTH);
+      offset = listVector.getOffsetValue(index);
       assertEquals(Integer.toString(8), Integer.toString(offset));
 
       actual = dataVector.getObject(offset);
@@ -258,8 +286,8 @@ public class TestListVector {
   }
 
   @Test
-  public void testSplitAndTransfer() throws Exception {
-    try (ListVector listVector = ListVector.empty("sourceVector", allocator)) {
+  public void testSplitAndTransfer() {
+    try (BaseRepeatedValueVector listVector = makeVector("sourceVector")) {
 
       /* Explicitly add the dataVector */
       MinorType type = MinorType.BIGINT;
@@ -309,9 +337,6 @@ public class TestListVector {
 
       assertEquals(5, listVector.getLastSet());
 
-      /* get offset buffer */
-      final ArrowBuf offsetBuffer = listVector.getOffsetBuffer();
-
       /* get dataVector */
       BigIntVector dataVector = (BigIntVector) listVector.getDataVector();
 
@@ -323,7 +348,7 @@ public class TestListVector {
 
       /* index 0 */
       assertFalse(listVector.isNull(index));
-      offset = offsetBuffer.getInt(index * ListVector.OFFSET_WIDTH);
+      offset = listVector.getOffsetValue(index);
       assertEquals(Integer.toString(0), Integer.toString(offset));
 
       actual = dataVector.getObject(offset);
@@ -338,7 +363,7 @@ public class TestListVector {
       /* index 1 */
       index++;
       assertFalse(listVector.isNull(index));
-      offset = offsetBuffer.getInt(index * ListVector.OFFSET_WIDTH);
+      offset = listVector.getOffsetValue(index);
       assertEquals(Integer.toString(3), Integer.toString(offset));
 
       actual = dataVector.getObject(offset);
@@ -350,7 +375,7 @@ public class TestListVector {
       /* index 2 */
       index++;
       assertFalse(listVector.isNull(index));
-      offset = offsetBuffer.getInt(index * ListVector.OFFSET_WIDTH);
+      offset = listVector.getOffsetValue(index);
       assertEquals(Integer.toString(5), Integer.toString(offset));
 
       actual = dataVector.getObject(offset);
@@ -368,7 +393,7 @@ public class TestListVector {
       /* index 3 */
       index++;
       assertFalse(listVector.isNull(index));
-      offset = offsetBuffer.getInt(index * ListVector.OFFSET_WIDTH);
+      offset = listVector.getOffsetValue(index);
       assertEquals(Integer.toString(9), Integer.toString(offset));
 
       actual = dataVector.getObject(offset);
@@ -377,7 +402,7 @@ public class TestListVector {
       /* index 4 */
       index++;
       assertFalse(listVector.isNull(index));
-      offset = offsetBuffer.getInt(index * ListVector.OFFSET_WIDTH);
+      offset = listVector.getOffsetValue(index);
       assertEquals(Integer.toString(10), Integer.toString(offset));
 
       actual = dataVector.getObject(offset);
@@ -395,11 +420,11 @@ public class TestListVector {
       /* index 5 */
       index++;
       assertTrue(listVector.isNull(index));
-      offset = offsetBuffer.getInt(index * ListVector.OFFSET_WIDTH);
+      offset = listVector.getOffsetValue(index);
       assertEquals(Integer.toString(14), Integer.toString(offset));
 
       /* do split and transfer */
-      try (ListVector toVector = ListVector.empty("toVector", allocator)) {
+      try (BaseRepeatedValueVector toVector = makeVector("toVector")) {
 
         TransferPair transferPair = listVector.makeTransferPair(toVector);
 
@@ -424,16 +449,16 @@ public class TestListVector {
           BigIntVector dataVector1 = (BigIntVector) toVector.getDataVector();
 
           for (int i = 0; i < splitLength; i++) {
-            dataLength1 = offsetBuffer.getInt((start + i + 1) * ListVector.OFFSET_WIDTH) -
-                    offsetBuffer.getInt((start + i) * ListVector.OFFSET_WIDTH);
-            dataLength2 = toOffsetBuffer.getInt((i + 1) * ListVector.OFFSET_WIDTH) -
-                    toOffsetBuffer.getInt(i * ListVector.OFFSET_WIDTH);
+            dataLength1 = listVector.getOffsetValue(start + i + 1)  -
+                          listVector.getOffsetValue(start + i);
+            dataLength2 = toOffsetBuffer.getInt((i + 1) * listVector.getOffsetWidth()) -
+                    toOffsetBuffer.getInt(i * listVector.getOffsetWidth());
 
             assertEquals("Different data lengths at index: " + i + " and start: " + start,
                     dataLength1, dataLength2);
 
-            offset1 = offsetBuffer.getInt((start + i) * ListVector.OFFSET_WIDTH);
-            offset2 = toOffsetBuffer.getInt(i * ListVector.OFFSET_WIDTH);
+            offset1 = listVector.getOffsetValue((start + i) );
+            offset2 = listVector.getOffsetValue(i);
 
             for (int j = 0; j < dataLength1; j++) {
               assertEquals("Different data at indexes: " + offset1 + " and " + offset2,
@@ -449,8 +474,8 @@ public class TestListVector {
   }
 
   @Test
-  public void testNestedListVector() throws Exception {
-    try (ListVector listVector = ListVector.empty("sourceVector", allocator)) {
+  public void testNestedListVector() {
+    try (BaseRepeatedValueVector listVector = makeVector("sourceVector")) {
 
       UnionListWriter listWriter = listVector.getWriter();
 
@@ -552,19 +577,16 @@ public class TestListVector {
       assertFalse(listVector.isNull(0));
       assertFalse(listVector.isNull(1));
 
-      /* check underlying offsets */
-      final ArrowBuf offsetBuffer = listVector.getOffsetBuffer();
-
       /* listVector has 2 lists at index 0 and 3 lists at index 1 */
-      assertEquals(0, offsetBuffer.getInt(0 * ListVector.OFFSET_WIDTH));
-      assertEquals(2, offsetBuffer.getInt(1 * ListVector.OFFSET_WIDTH));
-      assertEquals(5, offsetBuffer.getInt(2 * ListVector.OFFSET_WIDTH));
+      assertEquals(0, listVector.getOffsetValue(0));
+      assertEquals(2, listVector.getOffsetValue(1));
+      assertEquals(5, listVector.getOffsetValue(2));
     }
   }
 
   @Test
   public void testNestedListVector1() throws Exception {
-    try (ListVector listVector = ListVector.empty("sourceVector", allocator)) {
+    try (BaseRepeatedValueVector listVector = makeVector("sourceVector")) {
 
       MinorType listType = MinorType.LIST;
       MinorType scalarType = MinorType.BIGINT;
@@ -594,8 +616,8 @@ public class TestListVector {
   }
 
   @Test
-  public void testNestedListVector2() throws Exception {
-    try (ListVector listVector = ListVector.empty("sourceVector", allocator)) {
+  public void testNestedListVector2() {
+    try (BaseRepeatedValueVector listVector = makeVector("sourceVector")) {
       listVector.setInitialCapacity(1);
       UnionListWriter listWriter = listVector.getWriter();
       /* allocate memory */
@@ -680,19 +702,16 @@ public class TestListVector {
       assertFalse(listVector.isNull(0));
       assertFalse(listVector.isNull(1));
 
-      /* check underlying offsets */
-      final ArrowBuf offsetBuffer = listVector.getOffsetBuffer();
-
       /* listVector has 2 lists at index 0 and 3 lists at index 1 */
-      assertEquals(0, offsetBuffer.getInt(0 * ListVector.OFFSET_WIDTH));
-      assertEquals(2, offsetBuffer.getInt(1 * ListVector.OFFSET_WIDTH));
-      assertEquals(4, offsetBuffer.getInt(2 * ListVector.OFFSET_WIDTH));
+      assertEquals(0, listVector.getOffsetValue(0));
+      assertEquals(2, listVector.getOffsetValue(1));
+      assertEquals(4, listVector.getOffsetValue(2));
     }
   }
 
   @Test
   public void testGetBufferAddress() throws Exception {
-    try (ListVector listVector = ListVector.empty("vector", allocator)) {
+    try (BaseRepeatedValueVector listVector = makeVector("vector")) {
 
       UnionListWriter listWriter = listVector.getWriter();
       boolean error = false;
@@ -752,7 +771,7 @@ public class TestListVector {
 
   @Test
   public void testConsistentChildName() throws Exception {
-    try (ListVector listVector = ListVector.empty("sourceVector", allocator)) {
+    try (BaseRepeatedValueVector listVector = makeVector("sourceVector")) {
       String emptyListStr = listVector.getField().toString();
       assertTrue(emptyListStr.contains(ListVector.DATA_VECTOR_NAME));
 
@@ -764,7 +783,7 @@ public class TestListVector {
 
   @Test
   public void testSetInitialCapacity() {
-    try (final ListVector vector = ListVector.empty("", allocator)) {
+    try (final BaseRepeatedValueVector vector = makeVector("")) {
       vector.addOrGetVector(FieldType.nullable(MinorType.INT.getType()));
 
       /**
@@ -828,7 +847,7 @@ public class TestListVector {
 
   @Test
   public void testClearAndReuse() {
-    try (final ListVector vector = ListVector.empty("list", allocator)) {
+    try (final BaseRepeatedValueVector vector = makeVector("list")) {
       BigIntVector bigIntVector =
           (BigIntVector) vector.addOrGetVector(FieldType.nullable(MinorType.BIGINT.getType())).getVector();
       vector.setInitialCapacity(10);

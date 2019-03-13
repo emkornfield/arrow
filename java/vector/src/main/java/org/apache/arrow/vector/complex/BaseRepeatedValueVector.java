@@ -35,6 +35,10 @@ import org.apache.arrow.vector.FieldVector;
 import org.apache.arrow.vector.UInt4Vector;
 import org.apache.arrow.vector.ValueVector;
 import org.apache.arrow.vector.ZeroVector;
+import org.apache.arrow.vector.complex.impl.ComplexCopier;
+import org.apache.arrow.vector.complex.impl.UnionListWriter;
+import org.apache.arrow.vector.complex.reader.FieldReader;
+import org.apache.arrow.vector.complex.writer.FieldWriter;
 import org.apache.arrow.vector.types.pojo.ArrowType.ArrowTypeID;
 import org.apache.arrow.vector.types.pojo.FieldType;
 import org.apache.arrow.vector.util.CallBack;
@@ -43,29 +47,71 @@ import org.apache.arrow.vector.util.SchemaChangeRuntimeException;
 
 import io.netty.buffer.ArrowBuf;
 
-public abstract class BaseRepeatedValueVector extends BaseValueVector implements RepeatedValueVector {
+/**
+ * Base class for List Vectors.
+ *
+ * <p>Validity buffers are managed by children.  This class storeds the offset buffer stores indices into the child
+ * array (it starts at 0 and has length + 1) entries.  The last entry indicates the last index used in the child
+ * array. See arrow specification for more details.
+ */
+public abstract class BaseRepeatedValueVector extends BaseValueVector implements RepeatedValueVector, PromotableVector {
 
   public static final FieldVector DEFAULT_DATA_VECTOR = ZeroVector.INSTANCE;
   public static final String DATA_VECTOR_NAME = "$data$";
 
-  public static final byte OFFSET_WIDTH = 4;
+  protected final byte offsetWidth;
   protected ArrowBuf offsetBuffer;
   protected FieldVector vector;
   protected final CallBack callBack;
   protected int valueCount;
-  protected int offsetAllocationSizeInBytes = INITIAL_VALUE_ALLOCATION * OFFSET_WIDTH;
+  protected int offsetAllocationSizeInBytes;
 
+  /**
+   * Constructs a new object assuming a byte offset width of 4-bytes (int).
+   */
   protected BaseRepeatedValueVector(String name, BufferAllocator allocator, CallBack callBack) {
     this(name, allocator, DEFAULT_DATA_VECTOR, callBack);
   }
 
+  /**
+   * Constructs a new object assuming a byte offset width of 4-bytes (int).
+   */
   protected BaseRepeatedValueVector(String name, BufferAllocator allocator, FieldVector vector, CallBack callBack) {
+    this(name, allocator, vector, /* offsetWidth = */ (byte) 4, callBack);
+  }
+
+  protected BaseRepeatedValueVector(String name, BufferAllocator allocator, byte offsetWidth, CallBack callBack) {
+    this(name, allocator, DEFAULT_DATA_VECTOR, offsetWidth, callBack);
+  }
+
+  protected BaseRepeatedValueVector(String name, BufferAllocator allocator, FieldVector vector, byte offsetWidth,
+                                    CallBack callBack) {
     super(name, allocator);
     this.offsetBuffer = allocator.getEmpty();
     this.vector = Preconditions.checkNotNull(vector, "data vector cannot be null");
     this.callBack = callBack;
     this.valueCount = 0;
+    this.offsetWidth = offsetWidth;
+    this.offsetAllocationSizeInBytes = INITIAL_VALUE_ALLOCATION * offsetWidth;
   }
+
+  public abstract int startNewValue(int index);
+
+  public abstract void setValueCount(int valueCount);
+
+  public abstract List<ArrowBuf> getFieldBuffers();
+
+  public abstract long getValidityBufferAddress();
+
+  public abstract long getOffsetBufferAddress();
+
+  public abstract long getDataBufferAddress();
+
+  public abstract double getDensity();
+
+  public abstract void endValue(int i, int i1);
+
+  public abstract UnionListWriter getWriter();
 
   @Override
   public boolean allocateNewSafe() {
@@ -91,6 +137,22 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
     offsetBuffer.readerIndex(0);
     offsetAllocationSizeInBytes = curSize;
     offsetBuffer.setZero(0, offsetBuffer.capacity());
+  }
+
+  /**
+   * Copy a cell value from a particular index in source vector to a particular
+   * position in this vector.
+   *
+   * @param inIndex  position to copy from in source vector
+   * @param outIndex position to copy to in this vector
+   * @param from     source vector
+   */
+  public void copyFrom(int inIndex, int outIndex, BaseRepeatedValueVector from) {
+    FieldReader in = from.getReader();
+    in.setPosition(inIndex);
+    FieldWriter out = getWriter();
+    out.setPosition(outIndex);
+    ComplexCopier.copy(in, out);
   }
 
   @Override
@@ -124,7 +186,6 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
   }
 
   @Override
-  @Deprecated
   public UInt4Vector getOffsetVector() {
     throw new UnsupportedOperationException("There is no inner offset vector");
   }
@@ -136,7 +197,7 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
 
   @Override
   public void setInitialCapacity(int numRecords) {
-    offsetAllocationSizeInBytes = (numRecords + 1) * OFFSET_WIDTH;
+    offsetAllocationSizeInBytes = (numRecords + 1) * offsetWidth;
     if (vector instanceof BaseFixedWidthVector || vector instanceof BaseVariableWidthVector) {
       vector.setInitialCapacity(numRecords * RepeatedValueVector.DEFAULT_REPEAT_PER_RECORD);
     } else {
@@ -157,15 +218,15 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
    * forces the memory requirement to go beyond what was needed.
    *
    * @param numRecords value count
-   * @param density density of ListVector. Density is the average size of
-   *                list per position in the List vector. For example, a
-   *                density value of 10 implies each position in the list
-   *                vector has a list of 10 values.
-   *                A density value of 0.1 implies out of 10 positions in
-   *                the list vector, 1 position has a list of size 1 and
-   *                remaining positions are null (no lists) or empty lists.
-   *                This helps in tightly controlling the memory we provision
-   *                for inner data vector.
+   * @param density    density of ListVector. Density is the average size of
+   *                   list per position in the List vector. For example, a
+   *                   density value of 10 implies each position in the list
+   *                   vector has a list of 10 values.
+   *                   A density value of 0.1 implies out of 10 positions in
+   *                   the list vector, 1 position has a list of size 1 and
+   *                   remaining positions are null (no lists) or empty lists.
+   *                   This helps in tightly controlling the memory we provision
+   *                   for inner data vector.
    */
   @Override
   public void setInitialCapacity(int numRecords, double density) {
@@ -173,12 +234,12 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
       throw new OversizedAllocationException("Requested amount of memory is more than max allowed");
     }
 
-    offsetAllocationSizeInBytes = (numRecords + 1) * OFFSET_WIDTH;
+    offsetAllocationSizeInBytes = (numRecords + 1) * offsetWidth;
 
-    int innerValueCapacity = Math.max((int)(numRecords * density), 1);
+    int innerValueCapacity = Math.max((int) (numRecords * density), 1);
 
     if (vector instanceof DensityAwareVector) {
-      ((DensityAwareVector)vector).setInitialCapacity(innerValueCapacity, density);
+      ((DensityAwareVector) vector).setInitialCapacity(innerValueCapacity, density);
     } else {
       vector.setInitialCapacity(innerValueCapacity);
     }
@@ -194,7 +255,7 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
   }
 
   protected int getOffsetBufferValueCapacity() {
-    return (int) ((offsetBuffer.capacity() * 1.0) / OFFSET_WIDTH);
+    return (int) ((offsetBuffer.capacity() * 1.0) / offsetWidth);
   }
 
   @Override
@@ -202,7 +263,7 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
     if (getValueCount() == 0) {
       return 0;
     }
-    return ((valueCount + 1) * OFFSET_WIDTH) + vector.getBufferSize();
+    return ((valueCount + 1) * offsetWidth) + vector.getBufferSize();
   }
 
   @Override
@@ -211,7 +272,7 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
       return 0;
     }
 
-    return ((valueCount + 1) * OFFSET_WIDTH) + vector.getBufferSizeFor(valueCount);
+    return ((valueCount + 1) * offsetWidth) + vector.getBufferSizeFor(valueCount);
   }
 
   @Override
@@ -256,6 +317,7 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
 
   /**
    * Get value indicating if inner vector is set.
+   *
    * @return 1 if inner vector is explicitly set via #addOrGetVector else 0
    */
   public int size() {
@@ -269,15 +331,15 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
       // returned vector must have the same field
       created = true;
       if (callBack != null &&
-              // not a schema change if changing from ZeroVector to ZeroVector
-              (fieldType.getType().getTypeID() != ArrowTypeID.Null)) {
+          // not a schema change if changing from ZeroVector to ZeroVector
+          (fieldType.getType().getTypeID() != ArrowTypeID.Null)) {
         callBack.doWork();
       }
     }
 
     if (vector.getField().getType().getTypeID() != fieldType.getType().getTypeID()) {
       final String msg = String.format("Inner vector type mismatch. Requested type: [%s], actual type: [%s]",
-              fieldType.getType().getTypeID(), vector.getField().getType().getTypeID());
+          fieldType.getType().getTypeID(), vector.getField().getType().getTypeID());
       throw new SchemaChangeRuntimeException(msg);
     }
 
@@ -295,16 +357,19 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
     return valueCount;
   }
 
-  /* returns the value count for inner data vector for this list vector */
+  /**
+   * Returns the value count for inner data vector for this list vector.
+   */
   public int getInnerValueCount() {
     return vector.getValueCount();
   }
 
-
-  /* returns the value count for inner data vector at a particular index */
+  /**
+   * Returns the value count for inner data vector at a particular index.
+   */
   public int getInnerValueCountAt(int index) {
-    return offsetBuffer.getInt((index + 1) * OFFSET_WIDTH) -
-            offsetBuffer.getInt(index * OFFSET_WIDTH);
+    return offsetBuffer.getInt((index + 1) * offsetWidth) -
+        offsetBuffer.getInt(index * offsetWidth);
   }
 
   public boolean isNull(int index) {
@@ -315,23 +380,17 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
     return false;
   }
 
-  public int startNewValue(int index) {
-    while (index >= getOffsetBufferValueCapacity()) {
-      reallocOffsetBuffer();
-    }
-    int offset = offsetBuffer.getInt(index * OFFSET_WIDTH);
-    offsetBuffer.setInt((index + 1) * OFFSET_WIDTH, offset);
-    setValueCount(index + 1);
-    return offset;
+  public byte getOffsetWidth() {
+    return offsetWidth;
   }
 
-  public void setValueCount(int valueCount) {
-    this.valueCount = valueCount;
-    while (valueCount > getOffsetBufferValueCapacity()) {
-      reallocOffsetBuffer();
-    }
-    final int childValueCount = valueCount == 0 ? 0 :
-            offsetBuffer.getInt(valueCount * OFFSET_WIDTH);
-    vector.setValueCount(childValueCount);
-  }
+
+  public abstract int getLastSet();
+
+  public abstract void setLastSet(int i);
+
+  public abstract int getOffsetValue(int index);
+
+
+  public abstract void setOffsetValue(int index, long value);
 }

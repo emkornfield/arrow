@@ -102,6 +102,12 @@ abstract class AbstractFieldWriter extends AbstractBaseWriter implements FieldWr
   }
 
   @Override
+  public ListWriter largeList() {
+    fail("LargeList");
+    return null;
+  }
+
+  @Override
   public StructWriter struct(String name) {
     fail("Struct");
     return null;
@@ -110,6 +116,12 @@ abstract class AbstractFieldWriter extends AbstractBaseWriter implements FieldWr
   @Override
   public ListWriter list(String name) {
     fail("List");
+    return null;
+  }
+
+  @Override
+  public ListWriter largeList(String name) {
+    fail("LargeList");
     return null;
   }
 

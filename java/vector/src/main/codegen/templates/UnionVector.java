@@ -14,6 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import org.apache.arrow.vector.complex.BaseRepeatedValueVector;
+import org.apache.arrow.vector.types.Types;
+
 <@pp.dropOutputFile />
 <@pp.changeOutputFile name="/org/apache/arrow/vector/complex/UnionVector.java" />
 
@@ -63,7 +67,7 @@ public class UnionVector implements FieldVector {
   protected ArrowBuf typeBuffer;
 
   private StructVector structVector;
-  private ListVector listVector;
+  private BaseRepeatedValueVector listVector;
 
   private FieldReader reader;
 
@@ -211,10 +215,24 @@ public class UnionVector implements FieldVector {
     </#list>
   </#list>
 
-  public ListVector getList() {
+  public BaseRepeatedValueVector getList() {
     if (listVector == null) {
       int vectorCount = internalStruct.size();
       listVector = addOrGet(MinorType.LIST, ListVector.class);
+      if (internalStruct.size() > vectorCount) {
+        listVector.allocateNew();
+        if (callBack != null) {
+          callBack.doWork();
+        }
+      }
+    }
+    return listVector;
+  }
+
+  public BaseRepeatedValueVector getLargeList() {
+    if (listVector == null) {
+      int vectorCount = internalStruct.size();
+      listVector = addOrGet(Types.MinorType.LARGE_LIST, LargeListVector.class);
       if (internalStruct.size() > vectorCount) {
         listVector.allocateNew();
         if (callBack != null) {

@@ -116,7 +116,7 @@ public class TestVectorReAlloc {
 
       vector.reAlloc();
       assertEquals(1024, vector.getValueCapacity());
-      assertEquals(0, vector.getOffsetBuffer().getInt(2014 * ListVector.OFFSET_WIDTH));
+      assertEquals(0, vector.getOffsetBuffer().getInt(2014 * vector.getOffsetWidth()));
     }
   }
 

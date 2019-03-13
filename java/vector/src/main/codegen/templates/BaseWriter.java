@@ -61,6 +61,7 @@ public interface BaseWriter extends AutoCloseable, Positionable {
     void copyReaderToField(String name, FieldReader reader);
     StructWriter struct(String name);
     ListWriter list(String name);
+    ListWriter largeList(String name);
     void start();
     void end();
   }
@@ -70,6 +71,7 @@ public interface BaseWriter extends AutoCloseable, Positionable {
     void endList();
     StructWriter struct();
     ListWriter list();
+    ListWriter largeList();
     void copyReader(FieldReader reader);
 
     <#list vv.types as type><#list type.minor as minor>

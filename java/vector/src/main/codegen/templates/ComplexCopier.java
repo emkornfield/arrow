@@ -44,7 +44,15 @@ public class ComplexCopier {
     final MinorType mt = reader.getMinorType();
 
       switch (mt) {
-
+       case LARGE_LIST:
+         if (reader.isSet()) {
+           writer.startList();
+           while (reader.next()) {
+             writeValue(reader.reader(), getListWriterForReader(reader.reader(), writer));
+           }
+           writer.endList();
+         }
+         break;
       case LIST:
         if (reader.isSet()) {
           writer.startList();
@@ -103,6 +111,8 @@ public class ComplexCopier {
       return (FieldWriter) writer.struct(name);
     case LIST:
       return (FieldWriter) writer.list(name);
+    case LARGE_LIST:
+      return (FieldWriter) writer.largeList(name);
     default:
       throw new UnsupportedOperationException(reader.getMinorType().toString());
     }
@@ -122,6 +132,8 @@ public class ComplexCopier {
       return (FieldWriter) writer.struct();
     case LIST:
       return (FieldWriter) writer.list();
+    case LARGE_LIST:
+      return (FieldWriter) writer.largeList();
     default:
       throw new UnsupportedOperationException(reader.getMinorType().toString());
     }

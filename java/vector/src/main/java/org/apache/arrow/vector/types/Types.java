@@ -57,6 +57,7 @@ import org.apache.arrow.vector.VarBinaryVector;
 import org.apache.arrow.vector.VarCharVector;
 import org.apache.arrow.vector.ZeroVector;
 import org.apache.arrow.vector.complex.FixedSizeListVector;
+import org.apache.arrow.vector.complex.LargeListVector;
 import org.apache.arrow.vector.complex.ListVector;
 import org.apache.arrow.vector.complex.StructVector;
 import org.apache.arrow.vector.complex.UnionVector;
@@ -106,6 +107,7 @@ import org.apache.arrow.vector.types.pojo.ArrowType.FixedSizeList;
 import org.apache.arrow.vector.types.pojo.ArrowType.FloatingPoint;
 import org.apache.arrow.vector.types.pojo.ArrowType.Int;
 import org.apache.arrow.vector.types.pojo.ArrowType.Interval;
+import org.apache.arrow.vector.types.pojo.ArrowType.LargeList;
 import org.apache.arrow.vector.types.pojo.ArrowType.List;
 import org.apache.arrow.vector.types.pojo.ArrowType.Null;
 import org.apache.arrow.vector.types.pojo.ArrowType.Struct;
@@ -560,6 +562,21 @@ public class Types {
         return new UInt8WriterImpl((UInt8Vector) vector);
       }
     },
+    LARGE_LIST(LargeList.INSTANCE) {
+      @Override
+      public FieldVector getNewVector(
+          String name,
+          FieldType fieldType,
+          BufferAllocator allocator,
+          CallBack schemaChangeCallback) {
+        return new LargeListVector(name, allocator, fieldType, schemaChangeCallback);
+      }
+
+      @Override
+      public FieldWriter getNewFieldWriter(ValueVector vector) {
+        return new UnionListWriter((ListVector) vector);
+      }
+    },
     LIST(List.INSTANCE) {
       @Override
       public FieldVector getNewVector(
@@ -708,6 +725,11 @@ public class Types {
       @Override
       public MinorType visit(List type) {
         return MinorType.LIST;
+      }
+
+      @Override
+      public MinorType visit(LargeList type) {
+        return MinorType.LARGE_LIST;
       }
 
       @Override

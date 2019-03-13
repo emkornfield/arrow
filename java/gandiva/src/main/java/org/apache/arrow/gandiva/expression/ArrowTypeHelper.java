@@ -270,6 +270,9 @@ public class ArrowTypeHelper {
       case Type.Map: { // 17
         break;
       }
+      case Type.LargeList: { // 18
+        break;
+      }
       default: {
         break;
       }

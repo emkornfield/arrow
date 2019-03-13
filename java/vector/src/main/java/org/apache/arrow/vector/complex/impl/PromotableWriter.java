@@ -23,6 +23,7 @@ import org.apache.arrow.vector.FieldVector;
 import org.apache.arrow.vector.ValueVector;
 import org.apache.arrow.vector.ZeroVector;
 import org.apache.arrow.vector.complex.AbstractStructVector;
+import org.apache.arrow.vector.complex.BaseRepeatedValueVector;
 import org.apache.arrow.vector.complex.ListVector;
 import org.apache.arrow.vector.complex.StructVector;
 import org.apache.arrow.vector.complex.UnionVector;
@@ -45,7 +46,7 @@ import io.netty.buffer.ArrowBuf;
 public class PromotableWriter extends AbstractPromotableFieldWriter {
 
   private final AbstractStructVector parentContainer;
-  private final ListVector listVector;
+  private final BaseRepeatedValueVector listVector;
   private final NullableStructWriterFactory nullableStructWriterFactory;
   private int position;
   private static final int MAX_DECIMAL_PRECISION = 38;
@@ -75,13 +76,13 @@ public class PromotableWriter extends AbstractPromotableFieldWriter {
     init(v);
   }
 
-  public PromotableWriter(ValueVector v, ListVector listVector) {
+  public PromotableWriter(ValueVector v, BaseRepeatedValueVector listVector) {
     this(v, listVector, NullableStructWriterFactory.getNullableStructWriterFactoryInstance());
   }
 
   public PromotableWriter(
       ValueVector v,
-      ListVector listVector,
+      BaseRepeatedValueVector listVector,
       NullableStructWriterFactory nullableStructWriterFactory) {
     this.listVector = listVector;
     this.parentContainer = null;

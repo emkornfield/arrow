@@ -64,6 +64,9 @@ public class ${mode}StructWriter extends AbstractFieldWriter {
       case LIST:
         list(child.getName());
         break;
+    case LARGE_LIST:
+      largeList(child.getName());
+    break;
       case UNION:
         UnionWriter writer = new UnionWriter(container.addOrGet(child.getName(), FieldType.nullable(MinorType.UNION.getType()), UnionVector.class), getNullableStructWriterFactory());
         fields.put(handleCase(child.getName()), writer);
@@ -180,6 +183,28 @@ public class ${mode}StructWriter extends AbstractFieldWriter {
     }
     return writer;
   }
+
+  @Override
+  public ListWriter largeList(String name){
+    String finalName=handleCase(name);
+    FieldWriter writer=fields.get(finalName);
+    int vectorCount=container.size();
+    if(writer==null){
+    writer=new PromotableWriter(container.addOrGet(name,FieldType.nullable(MinorType.LARGE_LIST.getType()),
+     LargeListVector.class), container, getNullableStructWriterFactory());
+    if(container.size()>vectorCount){
+    writer.allocate();
+    }
+    writer.setPosition(idx());
+    fields.put(finalName,writer);
+    }else{
+    if(writer instanceof PromotableWriter){
+    // ensure writers are initialized
+    ((PromotableWriter)writer).getWriter(MinorType.LARGE_LIST);
+    }
+    }
+    return writer;
+    }
 
   public void setValueCount(int count) {
     container.setValueCount(count);

@@ -18,7 +18,7 @@
 package org.apache.arrow.vector.complex.impl;
 
 import org.apache.arrow.vector.ValueVector;
-import org.apache.arrow.vector.complex.ListVector;
+import org.apache.arrow.vector.complex.BaseRepeatedValueVector;
 import org.apache.arrow.vector.complex.reader.FieldReader;
 import org.apache.arrow.vector.complex.writer.BaseWriter.ListWriter;
 import org.apache.arrow.vector.complex.writer.FieldWriter;
@@ -28,11 +28,11 @@ import org.apache.arrow.vector.types.pojo.Field;
 
 public class UnionListReader extends AbstractFieldReader {
 
-  private ListVector vector;
+  private BaseRepeatedValueVector vector;
   private ValueVector data;
   private static final int OFFSET_WIDTH = 4;
 
-  public UnionListReader(ListVector vector) {
+  public UnionListReader(BaseRepeatedValueVector vector) {
     this.vector = vector;
     this.data = vector.getDataVector();
   }
@@ -53,8 +53,8 @@ public class UnionListReader extends AbstractFieldReader {
   @Override
   public void setPosition(int index) {
     super.setPosition(index);
-    currentOffset = vector.getOffsetBuffer().getInt(index * OFFSET_WIDTH) - 1;
-    maxOffset = vector.getOffsetBuffer().getInt((index + 1) * OFFSET_WIDTH);
+    currentOffset = vector.getOffsetValue(index ) - 1;
+    maxOffset = vector.getOffsetValue((index + 1) );
   }
 
   @Override
@@ -69,7 +69,7 @@ public class UnionListReader extends AbstractFieldReader {
 
   @Override
   public MinorType getMinorType() {
-    return MinorType.LIST;
+    return vector.getMinorType();
   }
 
   @Override

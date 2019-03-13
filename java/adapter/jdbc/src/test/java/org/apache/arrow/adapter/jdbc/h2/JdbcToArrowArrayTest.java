@@ -217,11 +217,10 @@ public class JdbcToArrowArrayTest {
 
   private void assertIntegerVectorEquals(ListVector listVector, int rowCount, Integer[][] expectedValues) {
     IntVector vector = (IntVector) listVector.getDataVector();
-    ArrowBuf offsetBuffer = listVector.getOffsetBuffer();
 
     int prevOffset = 0;
     for (int row = 0; row < rowCount; ++row) {
-      int offset = offsetBuffer.getInt((row + 1) * ListVector.OFFSET_WIDTH);
+      int offset = listVector.getOffsetValue((row + 1) );
 
       if (expectedValues[row] == null) {
         assertEquals(0, listVector.isSet(row));
@@ -246,7 +245,7 @@ public class JdbcToArrowArrayTest {
 
     int prevOffset = 0;
     for (int row = 0; row < rowCount; ++row) {
-      int offset = offsetBuffer.getInt((row + 1) * ListVector.OFFSET_WIDTH);
+      int offset = listVector.getOffsetValue((row + 1));
 
       if (expectedValues[row] == null) {
         assertEquals(0, listVector.isSet(row));
@@ -271,7 +270,7 @@ public class JdbcToArrowArrayTest {
 
     int prevOffset = 0;
     for (int row = 0; row < rowCount; ++row) {
-      int offset = offsetBuffer.getInt((row + 1) * ListVector.OFFSET_WIDTH);
+      int offset = listVector.getOffsetValue((row + 1));
 
       if (expectedValues[row] == null) {
         assertEquals(0, listVector.isSet(row));
