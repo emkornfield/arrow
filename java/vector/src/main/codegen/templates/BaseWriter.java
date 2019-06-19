@@ -61,6 +61,34 @@ public interface BaseWriter extends AutoCloseable, Positionable {
     void copyReaderToField(String name, FieldReader reader);
     StructWriter struct(String name);
     ListWriter list(String name);
+    GeneralizedUnionWriter union(String name);
+    void start();
+    void end();
+  }
+
+  /**
+   * Writer for Union implementations that can multiple fields for the
+   * same type.
+   */
+  public interface GeneralizedUnionWriter extends BaseWriter {
+
+    Field getField();
+
+    <#list vv.types as type><#list type.minor as minor>
+    <#assign lowerName = minor.class?uncap_first />
+    <#if lowerName == "int" ><#assign lowerName = "integer" /></#if>
+    <#assign upperName = minor.class?upper_case />
+    <#assign capName = minor.class?cap_first />
+    <#if minor.typeParams?? >
+    ${capName}Writer ${lowerName}(String name<#list minor.typeParams as typeParam>, ${typeParam.type} ${typeParam.name}</#list>);
+    </#if>
+    ${capName}Writer ${lowerName}(String name);
+    </#list></#list>
+
+    void copyReaderToField(String name, FieldReader reader);
+    StructWriter struct(String name);
+    GeneralizedUnionWriter union(String name);
+    ListWriter list(String name);
     void start();
     void end();
   }
@@ -90,6 +118,7 @@ public interface BaseWriter extends AutoCloseable, Positionable {
     void copyReader(FieldReader reader);
     StructWriter rootAsStruct();
     ListWriter rootAsList();
+    GeneralizedUnionWriter rootAsUnion();
 
     void setPosition(int index);
     void setValueCount(int count);

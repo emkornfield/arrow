@@ -31,6 +31,9 @@ import org.apache.arrow.vector.types.Types.MinorType;
 
 /*
  * This class is generated using freemarker and the ${.template_name} template.
+ *
+ * Writer for a Sparse Union that only contains at most 1 field per logical
+ * type.
  */
 @SuppressWarnings("unused")
 public class UnionWriter extends AbstractFieldWriter implements FieldWriter {
