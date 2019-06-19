@@ -34,10 +34,10 @@ import java.util.stream.Collectors;
 import org.apache.arrow.flatbuf.KeyValue;
 import org.apache.arrow.flatbuf.Type;
 import org.apache.arrow.memory.BufferAllocator;
+import org.apache.arrow.shaded.google.flatbuffers.FlatBufferBuilder;
 import org.apache.arrow.vector.FieldVector;
 import org.apache.arrow.vector.TypeLayout;
 import org.apache.arrow.vector.types.pojo.ArrowType.ExtensionType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.flatbuffers.FlatBufferBuilder;
 
 /**
  * A POJO abstraction for the Flatbuffer description of Vector Type.

@@ -19,7 +19,7 @@ package org.apache.arrow.vector.ipc.message;
 
 import org.apache.arrow.flatbuf.FieldNode;
 
-import com.google.flatbuffers.FlatBufferBuilder;
+import org.apache.arrow.shaded.google.flatbuffers.FlatBufferBuilder;
 
 /**
  * Metadata about Vectors/Arrays that is written to a channel.
