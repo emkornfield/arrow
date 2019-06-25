@@ -36,6 +36,10 @@ package org.apache.arrow.vector.complex.impl;
  * This class is generated using freemarker and the ${.template_name} template.
  */
 
+/**
+ * Provides the ability to write any type (i.e. a Union) as part
+ * of a list.
+ */
 @SuppressWarnings("unused")
 public class UnionListWriter extends AbstractFieldWriter {
 

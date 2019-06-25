@@ -17,6 +17,7 @@
 
 import io.netty.buffer.ArrowBuf;
 import org.apache.arrow.memory.ReferenceManager;
+import org.apache.arrow.util.Preconditions;
 
 <@pp.dropOutputFile />
 <@pp.changeOutputFile name="/org/apache/arrow/vector/complex/UnionVector.java" />
@@ -65,18 +66,54 @@ public class UnionVector implements FieldVector {
 
   NonNullableStructVector internalStruct;
   protected ArrowBuf typeBuffer;
-
-  private StructVector structVector;
-  private ListVector listVector;
-
   private FieldReader reader;
-
-  private int singleType = 0;
-  private ValueVector singleVector;
-
   private static final byte TYPE_WIDTH = 1;
+  private UniqueTypeCache uniqueTypeCache;
   private final CallBack callBack;
   private int typeBufferAllocationSizeInBytes;
+
+  private static class SingleValueCache {
+    private StructVector structVector;
+    private ListVector listVector;
+
+    private String fieldName(MinorType type) {
+      return type.name().toLowerCase();
+    }
+
+    private FieldType fieldType(MinorType type) {
+      return FieldType.nullable(type.getType());
+    }
+
+
+
+     <#list vv.types as type>
+    <#list type.minor as minor>
+      <#assign name = minor.class?cap_first />
+      <#assign fields = minor.fields!type.fields />
+      <#assign uncappedName = name?uncap_first/>
+      <#assign lowerCaseName = name?lower_case/>
+      <#if !minor.typeParams?? >
+
+    private ${name}Vector ${uncappedName}Vector;
+         </#if>
+    </#list>
+  </#list>
+  }
+
+  public StructVector getStruct() {
+    Preconditions.checkArgument(uniqueTypeCache != null, "Union is in multivalue mode.")
+    if (uniqueTypeCache.structVector == null) {
+      int vectorCount = internalStruct.size();
+      uniqueTypeCache.structVector = addOrGet(MinorType.STRUCT, StructVector.class);
+      if (internalStruct.size() > vectorCount) {
+        uniqueTypeCache.structVector.allocateNew();
+        if (callBack != null) {
+          callBack.doWork();
+        }
+      }
+    }
+    return uniqueTypeCache.structVector;
+  }
 
   public UnionVector(String name, BufferAllocator allocator, CallBack callBack) {
     this.name = name;
@@ -84,6 +121,7 @@ public class UnionVector implements FieldVector {
     this.internalStruct = new NonNullableStructVector("internal", allocator, new FieldType(false, ArrowType.Struct.INSTANCE, null, null), callBack);
     this.typeBuffer = allocator.getEmpty();
     this.callBack = callBack;
+    this.uniqueTypeCache = new UniqueTypeCache();
     this.typeBufferAllocationSizeInBytes = BaseValueVector.INITIAL_VALUE_ALLOCATION * TYPE_WIDTH;
   }
 
@@ -139,13 +177,6 @@ public class UnionVector implements FieldVector {
      throw new UnsupportedOperationException("There are no inner vectors. Use geFieldBuffers");
   }
 
-  private String fieldName(MinorType type) {
-    return type.name().toLowerCase();
-  }
-
-  private FieldType fieldType(MinorType type) {
-    return FieldType.nullable(type.getType());
-  }
 
   private <T extends FieldVector> T addOrGet(MinorType minorType, Class<T> c) {
     return internalStruct.addOrGet(fieldName(minorType), fieldType(minorType), c);
@@ -175,19 +206,7 @@ public class UnionVector implements FieldVector {
   @Override
   public ArrowBuf getOffsetBuffer() { throw new UnsupportedOperationException(); }
 
-  public StructVector getStruct() {
-    if (structVector == null) {
-      int vectorCount = internalStruct.size();
-      structVector = addOrGet(MinorType.STRUCT, StructVector.class);
-      if (internalStruct.size() > vectorCount) {
-        structVector.allocateNew();
-        if (callBack != null) {
-          callBack.doWork();
-        }
-      }
-    }
-    return structVector;
-  }
+
   <#list vv.types as type>
     <#list type.minor as minor>
       <#assign name = minor.class?cap_first />
@@ -196,12 +215,25 @@ public class UnionVector implements FieldVector {
       <#assign lowerCaseName = name?lower_case/>
       <#if !minor.typeParams?? >
 
-  private ${name}Vector ${uncappedName}Vector;
-
   public ${name}Vector get${name}Vector() {
+    Preconditions.checkState(uniqueTypeCache != null, "In multi-type union mode.");
     if (${uncappedName}Vector == null) {
       int vectorCount = internalStruct.size();
-      ${uncappedName}Vector = addOrGet(MinorType.${name?upper_case}, ${name}Vector.class);
+      uniqueTypeCache.${uncappedName}Vector = addOrGet(MinorType.${name?upper_case}, ${name}Vector.class);
+      if (internalStruct.size() > vectorCount) {
+        uniqueTypeCache.${uncappedName}Vector.allocateNew();
+        if (callBack != null) {
+          callBack.doWork();
+        }
+      }
+    }
+    return uniqueTypeCache.${uncappedName}Vector;
+  }
+
+  public ${name}Vector get${name}Vector(String name) {
+    if (${uncappedName}Vector == null) {
+      int vectorCount = internalStruct.size();
+      ${name}Vector ${uncappedName}Vector = addOrGet(MinorType.${name?upper_case}, ${name}Vector.class, String name);
       if (internalStruct.size() > vectorCount) {
         ${uncappedName}Vector.allocateNew();
         if (callBack != null) {
@@ -216,9 +248,25 @@ public class UnionVector implements FieldVector {
   </#list>
 
   public ListVector getList() {
+    Preconditions.checkState(uniqueTypeCache != null, "In multi-type union mode.");
     if (listVector == null) {
       int vectorCount = internalStruct.size();
-      listVector = addOrGet(MinorType.LIST, ListVector.class);
+      uniqueTypeCache.listVector = addOrGet(MinorType.LIST, ListVector.class);
+      if (internalStruct.size() > vectorCount) {
+        uniqueTypeCache.listVector.allocateNew();
+        if (callBack != null) {
+          callBack.doWork();
+        }
+      }
+    }
+    return uniqueTypeCache.listVector;
+  }
+
+  public ListVector getList(String name) {
+    Preconditions.checkState(uniqueTypeCache != null, "In multi-type union mode.");
+    if (listVector == null) {
+      int vectorCount = internalStruct.size();
+      ListVector listVector = addOrGet(MinorType.LIST, ListVector.class, name);
       if (internalStruct.size() > vectorCount) {
         listVector.allocateNew();
         if (callBack != null) {
@@ -380,6 +428,17 @@ public class UnionVector implements FieldVector {
     return newVector;
   }
 
+  public FieldVector addVector(FieldVector v, String name) {
+    Preconditions.checkState(internalStruct.getChild(name) == null, String.format("%s vector already exists", name));
+    final FieldVector newVector = internalStruct.addOrGet(name, v.getField().getFieldType(), v.getClass());
+    v.makeTransferPair(newVector).transfer();
+    internalStruct.putChild(name, newVector);
+    if (callBack != null) {
+      callBack.doWork();
+    }
+    return newVector;
+  }
+
   private class TransferImpl implements TransferPair {
     private final TransferPair internalStructVectorTransferPair;
     private final UnionVector to;
@@ -438,6 +497,13 @@ public class UnionVector implements FieldVector {
   public FieldWriter getWriter() {
     if (writer == null) {
       writer = new UnionWriter(this);
+    }
+    return writer;
+  }
+
+  public FieldWriter getGeneralizedWriter() {
+    if (writer == null) {
+      writer = new GeneralizedUnionWriter(this);
     }
     return writer;
   }
@@ -516,9 +582,6 @@ public class UnionVector implements FieldVector {
       return null;
     }
 
-    public void get(int index, ComplexHolder holder) {
-    }
-
     public void get(int index, UnionHolder holder) {
       FieldReader reader = new UnionReader(UnionVector.this);
       reader.setPosition(index);
@@ -592,6 +655,47 @@ public class UnionVector implements FieldVector {
         throw new UnsupportedOperationException();
       }
     }
+
+  public void setSafe(int index, GeneralizedUnionHolder holder) {
+    FieldReader reader = holder.reader;
+    if (writer == null) {
+      generalizedWriter = new GeneralizedUnionWriter(UnionVector.this);
+    }
+    writer.setPosition(index);
+    byte ordinal = reader.getTypeOrdinal()
+    MinorType type = getMinorTypeForOrdinal(ordinal);
+    switch (type) {
+      <#list vv.types as type>
+        <#list type.minor as minor>
+          <#assign name = minor.class?cap_first />
+          <#assign fields = minor.fields!type.fields />
+          <#assign uncappedName = name?uncap_first/>
+          <#if !minor.typeParams?? >
+      case ${name?upper_case}:
+      Nullable${name}Holder ${uncappedName}Holder = new Nullable${name}Holder();
+      reader.read(${uncappedName}Holder);
+      setSafe(index, ${uncappedName}Holder);
+      break;
+          </#if>
+        </#list>
+      </#list>
+      case STRUCT: {
+        ComplexCopier.copy(reader, writer);
+        break;
+      }
+      case LIST: {
+        ComplexCopier.copy(reader, writer);
+        break;
+      }
+      case UNION: {
+        ComplexCopier.copy(reader, writer);
+        break;
+      }
+      default:
+        throw new UnsupportedOperationException();
+    }
+  }
+
     <#list vv.types as type>
       <#list type.minor as minor>
         <#assign name = minor.class?cap_first />

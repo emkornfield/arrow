@@ -166,7 +166,7 @@ public class ComplexWriterImpl extends AbstractFieldWriter implements ComplexWri
     return structRoot;
   }
 
-  @Override
+
   public StructWriter rootAsStruct() {
     switch (mode) {
 
@@ -184,7 +184,6 @@ public class ComplexWriterImpl extends AbstractFieldWriter implements ComplexWri
       default:
         check(Mode.INIT, Mode.STRUCT);
     }
-
     return structRoot;
   }
 

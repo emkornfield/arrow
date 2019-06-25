@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+import org.apache.arrow.vector.complex.writer.BaseWriter;
+
 <@pp.dropOutputFile />
 <@pp.changeOutputFile name="/org/apache/arrow/vector/complex/impl/AbstractFieldWriter.java" />
 
@@ -124,6 +126,12 @@ abstract class AbstractFieldWriter extends AbstractBaseWriter implements FieldWr
   @Override
   public ListWriter list(String name) {
     fail("List");
+    return null;
+  }
+
+  @Override
+  public GeneralizedUnionWriter union(String name) {
+    fail("Union");
     return null;
   }
 
