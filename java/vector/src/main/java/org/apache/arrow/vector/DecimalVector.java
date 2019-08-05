@@ -240,7 +240,7 @@ public class DecimalVector extends BaseFixedWidthVector {
    * @param start    start index of data in the buffer
    * @param buffer   ArrowBuf containing decimal value.
    */
-  public void set(long index, int start, ArrowBuf buffer) {
+  public void set(long index, long start, ArrowBuf buffer) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     valueBuffer.setBytes(index * TYPE_WIDTH, buffer, start, TYPE_WIDTH);
   }
@@ -380,7 +380,7 @@ public class DecimalVector extends BaseFixedWidthVector {
   }
 
   /**
-   * Same as {@link #set(long, int, ArrowBuf)} except that it handles the
+   * Same as {@link #set(long, long, ArrowBuf)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
@@ -388,7 +388,7 @@ public class DecimalVector extends BaseFixedWidthVector {
    * @param start    start index of data in the buffer
    * @param buffer   ArrowBuf containing decimal value.
    */
-  public void setSafe(long index, int start, ArrowBuf buffer) {
+  public void setSafe(long index, long start, ArrowBuf buffer) {
     handleSafe(index);
     set(index, start, buffer);
   }
@@ -466,7 +466,7 @@ public class DecimalVector extends BaseFixedWidthVector {
    * @param start start position of the value in the buffer
    * @param buffer buffer containing the value to be stored in the vector
    */
-  public void set(long index, int isSet, int start, ArrowBuf buffer) {
+  public void set(long index, int isSet, long start, ArrowBuf buffer) {
     if (isSet > 0) {
       set(index, start, buffer);
     } else {
@@ -475,7 +475,7 @@ public class DecimalVector extends BaseFixedWidthVector {
   }
 
   /**
-   * Same as {@link #set(long, int, int, ArrowBuf)} except that it handles
+   * Same as {@link #set(long, int, long, ArrowBuf)} except that it handles
    * the case when the position of new value is beyond the current value
    * capacity of the vector.
    *
@@ -484,7 +484,7 @@ public class DecimalVector extends BaseFixedWidthVector {
    * @param start start position of the value in the buffer
    * @param buffer buffer containing the value to be stored in the vector
    */
-  public void setSafe(long index, int isSet, int start, ArrowBuf buffer) {
+  public void setSafe(long index, int isSet, long start, ArrowBuf buffer) {
     handleSafe(index);
     set(index, isSet, start, buffer);
   }
