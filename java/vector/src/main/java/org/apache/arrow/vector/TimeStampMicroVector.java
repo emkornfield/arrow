@@ -110,7 +110,7 @@ public class TimeStampMicroVector extends TimeStampVector {
    *
    * @param index   position of element
    */
-  public void get(int index, NullableTimeStampMicroHolder holder) {
+  public void get(long index, NullableTimeStampMicroHolder holder) {
     if (isSet(index) == 0) {
       holder.isSet = 0;
       return;
@@ -150,7 +150,7 @@ public class TimeStampMicroVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void set(int index, NullableTimeStampMicroHolder holder) throws IllegalArgumentException {
+  public void set(long index, NullableTimeStampMicroHolder holder) throws IllegalArgumentException {
     if (holder.isSet < 0) {
       throw new IllegalArgumentException();
     } else if (holder.isSet > 0) {
@@ -167,7 +167,7 @@ public class TimeStampMicroVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void set(int index, TimeStampMicroHolder holder) {
+  public void set(long index, TimeStampMicroHolder holder) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, holder.value);
   }
@@ -180,7 +180,7 @@ public class TimeStampMicroVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void setSafe(int index, NullableTimeStampMicroHolder holder) throws IllegalArgumentException {
+  public void setSafe(long index, NullableTimeStampMicroHolder holder) throws IllegalArgumentException {
     handleSafe(index);
     set(index, holder);
   }
@@ -193,7 +193,7 @@ public class TimeStampMicroVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void setSafe(int index, TimeStampMicroHolder holder) {
+  public void setSafe(long index, TimeStampMicroHolder holder) {
     handleSafe(index);
     set(index, holder);
   }

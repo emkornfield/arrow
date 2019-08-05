@@ -112,7 +112,7 @@ public class TimeMilliVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @return element at given index
    */
-  public int get(int index) throws IllegalStateException {
+  public int get(long index) throws IllegalStateException {
     if (NULL_CHECKING_ENABLED && isSet(index) == 0) {
       throw new IllegalStateException("Value at index is null");
     }
@@ -126,7 +126,7 @@ public class TimeMilliVector extends BaseFixedWidthVector {
    *
    * @param index   position of element
    */
-  public void get(int index, NullableTimeMilliHolder holder) {
+  public void get(long index, NullableTimeMilliHolder holder) {
     if (isSet(index) == 0) {
       holder.isSet = 0;
       return;
@@ -181,7 +181,7 @@ public class TimeMilliVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void set(int index, NullableTimeMilliHolder holder) throws IllegalArgumentException {
+  public void set(long index, NullableTimeMilliHolder holder) throws IllegalArgumentException {
     if (holder.isSet < 0) {
       throw new IllegalArgumentException();
     } else if (holder.isSet > 0) {
@@ -198,7 +198,7 @@ public class TimeMilliVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void set(int index, TimeMilliHolder holder) {
+  public void set(long index, TimeMilliHolder holder) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, holder.value);
   }
@@ -224,7 +224,7 @@ public class TimeMilliVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void setSafe(int index, NullableTimeMilliHolder holder) throws IllegalArgumentException {
+  public void setSafe(long index, NullableTimeMilliHolder holder) throws IllegalArgumentException {
     handleSafe(index);
     set(index, holder);
   }
@@ -237,7 +237,7 @@ public class TimeMilliVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void setSafe(int index, TimeMilliHolder holder) {
+  public void setSafe(long index, TimeMilliHolder holder) {
     handleSafe(index);
     set(index, holder);
   }

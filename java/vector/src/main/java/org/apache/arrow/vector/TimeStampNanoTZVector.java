@@ -114,7 +114,7 @@ public class TimeStampNanoTZVector extends TimeStampVector {
    *
    * @param index   position of element
    */
-  public void get(int index, NullableTimeStampNanoTZHolder holder) {
+  public void get(long index, NullableTimeStampNanoTZHolder holder) {
     if (isSet(index) == 0) {
       holder.isSet = 0;
       return;
@@ -153,7 +153,7 @@ public class TimeStampNanoTZVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void set(int index, NullableTimeStampNanoTZHolder holder) throws IllegalArgumentException {
+  public void set(long index, NullableTimeStampNanoTZHolder holder) throws IllegalArgumentException {
     if (holder.isSet < 0) {
       throw new IllegalArgumentException();
     } else if (holder.isSet > 0) {
@@ -170,7 +170,7 @@ public class TimeStampNanoTZVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void set(int index, TimeStampNanoTZHolder holder) {
+  public void set(long index, TimeStampNanoTZHolder holder) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, holder.value);
   }
@@ -184,7 +184,7 @@ public class TimeStampNanoTZVector extends TimeStampVector {
    * @param holder  nullable data holder for value of element
    */
   public void setSafe(
-      int index,
+      long index,
       NullableTimeStampNanoTZHolder holder) throws IllegalArgumentException {
     handleSafe(index);
     set(index, holder);
@@ -198,7 +198,7 @@ public class TimeStampNanoTZVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void setSafe(int index, TimeStampNanoTZHolder holder) {
+  public void setSafe(long index, TimeStampNanoTZHolder holder) {
     handleSafe(index);
     set(index, holder);
   }

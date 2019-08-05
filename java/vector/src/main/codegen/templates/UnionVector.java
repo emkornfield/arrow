@@ -63,7 +63,7 @@ public class UnionVector implements FieldVector {
 
   private String name;
   private BufferAllocator allocator;
-  int valueCount;
+  long valueCount;
 
   NonNullableStructVector internalStruct;
   protected ArrowBuf typeBuffer;
@@ -77,7 +77,7 @@ public class UnionVector implements FieldVector {
   private ValueVector singleVector;
 
   private final CallBack callBack;
-  private int typeBufferAllocationSizeInBytes;
+  private long typeBufferAllocationSizeInBytes;
 
   private static final byte TYPE_WIDTH = 1;
   private static final FieldType INTERNAL_STRUCT_TYPE = new FieldType(false /*nullable*/,
@@ -183,7 +183,7 @@ public class UnionVector implements FieldVector {
 
   public StructVector getStruct() {
     if (structVector == null) {
-      int vectorCount = internalStruct.size();
+      long vectorCount = internalStruct.size();
       structVector = addOrGet(MinorType.STRUCT, StructVector.class);
       if (internalStruct.size() > vectorCount) {
         structVector.allocateNew();
@@ -206,7 +206,7 @@ public class UnionVector implements FieldVector {
 
   public ${name}Vector get${name}Vector() {
     if (${uncappedName}Vector == null) {
-      int vectorCount = internalStruct.size();
+      long vectorCount = internalStruct.size();
       ${uncappedName}Vector = addOrGet(MinorType.${name?upper_case}, ${name}Vector.class);
       if (internalStruct.size() > vectorCount) {
         ${uncappedName}Vector.allocateNew();
@@ -223,7 +223,7 @@ public class UnionVector implements FieldVector {
 
   public ListVector getList() {
     if (listVector == null) {
-      int vectorCount = internalStruct.size();
+      long vectorCount = internalStruct.size();
       listVector = addOrGet(MinorType.LIST, ListVector.class);
       if (internalStruct.size() > vectorCount) {
         listVector.allocateNew();
@@ -281,7 +281,7 @@ public class UnionVector implements FieldVector {
   }
 
   private void reallocTypeBuffer() {
-    final int currentBufferCapacity = typeBuffer.capacity();
+    final long currentBufferCapacity = typeBuffer.capacity();
     long baseSize  = typeBufferAllocationSizeInBytes;
 
     if (baseSize < (long)currentBufferCapacity) {
@@ -305,10 +305,10 @@ public class UnionVector implements FieldVector {
   }
 
   @Override
-  public void setInitialCapacity(int numRecords) { }
+  public void setInitialCapacity(long numRecords) { }
 
   @Override
-  public int getValueCapacity() {
+  public long getValueCapacity() {
     return Math.min(getTypeBufferValueCapacity(), internalStruct.getValueCapacity());
   }
 
@@ -365,7 +365,7 @@ public class UnionVector implements FieldVector {
   }
 
   @Override
-  public void copyFrom(int inIndex, int outIndex, ValueVector from) {
+  public void copyFrom(long inIndex, long outIndex, ValueVector from) {
     UnionVector fromCast = (UnionVector) from;
     fromCast.getReader().setPosition(inIndex);
     getWriter().setPosition(outIndex);
@@ -373,7 +373,7 @@ public class UnionVector implements FieldVector {
   }
 
   @Override
-  public void copyFromSafe(int inIndex, int outIndex, ValueVector from) {
+  public void copyFromSafe(long inIndex, long outIndex, ValueVector from) {
     copyFrom(inIndex, outIndex, from);
   }
 
@@ -452,14 +452,14 @@ public class UnionVector implements FieldVector {
   }
 
   @Override
-  public int getBufferSize() {
+  public long getBufferSize() {
     if (valueCount == 0) { return 0; }
 
     return (valueCount * TYPE_WIDTH) + internalStruct.getBufferSize();
   }
 
   @Override
-  public int getBufferSizeFor(final int valueCount) {
+  public long getBufferSizeFor(final long valueCount) {
     if (valueCount == 0) {
       return 0;
     }
@@ -495,7 +495,7 @@ public class UnionVector implements FieldVector {
     return vectors.iterator();
   }
 
-    private ValueVector getVector(int index) {
+    private ValueVector getVector(long index) {
       int type = typeBuffer.getByte(index * TYPE_WIDTH);
       switch (MinorType.values()[type]) {
         case NULL:
@@ -541,7 +541,7 @@ public class UnionVector implements FieldVector {
       holder.reader = reader;
     }
 
-    public int getValueCount() {
+    public long getValueCount() {
       return valueCount;
     }
 
@@ -550,7 +550,7 @@ public class UnionVector implements FieldVector {
     }
 
     @Override
-    public int getNullCount() {
+    public long getNullCount() {
       int nullCount = 0;
       for (int i = 0; i < getValueCount(); i++) {
         if (isNull(i)) {
@@ -560,13 +560,13 @@ public class UnionVector implements FieldVector {
       return nullCount;
     }
 
-    public int isSet(long index) {
+    public long isSet(long index) {
       return isNull(index) ? 0 : 1;
     }
 
     UnionWriter writer;
 
-    public void setValueCount(int valueCount) {
+    public void setValueCount(long valueCount) {
       this.valueCount = valueCount;
       while (valueCount > getTypeBufferValueCapacity()) {
         reallocTypeBuffer();
@@ -630,7 +630,7 @@ public class UnionVector implements FieldVector {
       typeBuffer.setByte(index * TYPE_WIDTH , (byte) type.ordinal());
     }
 
-    private int getTypeBufferValueCapacity() {
+    private long getTypeBufferValueCapacity() {
       return typeBuffer.capacity() / TYPE_WIDTH;
     }
 

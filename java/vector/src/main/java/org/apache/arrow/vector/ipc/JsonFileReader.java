@@ -232,7 +232,7 @@ public class JsonFileReader implements AutoCloseable, DictionaryProvider {
     BufferReader BIT = new BufferReader() {
       @Override
       protected ArrowBuf read(BufferAllocator allocator, int count) throws IOException {
-        final int bufferSize = BitVectorHelper.getValidityBufferSize(count);
+        final long bufferSize = BitVectorHelper.getValidityBufferSize(count);
         ArrowBuf buf = allocator.buffer(bufferSize);
 
         // C++ integration test fails without this.
@@ -652,7 +652,7 @@ public class JsonFileReader implements AutoCloseable, DictionaryProvider {
         vectorBuffers[v] = readIntoBuffer(allocator, bufferType, vector.getMinorType(), innerBufferValueCount);
       }
 
-      final int nullCount = BitVectorHelper.getNullCount(vectorBuffers[0], valueCount);
+      final long nullCount = BitVectorHelper.getNullCount(vectorBuffers[0], valueCount);
       final ArrowFieldNode fieldNode = new ArrowFieldNode(valueCount, nullCount);
       vector.loadFieldBuffers(fieldNode, Arrays.asList(vectorBuffers));
 

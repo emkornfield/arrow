@@ -110,7 +110,7 @@ public class TimeMicroVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @return element at given index
    */
-  public long get(int index) throws IllegalStateException {
+  public long get(long index) throws IllegalStateException {
     if (NULL_CHECKING_ENABLED && isSet(index) == 0) {
       throw new IllegalStateException("Value at index is null");
     }
@@ -124,7 +124,7 @@ public class TimeMicroVector extends BaseFixedWidthVector {
    *
    * @param index   position of element
    */
-  public void get(int index, NullableTimeMicroHolder holder) {
+  public void get(long index, NullableTimeMicroHolder holder) {
     if (isSet(index) == 0) {
       holder.isSet = 0;
       return;
@@ -134,7 +134,7 @@ public class TimeMicroVector extends BaseFixedWidthVector {
   }
 
   /**
-   * Same as {@link #get(int)}.
+   * Same as {@link #get(long)}.
    *
    * @param index   position of element
    * @return element at given index
@@ -154,7 +154,7 @@ public class TimeMicroVector extends BaseFixedWidthVector {
    *----------------------------------------------------------------*/
 
 
-  private void setValue(int index, long value) {
+  private void setValue(long index, long value) {
     valueBuffer.setLong(index * TYPE_WIDTH, value);
   }
 
@@ -164,7 +164,7 @@ public class TimeMicroVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param value   value of element
    */
-  public void set(int index, long value) {
+  public void set(long index, long value) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, value);
   }
@@ -177,7 +177,7 @@ public class TimeMicroVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void set(int index, NullableTimeMicroHolder holder) throws IllegalArgumentException {
+  public void set(long index, NullableTimeMicroHolder holder) throws IllegalArgumentException {
     if (holder.isSet < 0) {
       throw new IllegalArgumentException();
     } else if (holder.isSet > 0) {
@@ -194,46 +194,46 @@ public class TimeMicroVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void set(int index, TimeMicroHolder holder) {
+  public void set(long index, TimeMicroHolder holder) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, holder.value);
   }
 
   /**
-   * Same as {@link #set(int, long)} except that it handles the
+   * Same as {@link #set(long, long)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param value   value of element
    */
-  public void setSafe(int index, long value) {
+  public void setSafe(long index, long value) {
     handleSafe(index);
     set(index, value);
   }
 
   /**
-   * Same as {@link #set(int, NullableTimeMicroHolder)} except that it handles the
+   * Same as {@link #set(long, NullableTimeMicroHolder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void setSafe(int index, NullableTimeMicroHolder holder) throws IllegalArgumentException {
+  public void setSafe(long index, NullableTimeMicroHolder holder) throws IllegalArgumentException {
     handleSafe(index);
     set(index, holder);
   }
 
   /**
-   * Same as {@link #set(int, TimeMicroHolder)} except that it handles the
+   * Same as {@link #set(long, TimeMicroHolder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void setSafe(int index, TimeMicroHolder holder) {
+  public void setSafe(long index, TimeMicroHolder holder) {
     handleSafe(index);
     set(index, holder);
   }
@@ -243,7 +243,7 @@ public class TimeMicroVector extends BaseFixedWidthVector {
    *
    * @param index   position of element
    */
-  public void setNull(int index) {
+  public void setNull(long index) {
     handleSafe(index);
     // not really needed to set the bit to 0 as long as
     // the buffer always starts from 0.
@@ -258,7 +258,7 @@ public class TimeMicroVector extends BaseFixedWidthVector {
    * @param isSet 0 for NULL value, 1 otherwise
    * @param value element value
    */
-  public void set(int index, int isSet, long value) {
+  public void set(long index, int isSet, long value) {
     if (isSet > 0) {
       set(index, value);
     } else {
@@ -267,7 +267,7 @@ public class TimeMicroVector extends BaseFixedWidthVector {
   }
 
   /**
-   * Same as {@link #set(int, int, long)} except that it handles the case
+   * Same as {@link #set(long, int, long)} except that it handles the case
    * when index is greater than or equal to current value capacity of the
    * vector.
    *
@@ -275,7 +275,7 @@ public class TimeMicroVector extends BaseFixedWidthVector {
    * @param isSet 0 for NULL value, 1 otherwise
    * @param value element value
    */
-  public void setSafe(int index, int isSet, long value) {
+  public void setSafe(long index, int isSet, long value) {
     handleSafe(index);
     set(index, isSet, value);
   }
@@ -290,7 +290,7 @@ public class TimeMicroVector extends BaseFixedWidthVector {
    * @param index position of the element.
    * @return value stored at the index.
    */
-  public static long get(final ArrowBuf buffer, int index) {
+  public static long get(final ArrowBuf buffer, long index) {
     return buffer.getLong(index * TYPE_WIDTH);
   }
 

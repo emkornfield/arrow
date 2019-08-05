@@ -17,6 +17,8 @@
 
 package org.apache.arrow.vector.ipc.message;
 
+import static org.apache.arrow.memory.util.LargeMemoryUtil.checkedCastToInt;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,7 +45,7 @@ public class ArrowRecordBatch implements ArrowMessage {
   /**
    * Number of records.
    */
-  private final int length;
+  private final long length;
 
   /**
    * Nodes correspond to the pre-ordered flattened logical schema.
@@ -56,7 +58,7 @@ public class ArrowRecordBatch implements ArrowMessage {
 
   private boolean closed = false;
 
-  public ArrowRecordBatch(int length, List<ArrowFieldNode> nodes, List<ArrowBuf> buffers) {
+  public ArrowRecordBatch(long length, List<ArrowFieldNode> nodes, List<ArrowBuf> buffers) {
     this(length, nodes, buffers, true);
   }
 
@@ -67,7 +69,7 @@ public class ArrowRecordBatch implements ArrowMessage {
    * @param nodes   field level info
    * @param buffers will be retained until this recordBatch is closed
    */
-  public ArrowRecordBatch(int length, List<ArrowFieldNode> nodes, List<ArrowBuf> buffers, boolean alignBuffers) {
+  public ArrowRecordBatch(long length, List<ArrowFieldNode> nodes, List<ArrowBuf> buffers, boolean alignBuffers) {
     super();
     this.length = length;
     this.nodes = nodes;
@@ -91,7 +93,7 @@ public class ArrowRecordBatch implements ArrowMessage {
   // this constructor is different from the public ones in that the reference manager's
   // <code>retain</code> method is not called, so the first <code>dummy</code> parameter is used
   // to distinguish this from the public constructor.
-  private ArrowRecordBatch(boolean dummy, int length, List<ArrowFieldNode> nodes, List<ArrowBuf> buffers) {
+  private ArrowRecordBatch(boolean dummy, long length, List<ArrowFieldNode> nodes, List<ArrowBuf> buffers) {
     this.length = length;
     this.nodes = nodes;
     this.buffers = buffers;
@@ -106,7 +108,7 @@ public class ArrowRecordBatch implements ArrowMessage {
     this.buffersLayout = Collections.unmodifiableList(arrowBuffers);
   }
 
-  public int getLength() {
+  public long getLength() {
     return length;
   }
 
@@ -200,7 +202,7 @@ public class ArrowRecordBatch implements ArrowMessage {
    * Computes the size of the serialized body for this recordBatch.
    */
   @Override
-  public int computeBodyLength() {
+  public long computeBodyLength() {
     int size = 0;
 
     List<ArrowBuf> buffers = getBuffers();
@@ -215,7 +217,8 @@ public class ArrowRecordBatch implements ArrowMessage {
       ArrowBuffer layout = buffersLayout.get(i);
       size += (layout.getOffset() - size);
       ByteBuffer nioBuffer =
-          buffer.nioBuffer(buffer.readerIndex(), buffer.readableBytes());
+          buffer.nioBuffer(checkedCastToInt(buffer.readerIndex()),
+              checkedCastToInt(buffer.readableBytes()));
       size += nioBuffer.remaining();
 
       // round up size to the next multiple of 8

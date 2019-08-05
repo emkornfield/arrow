@@ -36,6 +36,7 @@
 package org.apache.arrow.vector.complex.impl;
 
 <#include "/@includes/vv_imports.ftl" />
+import  org.apache.arrow.memory.util.LargeMemoryUtil;
 
 // Source code generated using FreeMarker template ${.template_name}
 
@@ -102,7 +103,7 @@ public class ${holderMode}${name}HolderReaderImpl extends AbstractFieldReader {
   </#if>
 
   <#if type.major == "VarLen">
-    long length = holder.end - holder.start;
+    int length = LargeMemoryUtil.checkedCastToInt(holder.end - holder.start);
     byte[] value = new byte [length];
     holder.buffer.getBytes(holder.start, value, 0, length);
     <#if minor.class == "VarBinary">

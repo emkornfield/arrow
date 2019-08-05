@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 
+import org.apache.arrow.memory.util.LargeMemoryUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,12 +74,12 @@ public class ReadChannel implements AutoCloseable {
    * Reads up to len into buffer. Returns bytes read.
    *
    * @param buffer the buffer to read to
-   * @param l      the amount of bytes to read
+   * @param bytesToRead      the amount of bytes to read
    * @return the number of bytes read
    * @throws IOException if nit enough bytes left to read
    */
-  public int readFully(ArrowBuf buffer, int l) throws IOException {
-    int n = readFully(buffer.nioBuffer(buffer.writerIndex(), l));
+  public int readFully(ArrowBuf buffer, int bytesToRead) throws IOException {
+    int n = readFully(buffer.nioBuffer(LargeMemoryUtil.checkedCastToInt(buffer.writerIndex()), bytesToRead));
     buffer.writerIndex(n);
     return n;
   }

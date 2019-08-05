@@ -62,13 +62,13 @@ public class DictionaryEncoder {
     BaseIntVector indices = (BaseIntVector) createdVector;
     indices.allocateNew();
 
-    int count = vector.getValueCount();
+    long count = vector.getValueCount();
 
-    for (int i = 0; i < count; i++) {
+    for (long i = 0; i < count; i++) {
       if (!vector.isNull(i)) { // if it's null leave it null
         // note: this may fail if value was not included in the dictionary
         //int encoded = lookUps.get(value);
-        int encoded = hashTable.getIndex(i, vector);
+        long encoded = hashTable.getIndex(i, vector);
         if (encoded == -1) {
           throw new IllegalArgumentException("Dictionary encoding not defined for value:" + vector.getObject(i));
         }
@@ -89,9 +89,9 @@ public class DictionaryEncoder {
    * @return vector with values restored from dictionary
    */
   public static ValueVector decode(ValueVector indices, Dictionary dictionary) {
-    int count = indices.getValueCount();
+    long count = indices.getValueCount();
     ValueVector dictionaryVector = dictionary.getVector();
-    int dictionaryCount = dictionaryVector.getValueCount();
+    long dictionaryCount = dictionaryVector.getValueCount();
     // copy the dictionary values into the decoded vector
     TransferPair transfer = dictionaryVector.getTransferPair(indices.getAllocator());
     transfer.getTo().allocateNewSafe();

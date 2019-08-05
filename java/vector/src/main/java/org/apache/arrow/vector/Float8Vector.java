@@ -155,7 +155,7 @@ public class Float8Vector extends BaseFixedWidthVector {
    *----------------------------------------------------------------*/
 
 
-  private void setValue(int index, double value) {
+  private void setValue(long index, double value) {
     valueBuffer.setDouble(index * TYPE_WIDTH, value);
   }
 
@@ -165,7 +165,7 @@ public class Float8Vector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param value   value of element
    */
-  public void set(int index, double value) {
+  public void set(long index, double value) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, value);
   }
@@ -178,7 +178,7 @@ public class Float8Vector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void set(int index, NullableFloat8Holder holder) throws IllegalArgumentException {
+  public void set(long index, NullableFloat8Holder holder) throws IllegalArgumentException {
     if (holder.isSet < 0) {
       throw new IllegalArgumentException();
     } else if (holder.isSet > 0) {
@@ -195,7 +195,7 @@ public class Float8Vector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void set(int index, Float8Holder holder) {
+  public void set(long index, Float8Holder holder) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, holder.value);
   }
@@ -208,7 +208,7 @@ public class Float8Vector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param value   value of element
    */
-  public void setSafe(int index, double value) {
+  public void setSafe(long index, double value) {
     handleSafe(index);
     set(index, value);
   }
@@ -221,7 +221,7 @@ public class Float8Vector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void setSafe(int index, NullableFloat8Holder holder) throws IllegalArgumentException {
+  public void setSafe(long index, NullableFloat8Holder holder) throws IllegalArgumentException {
     handleSafe(index);
     set(index, holder);
   }
@@ -234,7 +234,7 @@ public class Float8Vector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void setSafe(int index, Float8Holder holder) {
+  public void setSafe(long index, Float8Holder holder) {
     handleSafe(index);
     set(index, holder);
   }
@@ -244,7 +244,7 @@ public class Float8Vector extends BaseFixedWidthVector {
    *
    * @param index   position of element
    */
-  public void setNull(int index) {
+  public void setNull(long index) {
     handleSafe(index);
     // not really needed to set the bit to 0 as long as
     // the buffer always starts from 0.
@@ -259,7 +259,7 @@ public class Float8Vector extends BaseFixedWidthVector {
    * @param isSet 0 for NULL value, 1 otherwise
    * @param value element value
    */
-  public void set(int index, int isSet, double value) {
+  public void set(long index, int isSet, double value) {
     if (isSet > 0) {
       set(index, value);
     } else {
@@ -276,7 +276,7 @@ public class Float8Vector extends BaseFixedWidthVector {
    * @param isSet 0 for NULL value, 1 otherwise
    * @param value element value
    */
-  public void setSafe(int index, int isSet, double value) {
+  public void setSafe(long index, int isSet, double value) {
     handleSafe(index);
     set(index, isSet, value);
   }
@@ -291,7 +291,7 @@ public class Float8Vector extends BaseFixedWidthVector {
    * @param index position of the element.
    * @return value stored at the index.
    */
-  public static double get(final ArrowBuf buffer, final int index) {
+  public static double get(final ArrowBuf buffer, final long index) {
     return buffer.getDouble(index * TYPE_WIDTH);
   }
 

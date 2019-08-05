@@ -41,7 +41,7 @@ public class SingleStructReaderImpl extends AbstractFieldReader {
     this.vector = vector;
   }
 
-  private void setChildrenPosition(int index) {
+  private void setChildrenPosition(long index) {
     for (FieldReader r : fields.values()) {
       r.setPosition(index);
     }

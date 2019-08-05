@@ -122,7 +122,7 @@ public class BigIntVector extends BaseFixedWidthVector implements BaseIntVector 
    *
    * @param index   position of element
    */
-  public void get(int index, NullableBigIntHolder holder) {
+  public void get(long index, NullableBigIntHolder holder) {
     if (isSet(index) == 0) {
       holder.isSet = 0;
       return;
@@ -231,7 +231,7 @@ public class BigIntVector extends BaseFixedWidthVector implements BaseIntVector 
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void setSafe(int index, BigIntHolder holder) {
+  public void setSafe(long index, BigIntHolder holder) {
     handleSafe(index);
     set(index, holder);
   }
@@ -241,7 +241,7 @@ public class BigIntVector extends BaseFixedWidthVector implements BaseIntVector 
    *
    * @param index   position of element
    */
-  public void setNull(int index) {
+  public void setNull(long index) {
     handleSafe(index);
     // not really needed to set the bit to 0 as long as
     // the buffer always starts from 0.
@@ -255,7 +255,7 @@ public class BigIntVector extends BaseFixedWidthVector implements BaseIntVector 
    * @param isSet 0 for NULL value, 1 otherwise
    * @param value element value
    */
-  public void set(int index, int isSet, long value) {
+  public void set(long index, int isSet, long value) {
     if (isSet > 0) {
       set(index, value);
     } else {
@@ -271,7 +271,7 @@ public class BigIntVector extends BaseFixedWidthVector implements BaseIntVector 
    * @param isSet 0 for NULL value, 1 otherwise
    * @param value element value
    */
-  public void setSafe(int index, int isSet, long value) {
+  public void setSafe(long index, int isSet, long value) {
     handleSafe(index);
     set(index, isSet, value);
   }

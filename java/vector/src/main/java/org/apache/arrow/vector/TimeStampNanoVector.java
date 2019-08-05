@@ -110,7 +110,7 @@ public class TimeStampNanoVector extends TimeStampVector {
    *
    * @param index   position of element
    */
-  public void get(int index, NullableTimeStampNanoHolder holder) {
+  public void get(long index, NullableTimeStampNanoHolder holder) {
     if (isSet(index) == 0) {
       holder.isSet = 0;
       return;
@@ -150,7 +150,7 @@ public class TimeStampNanoVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void set(int index, NullableTimeStampNanoHolder holder) throws IllegalArgumentException {
+  public void set(long index, NullableTimeStampNanoHolder holder) throws IllegalArgumentException {
     if (holder.isSet < 0) {
       throw new IllegalArgumentException();
     } else if (holder.isSet > 0) {
@@ -167,7 +167,7 @@ public class TimeStampNanoVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void set(int index, TimeStampNanoHolder holder) {
+  public void set(long index, TimeStampNanoHolder holder) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, holder.value);
   }
@@ -180,7 +180,7 @@ public class TimeStampNanoVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void setSafe(int index, NullableTimeStampNanoHolder holder) throws IllegalArgumentException {
+  public void setSafe(long index, NullableTimeStampNanoHolder holder) throws IllegalArgumentException {
     handleSafe(index);
     set(index, holder);
   }
@@ -193,7 +193,7 @@ public class TimeStampNanoVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void setSafe(int index, TimeStampNanoHolder holder) {
+  public void setSafe(long index, TimeStampNanoHolder holder) {
     handleSafe(index);
     set(index, holder);
   }

@@ -129,12 +129,12 @@ public class DictionaryHashTable {
    * @param indexInArray index in vector.
    * @return dictionary vector index or -1 if no value equals.
    */
-  public int getIndex(int indexInArray, ValueVector toEncode) {
+  public long getIndex(long indexInArray, ValueVector toEncode) {
     int hash = toEncode.hashCode(indexInArray);
     int index = indexFor(hash, table.length);
     for (DictionaryHashTable.Entry e = table[index]; e != null ; e = e.next) {
       if ((e.hash == hash)) {
-        int dictIndex = e.index;
+        long dictIndex = e.index;
         if (dictionary.equals(dictIndex, toEncode, indexInArray)) {
           return dictIndex;
         }
@@ -166,7 +166,7 @@ public class DictionaryHashTable {
   /**
    * Create a new Entry at the specific position of table.
    */
-  void createEntry(int hash, int index, int bucketIndex) {
+  void createEntry(int hash, long index, int bucketIndex) {
     DictionaryHashTable.Entry e = table[bucketIndex];
     table[bucketIndex] = new DictionaryHashTable.Entry(hash, index, e);
     size++;
@@ -175,7 +175,7 @@ public class DictionaryHashTable {
   /**
    * Add Entry at the specified location of the table.
    */
-  void addEntry(int hash, int index, int bucketIndex) {
+  void addEntry(int hash, long index, int bucketIndex) {
     if ((size >= threshold) && (null != table[bucketIndex])) {
       resize(2 * table.length);
       bucketIndex = indexFor(hash, table.length);
@@ -240,17 +240,17 @@ public class DictionaryHashTable {
    */
   static class Entry {
     //dictionary index
-    int index;
+    long index;
     DictionaryHashTable.Entry next;
     int hash;
 
-    Entry(int hash, int index, DictionaryHashTable.Entry next) {
+    Entry(int hash, long index, DictionaryHashTable.Entry next) {
       this.index = index;
       this.hash = hash;
       this.next = next;
     }
 
-    public final int getIndex() {
+    public final long getIndex() {
       return this.index;
     }
 

@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.arrow.memory.OutOfMemoryException;
+import org.apache.arrow.memory.util.LargeMemoryUtil;
 
 import io.netty.util.internal.StringUtil;
 
@@ -53,7 +54,7 @@ public class PooledByteBufAllocatorL {
    */
   public UnsafeDirectLittleEndian allocate(long size) {
     try {
-      return allocator.directBuffer(ArrowBuf.checkedCastToInt(size), Integer.MAX_VALUE);
+      return allocator.directBuffer(LargeMemoryUtil.checkedCastToInt(size), Integer.MAX_VALUE);
     } catch (OutOfMemoryError e) {
       throw new OutOfMemoryException("Failure allocating buffer.", e);
     }

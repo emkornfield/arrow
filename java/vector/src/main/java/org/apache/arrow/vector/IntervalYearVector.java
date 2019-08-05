@@ -126,7 +126,7 @@ public class IntervalYearVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @return element at given index
    */
-  public int get(int index) throws IllegalStateException {
+  public int get(long index) throws IllegalStateException {
     if (NULL_CHECKING_ENABLED && isSet(index) == 0) {
       throw new IllegalStateException("Value at index is null");
     }
@@ -140,7 +140,7 @@ public class IntervalYearVector extends BaseFixedWidthVector {
    *
    * @param index   position of element
    */
-  public void get(int index, NullableIntervalYearHolder holder) {
+  public void get(long index, NullableIntervalYearHolder holder) {
     if (isSet(index) == 0) {
       holder.isSet = 0;
       return;
@@ -172,7 +172,7 @@ public class IntervalYearVector extends BaseFixedWidthVector {
    * @return String Builder object with Interval value as
    *         [years, months]
    */
-  public StringBuilder getAsStringBuilder(int index) {
+  public StringBuilder getAsStringBuilder(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {
@@ -180,7 +180,7 @@ public class IntervalYearVector extends BaseFixedWidthVector {
     }
   }
 
-  private StringBuilder getAsStringBuilderHelper(int index) {
+  private StringBuilder getAsStringBuilderHelper(long index) {
     int value = valueBuffer.getInt(index * TYPE_WIDTH);
 
     final int years = (value / org.apache.arrow.vector.util.DateUtility.yearsToMonths);
@@ -203,7 +203,7 @@ public class IntervalYearVector extends BaseFixedWidthVector {
    *----------------------------------------------------------------*/
 
 
-  private void setValue(int index, int value) {
+  private void setValue(long index, int value) {
     valueBuffer.setInt(index * TYPE_WIDTH, value);
   }
 
@@ -213,7 +213,7 @@ public class IntervalYearVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param value   value of element
    */
-  public void set(int index, int value) {
+  public void set(long index, int value) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, value);
   }
@@ -226,7 +226,7 @@ public class IntervalYearVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void set(int index, NullableIntervalYearHolder holder) throws IllegalArgumentException {
+  public void set(long index, NullableIntervalYearHolder holder) throws IllegalArgumentException {
     if (holder.isSet < 0) {
       throw new IllegalArgumentException();
     } else if (holder.isSet > 0) {
@@ -243,7 +243,7 @@ public class IntervalYearVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void set(int index, IntervalYearHolder holder) {
+  public void set(long index, IntervalYearHolder holder) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, holder.value);
   }
@@ -256,7 +256,7 @@ public class IntervalYearVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param value   value of element
    */
-  public void setSafe(int index, int value) {
+  public void setSafe(long index, int value) {
     handleSafe(index);
     set(index, value);
   }
@@ -269,7 +269,7 @@ public class IntervalYearVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void setSafe(int index, NullableIntervalYearHolder holder) throws IllegalArgumentException {
+  public void setSafe(long index, NullableIntervalYearHolder holder) throws IllegalArgumentException {
     handleSafe(index);
     set(index, holder);
   }
@@ -282,7 +282,7 @@ public class IntervalYearVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void setSafe(int index, IntervalYearHolder holder) {
+  public void setSafe(long index, IntervalYearHolder holder) {
     handleSafe(index);
     set(index, holder);
   }
@@ -292,7 +292,7 @@ public class IntervalYearVector extends BaseFixedWidthVector {
    *
    * @param index   position of element
    */
-  public void setNull(int index) {
+  public void setNull(long index) {
     handleSafe(index);
     // not really needed to set the bit to 0 as long as
     // the buffer always starts from 0.
@@ -307,7 +307,7 @@ public class IntervalYearVector extends BaseFixedWidthVector {
    * @param isSet 0 for NULL value, 1 otherwise
    * @param value element value
    */
-  public void set(int index, int isSet, int value) {
+  public void set(long index, int isSet, int value) {
     if (isSet > 0) {
       set(index, value);
     } else {
@@ -324,7 +324,7 @@ public class IntervalYearVector extends BaseFixedWidthVector {
    * @param isSet 0 for NULL value, 1 otherwise
    * @param value element value
    */
-  public void setSafe(int index, int isSet, int value) {
+  public void setSafe(long index, int isSet, int value) {
     handleSafe(index);
     set(index, isSet, value);
   }

@@ -33,6 +33,7 @@ import org.apache.arrow.memory.BufferLedger;
 import org.apache.arrow.memory.BufferManager;
 import org.apache.arrow.memory.ReferenceManager;
 import org.apache.arrow.memory.util.HistoricalLog;
+import org.apache.arrow.memory.util.LargeMemoryUtil;
 import org.apache.arrow.util.Preconditions;
 
 import io.netty.util.internal.PlatformDependent;
@@ -143,16 +144,10 @@ public final class ArrowBuf implements AutoCloseable {
     final NettyArrowBuf nettyArrowBuf = new NettyArrowBuf(
             this,
             isEmpty ? null : referenceManager.getAllocator().getAsByteBufAllocator(),
-            checkedCastToInt(length));
-    nettyArrowBuf.readerIndex(checkedCastToInt(readerIndex));
-    nettyArrowBuf.writerIndex(checkedCastToInt(writerIndex));
+            LargeMemoryUtil.checkedCastToInt(length));
+    nettyArrowBuf.readerIndex(LargeMemoryUtil.checkedCastToInt(readerIndex));
+    nettyArrowBuf.writerIndex(LargeMemoryUtil.checkedCastToInt(writerIndex));
     return nettyArrowBuf;
-  }
-
-  static int checkedCastToInt(long length) {
-    Preconditions.checkArgument(length <= Integer.MAX_VALUE || length >= Integer.MIN_VALUE,
-        "Can't cast long to int: %s", length);
-    return (int) length;
   }
 
   /**
@@ -597,7 +592,7 @@ public final class ArrowBuf implements AutoCloseable {
   public void readBytes(byte[] dst) {
     Preconditions.checkArgument(dst != null, "expecting valid dst bytearray");
     ensureReadable(dst.length);
-    getBytes(checkedCastToInt(readerIndex), dst, 0, checkedCastToInt(dst.length));
+    getBytes(LargeMemoryUtil.checkedCastToInt(readerIndex), dst, 0, LargeMemoryUtil.checkedCastToInt(dst.length));
   }
 
   /**

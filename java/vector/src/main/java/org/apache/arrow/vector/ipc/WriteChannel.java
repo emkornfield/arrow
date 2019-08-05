@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 
+import org.apache.arrow.memory.util.LargeMemoryUtil;
 import org.apache.arrow.vector.ipc.message.FBSerializable;
 import org.apache.arrow.vector.ipc.message.MessageSerializer;
 import org.slf4j.Logger;
@@ -105,7 +106,8 @@ public class WriteChannel implements AutoCloseable {
    * Writes the buffer to the underlying channel.
    */
   public void write(ArrowBuf buffer) throws IOException {
-    ByteBuffer nioBuffer = buffer.nioBuffer(buffer.readerIndex(), buffer.readableBytes());
+    ByteBuffer nioBuffer = buffer.nioBuffer(LargeMemoryUtil.checkedCastToInt(buffer.readerIndex()),
+        LargeMemoryUtil.checkedCastToInt(buffer.readableBytes()));
     write(nioBuffer);
   }
 

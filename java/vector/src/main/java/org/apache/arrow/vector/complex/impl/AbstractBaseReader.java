@@ -79,7 +79,7 @@ abstract class AbstractBaseReader implements FieldReader {
   }
 
   @Override
-  public void read(longO index, UnionHolder holder) {
+  public void read(long index, UnionHolder holder) {
     throw new IllegalStateException("The current reader doesn't support reading union type");
   }
 

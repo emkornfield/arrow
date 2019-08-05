@@ -73,7 +73,7 @@ public class UnionFixedSizeListReader extends AbstractFieldReader {
   }
 
   @Override
-  public void read(int index, UnionHolder holder) {
+  public void read(long index, UnionHolder holder) {
     setPosition(idx());
     for (int i = -1; i < index; i++) {
       if (!next()) {
@@ -85,7 +85,7 @@ public class UnionFixedSizeListReader extends AbstractFieldReader {
   }
 
   @Override
-  public int size() {
+  public long size() {
     return listSize;
   }
 

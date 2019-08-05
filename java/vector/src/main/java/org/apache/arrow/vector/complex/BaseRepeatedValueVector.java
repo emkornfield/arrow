@@ -314,7 +314,7 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
 
 
   /** Returns the value count for inner data vector at a particular index. */
-  public int getInnerValueCountAt(int index) {
+  public int getInnerValueCountAt(long index) {
     return offsetBuffer.getInt((index + 1) * OFFSET_WIDTH) -
             offsetBuffer.getInt(index * OFFSET_WIDTH);
   }
@@ -325,7 +325,7 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
   }
 
   /** Return if value at index is empty (this implementation is always false). */
-  public boolean isEmpty(int index) {
+  public boolean isEmpty(long index) {
     return false;
   }
 

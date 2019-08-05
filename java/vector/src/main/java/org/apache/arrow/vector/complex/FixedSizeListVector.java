@@ -461,7 +461,7 @@ public class FixedSizeListVector extends BaseValueVector implements FieldVector,
   /**
    * Sets the value at index to null.  Reallocates if index is larger than capacity.
    */
-  public void setNull(int index) {
+  public void setNull(long index) {
     while (index >= getValidityBufferValueCapacity()) {
       reallocValidityBuffer();
     }
@@ -469,7 +469,7 @@ public class FixedSizeListVector extends BaseValueVector implements FieldVector,
   }
 
   /** Sets the value at index to not-null. Reallocates if index is larger than capacity. */
-  public void setNotNull(int index) {
+  public void setNotNull(long index) {
     while (index >= getValidityBufferValueCapacity()) {
       reallocValidityBuffer();
     }

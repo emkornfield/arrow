@@ -114,7 +114,7 @@ public class TimeStampMicroTZVector extends TimeStampVector {
    *
    * @param index   position of element
    */
-  public void get(int index, NullableTimeStampMicroTZHolder holder) {
+  public void get(long index, NullableTimeStampMicroTZHolder holder) {
     if (isSet(index) == 0) {
       holder.isSet = 0;
       return;
@@ -153,7 +153,7 @@ public class TimeStampMicroTZVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void set(int index, NullableTimeStampMicroTZHolder holder) throws IllegalArgumentException {
+  public void set(long index, NullableTimeStampMicroTZHolder holder) throws IllegalArgumentException {
     if (holder.isSet < 0) {
       throw new IllegalArgumentException();
     } else if (holder.isSet > 0) {
@@ -170,7 +170,7 @@ public class TimeStampMicroTZVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void set(int index, TimeStampMicroTZHolder holder) {
+  public void set(long index, TimeStampMicroTZHolder holder) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, holder.value);
   }
@@ -183,7 +183,7 @@ public class TimeStampMicroTZVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void setSafe(int index, NullableTimeStampMicroTZHolder holder) throws IllegalArgumentException {
+  public void setSafe(long index, NullableTimeStampMicroTZHolder holder) throws IllegalArgumentException {
     handleSafe(index);
     set(index, holder);
   }
@@ -196,7 +196,7 @@ public class TimeStampMicroTZVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void setSafe(int index, TimeStampMicroTZHolder holder) {
+  public void setSafe(long index, TimeStampMicroTZHolder holder) {
     handleSafe(index);
     set(index, holder);
   }

@@ -276,7 +276,7 @@ public class BitVectorHelper {
   public static ArrowBuf loadValidityBuffer(final ArrowFieldNode fieldNode,
                                             final ArrowBuf sourceValidityBuffer,
                                             final BufferAllocator allocator) {
-    final int valueCount = fieldNode.getLength();
+    final long valueCount = fieldNode.getLength();
     ArrowBuf newBuffer = null;
     /* either all NULLs or all non-NULLs */
     if (fieldNode.getNullCount() == 0 || fieldNode.getNullCount() == valueCount) {
@@ -287,11 +287,11 @@ public class BitVectorHelper {
         return newBuffer;
       }
       /* all non-NULLs */
-      int fullBytesCount = valueCount / 8;
+      long fullBytesCount = valueCount / 8;
       for (int i = 0; i < fullBytesCount; ++i) {
         newBuffer.setByte(i, 0xFF);
       }
-      int remainder = valueCount % 8;
+      long remainder = valueCount % 8;
       if (remainder > 0) {
         byte bitMask = (byte) (0xFFL >>> ((8 - remainder) & 7));
         newBuffer.setByte(fullBytesCount, bitMask);

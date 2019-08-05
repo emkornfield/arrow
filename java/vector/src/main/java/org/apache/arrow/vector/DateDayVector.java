@@ -109,7 +109,7 @@ public class DateDayVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @return element at given index
    */
-  public int get(int index) throws IllegalStateException {
+  public int get(long index) throws IllegalStateException {
     if (NULL_CHECKING_ENABLED && isSet(index) == 0) {
       throw new IllegalStateException("Value at index is null");
     }
@@ -123,7 +123,7 @@ public class DateDayVector extends BaseFixedWidthVector {
    *
    * @param index   position of element
    */
-  public void get(int index, NullableDateDayHolder holder) {
+  public void get(long index, NullableDateDayHolder holder) {
     if (isSet(index) == 0) {
       holder.isSet = 0;
       return;
@@ -153,7 +153,7 @@ public class DateDayVector extends BaseFixedWidthVector {
    *----------------------------------------------------------------*/
 
 
-  private void setValue(int index, int value) {
+  private void setValue(long index, int value) {
     valueBuffer.setInt(index * TYPE_WIDTH, value);
   }
 
@@ -163,7 +163,7 @@ public class DateDayVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param value   value of element
    */
-  public void set(int index, int value) {
+  public void set(long index, int value) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, value);
   }
@@ -176,7 +176,7 @@ public class DateDayVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void set(int index, NullableDateDayHolder holder) throws IllegalArgumentException {
+  public void set(long index, NullableDateDayHolder holder) throws IllegalArgumentException {
     if (holder.isSet < 0) {
       throw new IllegalArgumentException();
     } else if (holder.isSet > 0) {
@@ -193,46 +193,46 @@ public class DateDayVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void set(int index, DateDayHolder holder) {
+  public void set(long index, DateDayHolder holder) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, holder.value);
   }
 
   /**
-   * Same as {@link #set(int, int)} except that it handles the
+   * Same as {@link #set(long, int)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param value   value of element
    */
-  public void setSafe(int index, int value) {
+  public void setSafe(long index, int value) {
     handleSafe(index);
     set(index, value);
   }
 
   /**
-   * Same as {@link #set(int, NullableDateDayHolder)} except that it handles the
+   * Same as {@link #set(long, NullableDateDayHolder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void setSafe(int index, NullableDateDayHolder holder) throws IllegalArgumentException {
+  public void setSafe(long index, NullableDateDayHolder holder) throws IllegalArgumentException {
     handleSafe(index);
     set(index, holder);
   }
 
   /**
-   * Same as {@link #set(int, DateDayHolder)} except that it handles the
+   * Same as {@link #set(long, DateDayHolder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void setSafe(int index, DateDayHolder holder) {
+  public void setSafe(long index, DateDayHolder holder) {
     handleSafe(index);
     set(index, holder);
   }
@@ -242,7 +242,7 @@ public class DateDayVector extends BaseFixedWidthVector {
    *
    * @param index   position of element
    */
-  public void setNull(int index) {
+  public void setNull(long index) {
     handleSafe(index);
     // not really needed to set the bit to 0 as long as
     // the buffer always starts from 0.
@@ -257,7 +257,7 @@ public class DateDayVector extends BaseFixedWidthVector {
    * @param isSet 0 for NULL value, 1 otherwise
    * @param value element value
    */
-  public void set(int index, int isSet, int value) {
+  public void set(long index, int isSet, int value) {
     if (isSet > 0) {
       set(index, value);
     } else {
@@ -266,7 +266,7 @@ public class DateDayVector extends BaseFixedWidthVector {
   }
 
   /**
-   * Same as {@link #set(int, int, int)} except that it handles the case
+   * Same as {@link #set(long, int, int)} except that it handles the case
    * when index is greater than or equal to current value capacity of the
    * vector.
    *

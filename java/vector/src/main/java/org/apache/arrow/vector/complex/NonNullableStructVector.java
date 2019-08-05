@@ -346,7 +346,7 @@ public class NonNullableStructVector extends AbstractStructVector {
     return 0;
   }
 
-  public void get(int index, ComplexHolder holder) {
+  public void get(long index, ComplexHolder holder) {
     reader.setPosition(index);
     holder.reader = reader;
   }

@@ -141,7 +141,7 @@ public class IntervalDayVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @return element at given index
    */
-  public ArrowBuf get(int index) throws IllegalStateException {
+  public ArrowBuf get(long index) throws IllegalStateException {
     if (NULL_CHECKING_ENABLED && isSet(index) == 0) {
       return null;
     }
@@ -155,19 +155,19 @@ public class IntervalDayVector extends BaseFixedWidthVector {
    *
    * @param index   position of element
    */
-  public void get(int index, NullableIntervalDayHolder holder) {
+  public void get(long index, NullableIntervalDayHolder holder) {
     if (isSet(index) == 0) {
       holder.isSet = 0;
       return;
     }
-    final int startIndex = index * TYPE_WIDTH;
+    final long startIndex = index * TYPE_WIDTH;
     holder.isSet = 1;
     holder.days = valueBuffer.getInt(startIndex);
     holder.milliseconds = valueBuffer.getInt(startIndex + MILLISECOND_OFFSET);
   }
 
   /**
-   * Same as {@link #get(int)}.
+   * Same as {@link #get(long)}.
    *
    * @param index   position of element
    * @return element at given index
@@ -190,7 +190,7 @@ public class IntervalDayVector extends BaseFixedWidthVector {
    * @return String Builder object with Interval value as
    *         [days, hours, minutes, seconds, millis]
    */
-  public StringBuilder getAsStringBuilder(int index) {
+  public StringBuilder getAsStringBuilder(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {
@@ -198,8 +198,8 @@ public class IntervalDayVector extends BaseFixedWidthVector {
     }
   }
 
-  private StringBuilder getAsStringBuilderHelper(int index) {
-    final int startIndex = index * TYPE_WIDTH;
+  private StringBuilder getAsStringBuilderHelper(long index) {
+    final long startIndex = index * TYPE_WIDTH;
 
     final int days = valueBuffer.getInt(startIndex);
     int millis = valueBuffer.getInt(startIndex + MILLISECOND_OFFSET);
@@ -236,7 +236,7 @@ public class IntervalDayVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param value   value of element
    */
-  public void set(int index, ArrowBuf value) {
+  public void set(long index, ArrowBuf value) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     valueBuffer.setBytes(index * TYPE_WIDTH, value, 0, TYPE_WIDTH);
   }
@@ -248,8 +248,8 @@ public class IntervalDayVector extends BaseFixedWidthVector {
    * @param days           days for the interval
    * @param milliseconds   milliseconds for the interval
    */
-  public void set(int index, int days, int milliseconds) {
-    final int offsetIndex = index * TYPE_WIDTH;
+  public void set(long index, int days, int milliseconds) {
+    final long offsetIndex = index * TYPE_WIDTH;
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     valueBuffer.setInt(offsetIndex, days);
     valueBuffer.setInt((offsetIndex + MILLISECOND_OFFSET), milliseconds);
@@ -263,7 +263,7 @@ public class IntervalDayVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void set(int index, NullableIntervalDayHolder holder) throws IllegalArgumentException {
+  public void set(long index, NullableIntervalDayHolder holder) throws IllegalArgumentException {
     if (holder.isSet < 0) {
       throw new IllegalArgumentException();
     } else if (holder.isSet > 0) {
@@ -279,25 +279,25 @@ public class IntervalDayVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void set(int index, IntervalDayHolder holder) {
+  public void set(long index, IntervalDayHolder holder) {
     set(index, holder.days, holder.milliseconds);
   }
 
   /**
-   * Same as {@link #set(int, ArrowBuf)} except that it handles the
+   * Same as {@link #set(long, ArrowBuf)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param value   value of element
    */
-  public void setSafe(int index, ArrowBuf value) {
+  public void setSafe(long index, ArrowBuf value) {
     handleSafe(index);
     set(index, value);
   }
 
   /**
-   * Same as {@link #set(int, int, int)} except that it handles the
+   * Same as {@link #set(long, int, int)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
@@ -305,33 +305,33 @@ public class IntervalDayVector extends BaseFixedWidthVector {
    * @param days           days for the interval
    * @param milliseconds   milliseconds for the interval
    */
-  public void setSafe(int index, int days, int milliseconds) {
+  public void setSafe(long index, int days, int milliseconds) {
     handleSafe(index);
     set(index, days, milliseconds);
   }
 
   /**
-   * Same as {@link #set(int, NullableIntervalDayHolder)} except that it handles the
+   * Same as {@link #set(long, NullableIntervalDayHolder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void setSafe(int index, NullableIntervalDayHolder holder) throws IllegalArgumentException {
+  public void setSafe(long index, NullableIntervalDayHolder holder) throws IllegalArgumentException {
     handleSafe(index);
     set(index, holder);
   }
 
   /**
-   * Same as {@link #set(int, IntervalDayHolder)} except that it handles the
+   * Same as {@link #set(long, IntervalDayHolder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void setSafe(int index, IntervalDayHolder holder) {
+  public void setSafe(long index, IntervalDayHolder holder) {
     handleSafe(index);
     set(index, holder);
   }
@@ -341,7 +341,7 @@ public class IntervalDayVector extends BaseFixedWidthVector {
    *
    * @param index   position of element
    */
-  public void setNull(int index) {
+  public void setNull(long index) {
     handleSafe(index);
     // not really needed to set the bit to 0 as long as
     // the buffer always starts from 0.
@@ -357,7 +357,7 @@ public class IntervalDayVector extends BaseFixedWidthVector {
    * @param days days component of interval
    * @param milliseconds millisecond component of interval
    */
-  public void set(int index, int isSet, int days, int milliseconds) {
+  public void set(long index, int isSet, int days, int milliseconds) {
     if (isSet > 0) {
       set(index, days, milliseconds);
     } else {
@@ -366,7 +366,7 @@ public class IntervalDayVector extends BaseFixedWidthVector {
   }
 
   /**
-   * Same as {@link #set(int, int, int, int)} except that it handles the case
+   * Same as {@link #set(long, int, int, int)} except that it handles the case
    * when index is greater than or equal to current value capacity of the
    * vector.
    *
@@ -375,7 +375,7 @@ public class IntervalDayVector extends BaseFixedWidthVector {
    * @param days days component of interval
    * @param milliseconds millisecond component of interval
    */
-  public void setSafe(int index, int isSet, int days, int milliseconds) {
+  public void setSafe(long index, int isSet, int days, int milliseconds) {
     handleSafe(index);
     set(index, isSet, days, milliseconds);
   }

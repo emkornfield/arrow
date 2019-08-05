@@ -128,7 +128,7 @@ public class FixedSizeBinaryVector extends BaseFixedWidthVector {
    * @param index position of element
    * @param holder nullable holder to carry the buffer
    */
-  public void get(int index, NullableFixedSizeBinaryHolder holder) {
+  public void get(long index, NullableFixedSizeBinaryHolder holder) {
     assert index >= 0;
     if (isSet(index) == 0) {
       holder.isSet = 0;
@@ -161,7 +161,7 @@ public class FixedSizeBinaryVector extends BaseFixedWidthVector {
    *----------------------------------------------------------------*/
 
   /** Sets the value at index to the provided one. */
-  public void set(int index, byte[] value) {
+  public void set(long index, byte[] value) {
     assert index >= 0;
     assert byteWidth <= value.length;
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
@@ -172,7 +172,7 @@ public class FixedSizeBinaryVector extends BaseFixedWidthVector {
    * Same as {@link #set(int, byte[])} but reallocates if <code>index</code>
    * is larger than capacity.
    */
-  public void setSafe(int index, byte[] value) {
+  public void setSafe(long index, byte[] value) {
     handleSafe(index);
     set(index, value);
   }
@@ -180,7 +180,7 @@ public class FixedSizeBinaryVector extends BaseFixedWidthVector {
   /**
    * Sets the value if isSet is positive, otherwise sets the index to null/invalid.
    */
-  public void set(int index, int isSet, byte[] value) {
+  public void set(long index, int isSet, byte[] value) {
     if (isSet > 0) {
       set(index, value);
     } else {
@@ -188,7 +188,7 @@ public class FixedSizeBinaryVector extends BaseFixedWidthVector {
     }
   }
 
-  public void setSafe(int index, int isSet, byte[] value) {
+  public void setSafe(long index, int isSet, byte[] value) {
     handleSafe(index);
     set(index, isSet, value);
   }
@@ -199,7 +199,7 @@ public class FixedSizeBinaryVector extends BaseFixedWidthVector {
    * @param index  position of element
    * @param buffer ArrowBuf containing binary value.
    */
-  public void set(int index, ArrowBuf buffer) {
+  public void set(long index, ArrowBuf buffer) {
     assert index >= 0;
     assert byteWidth <= buffer.capacity();
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
@@ -214,7 +214,7 @@ public class FixedSizeBinaryVector extends BaseFixedWidthVector {
    * @param index  position of element
    * @param buffer ArrowBuf containing binary value.
    */
-  public void setSafe(int index, ArrowBuf buffer) {
+  public void setSafe(long index, ArrowBuf buffer) {
     handleSafe(index);
     set(index, buffer);
   }
@@ -225,7 +225,7 @@ public class FixedSizeBinaryVector extends BaseFixedWidthVector {
    * @param index  position of element
    * @param buffer ArrowBuf containing binary value.
    */
-  public void set(int index, int isSet, ArrowBuf buffer) {
+  public void set(long index, int isSet, ArrowBuf buffer) {
     if (isSet > 0) {
       set(index, buffer);
     } else {
@@ -241,7 +241,7 @@ public class FixedSizeBinaryVector extends BaseFixedWidthVector {
    * @param index  position of element
    * @param buffer ArrowBuf containing binary value.
    */
-  public void setSafe(int index, int isSet, ArrowBuf buffer) {
+  public void setSafe(long index, int isSet, ArrowBuf buffer) {
     handleSafe(index);
     set(index, isSet, buffer);
   }
@@ -253,7 +253,7 @@ public class FixedSizeBinaryVector extends BaseFixedWidthVector {
    * @param index   position of the element to set
    * @param holder  holder that carries data buffer.
    */
-  public void set(int index, FixedSizeBinaryHolder holder) {
+  public void set(long index, FixedSizeBinaryHolder holder) {
     assert holder.byteWidth == byteWidth;
     set(index, holder.buffer);
   }
@@ -266,7 +266,7 @@ public class FixedSizeBinaryVector extends BaseFixedWidthVector {
    * @param index   position of the element to set
    * @param holder  holder that carries data buffer.
    */
-  public void setSafe(int index, FixedSizeBinaryHolder holder) {
+  public void setSafe(long index, FixedSizeBinaryHolder holder) {
     handleSafe(index);
     set(index, holder);
   }
@@ -278,7 +278,7 @@ public class FixedSizeBinaryVector extends BaseFixedWidthVector {
    * @param index   position of the element to set
    * @param holder  holder that carries data buffer.
    */
-  public void set(int index, NullableFixedSizeBinaryHolder holder) {
+  public void set(long index, NullableFixedSizeBinaryHolder holder) {
     assert holder.byteWidth == byteWidth;
     if (holder.isSet < 0) {
       throw new IllegalArgumentException("holder has a negative isSet value");
@@ -297,12 +297,12 @@ public class FixedSizeBinaryVector extends BaseFixedWidthVector {
    * @param index   position of the element to set
    * @param holder  holder that carries data buffer.
    */
-  public void setSafe(int index, NullableFixedSizeBinaryHolder holder) {
+  public void setSafe(long index, NullableFixedSizeBinaryHolder holder) {
     handleSafe(index);
     set(index, holder);
   }
 
-  public void setNull(int index) {
+  public void setNull(long index) {
     handleSafe(index);
     BitVectorHelper.setValidityBit(validityBuffer, index, 0);
   }

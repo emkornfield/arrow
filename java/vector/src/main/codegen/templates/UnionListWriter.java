@@ -16,6 +16,8 @@
  */
 
 import io.netty.buffer.ArrowBuf;
+
+import org.apache.arrow.memory.util.LargeMemoryUtil;
 import org.apache.arrow.vector.complex.writer.DecimalWriter;
 import org.apache.arrow.vector.holders.DecimalHolder;
 
@@ -157,7 +159,7 @@ public class UnionListWriter extends AbstractFieldWriter {
 
   @Override
   public void endList() {
-    vector.getOffsetBuffer().setInt((idx() + 1) * OFFSET_WIDTH, writer.idx());
+    vector.getOffsetBuffer().setInt((idx() + 1) * OFFSET_WIDTH, LargeMemoryUtil.checkedCastToInt(writer.idx()));
     setPosition(idx() + 1);
   }
 

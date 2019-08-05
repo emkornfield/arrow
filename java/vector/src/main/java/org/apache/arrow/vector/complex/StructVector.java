@@ -220,7 +220,7 @@ public class StructVector extends NonNullableStructVector implements FieldVector
          */
         target.allocateValidityBuffer(byteSizeTarget);
 
-        for (int i = 0; i < byteSizeTarget - 1; i++) {
+        for (long i = 0; i < byteSizeTarget - 1; i++) {
           byte b1 = BitVectorHelper.getBitsFromCurrentByte(validityBuffer, firstByteSource + i, offset);
           byte b2 = BitVectorHelper.getBitsFromNextByte(validityBuffer, firstByteSource + i + 1, offset);
 
@@ -402,7 +402,7 @@ public class StructVector extends NonNullableStructVector implements FieldVector
   }
 
   private void allocateValidityBuffer(final long size) {
-    final int curSize = (int) size;
+    final long curSize =  size;
     validityBuffer = allocator.buffer(curSize);
     validityBuffer.readerIndex(0);
     validityAllocationSizeInBytes = curSize;
@@ -489,7 +489,7 @@ public class StructVector extends NonNullableStructVector implements FieldVector
   }
 
   @Override
-  public void get(int index, ComplexHolder holder) {
+  public void get(long index, ComplexHolder holder) {
     holder.isSet = isSet(index);
     if (holder.isSet == 0) {
       holder.reader = null;
@@ -523,7 +523,7 @@ public class StructVector extends NonNullableStructVector implements FieldVector
    * Marks the value at index as being set.  Reallocates the validity buffer
    * if index is larger than current capacity.
    */
-  public void setIndexDefined(int index) {
+  public void setIndexDefined(long index) {
     while (index >= getValidityBufferValueCapacity()) {
       /* realloc the inner buffers if needed */
       reallocValidityBuffer();
@@ -534,7 +534,7 @@ public class StructVector extends NonNullableStructVector implements FieldVector
   /**
    * Marks the value at index as null/not set.
    */
-  public void setNull(int index) {
+  public void setNull(long index) {
     while (index >= getValidityBufferValueCapacity()) {
       /* realloc the inner buffers if needed */
       reallocValidityBuffer();

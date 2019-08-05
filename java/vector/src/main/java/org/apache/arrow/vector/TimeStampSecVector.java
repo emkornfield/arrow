@@ -110,7 +110,7 @@ public class TimeStampSecVector extends TimeStampVector {
    *
    * @param index   position of element
    */
-  public void get(int index, NullableTimeStampSecHolder holder) {
+  public void get(long index, NullableTimeStampSecHolder holder) {
     if (isSet(index) == 0) {
       holder.isSet = 0;
       return;
@@ -151,7 +151,7 @@ public class TimeStampSecVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void set(int index, NullableTimeStampSecHolder holder) throws IllegalArgumentException {
+  public void set(long index, NullableTimeStampSecHolder holder) throws IllegalArgumentException {
     if (holder.isSet < 0) {
       throw new IllegalArgumentException();
     } else if (holder.isSet > 0) {
@@ -168,7 +168,7 @@ public class TimeStampSecVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void set(int index, TimeStampSecHolder holder) {
+  public void set(long index, TimeStampSecHolder holder) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, holder.value);
   }
@@ -181,7 +181,7 @@ public class TimeStampSecVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void setSafe(int index, NullableTimeStampSecHolder holder) throws IllegalArgumentException {
+  public void setSafe(long index, NullableTimeStampSecHolder holder) throws IllegalArgumentException {
     handleSafe(index);
     set(index, holder);
   }
@@ -194,7 +194,7 @@ public class TimeStampSecVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void setSafe(int index, TimeStampSecHolder holder) {
+  public void setSafe(long index, TimeStampSecHolder holder) {
     handleSafe(index);
     set(index, holder);
   }

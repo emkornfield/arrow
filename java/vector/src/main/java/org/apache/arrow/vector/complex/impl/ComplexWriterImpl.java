@@ -76,7 +76,7 @@ public class ComplexWriterImpl extends AbstractFieldWriter implements ComplexWri
   }
 
   @Override
-  public int getValueCapacity() {
+  public long getValueCapacity() {
     return container.getValueCapacity();
   }
 
@@ -113,7 +113,7 @@ public class ComplexWriterImpl extends AbstractFieldWriter implements ComplexWri
   }
 
   @Override
-  public void setValueCount(int count) {
+  public void setValueCount(long count) {
     switch (mode) {
       case STRUCT:
         structRoot.setValueCount(count);

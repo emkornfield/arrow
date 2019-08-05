@@ -71,9 +71,9 @@ public class DecimalUtility {
    * Read an ArrowType.Decimal from the ArrowBuf at the given value index and return it as a byte
    * array.
    */
-  public static byte[] getByteArrayFromArrowBuf(ArrowBuf bytebuf, int index) {
+  public static byte[] getByteArrayFromArrowBuf(ArrowBuf bytebuf, long index) {
     final byte[] value = new byte[DECIMAL_BYTE_LENGTH];
-    final int startIndex = index * DECIMAL_BYTE_LENGTH;
+    final long startIndex = index * DECIMAL_BYTE_LENGTH;
     bytebuf.getBytes(startIndex, value, 0, DECIMAL_BYTE_LENGTH);
     return value;
   }

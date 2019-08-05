@@ -26,8 +26,8 @@ import com.google.flatbuffers.FlatBufferBuilder;
  */
 public class ArrowFieldNode implements FBSerializable {
 
-  private final int length;
-  private final int nullCount;
+  private final long length;
+  private final long nullCount;
 
   /**
    * Constructs a new instance.
@@ -35,7 +35,7 @@ public class ArrowFieldNode implements FBSerializable {
    * @param length The number of values written.
    * @param nullCount The number of null values.
    */
-  public ArrowFieldNode(int length, int nullCount) {
+  public ArrowFieldNode(long length, long nullCount) {
     super();
     this.length = length;
     this.nullCount = nullCount;
@@ -46,11 +46,11 @@ public class ArrowFieldNode implements FBSerializable {
     return FieldNode.createFieldNode(builder, (long) length, (long) nullCount);
   }
 
-  public int getNullCount() {
+  public long getNullCount() {
     return nullCount;
   }
 
-  public int getLength() {
+  public long getLength() {
     return length;
   }
 

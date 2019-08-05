@@ -792,7 +792,7 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
    * @param index index of the value to end
    * @param size  number of elements in the list that was written
    */
-  public void endValue(int index, int size) {
+  public void endValue(long index, int size) {
     final int currentOffset = offsetBuffer.getInt((index + 1) * OFFSET_WIDTH);
     offsetBuffer.setInt((index + 1) * OFFSET_WIDTH, currentOffset + size);
   }
