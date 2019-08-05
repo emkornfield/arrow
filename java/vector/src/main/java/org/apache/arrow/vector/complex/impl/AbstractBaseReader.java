@@ -33,22 +33,22 @@ abstract class AbstractBaseReader implements FieldReader {
 
   static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractBaseReader.class);
 
-  private int index;
+  private long index;
 
   public AbstractBaseReader() {
     super();
   }
 
   @Override
-  public int getPosition() {
+  public long getPosition() {
     return index;
   }
 
-  public void setPosition(int index) {
+  public void setPosition(long index) {
     this.index = index;
   }
 
-  protected int idx() {
+  protected long idx() {
     return index;
   }
 
@@ -68,7 +68,7 @@ abstract class AbstractBaseReader implements FieldReader {
   }
 
   @Override
-  public int size() {
+  public long size() {
     throw new IllegalStateException("The current reader doesn't support getting size information.");
   }
 
@@ -79,7 +79,7 @@ abstract class AbstractBaseReader implements FieldReader {
   }
 
   @Override
-  public void read(int index, UnionHolder holder) {
+  public void read(longO index, UnionHolder holder) {
     throw new IllegalStateException("The current reader doesn't support reading union type");
   }
 

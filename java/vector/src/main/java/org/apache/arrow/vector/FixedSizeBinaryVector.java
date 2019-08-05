@@ -110,7 +110,7 @@ public class FixedSizeBinaryVector extends BaseFixedWidthVector {
    * @param index position of element
    * @return element at given index
    */
-  public byte[] get(int index) {
+  public byte[] get(long index) {
     assert index >= 0;
     if (isSet(index) == 0) {
       return null;
@@ -139,13 +139,13 @@ public class FixedSizeBinaryVector extends BaseFixedWidthVector {
   }
 
   /**
-   * Same as {@link #get(int)}.
+   * Same as {@link #get(long)}.
    *
    * @param index position of element
    * @return element at given index
    */
   @Override
-  public byte[] getObject(int index) {
+  public byte[] getObject(long index) {
     return get(index);
   }
 
@@ -317,7 +317,7 @@ public class FixedSizeBinaryVector extends BaseFixedWidthVector {
    * @param index position of the element.
    * @return value stored at the index.
    */
-  public static byte[] get(final ArrowBuf buffer, final int index, final int byteWidth) {
+  public static byte[] get(final ArrowBuf buffer, final long index, final int byteWidth) {
     final byte[] dst = new byte[byteWidth];
     buffer.getBytes(index * byteWidth, dst, 0, byteWidth);
     return dst;
@@ -376,12 +376,12 @@ public class FixedSizeBinaryVector extends BaseFixedWidthVector {
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       splitAndTransferTo(startIndex, length, to);
     }
 
     @Override
-    public void copyValueSafe(int fromIndex, int toIndex) {
+    public void copyValueSafe(long fromIndex, long toIndex) {
       to.copyFromSafe(fromIndex, toIndex, FixedSizeBinaryVector.this);
     }
   }

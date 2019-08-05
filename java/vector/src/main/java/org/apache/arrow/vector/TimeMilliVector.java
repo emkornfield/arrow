@@ -141,7 +141,7 @@ public class TimeMilliVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @return element at given index
    */
-  public LocalDateTime getObject(int index) {
+  public LocalDateTime getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     }
@@ -158,7 +158,7 @@ public class TimeMilliVector extends BaseFixedWidthVector {
    *----------------------------------------------------------------*/
 
 
-  private void setValue(int index, int value) {
+  private void setValue(long index, int value) {
     valueBuffer.setInt(index * TYPE_WIDTH, value);
   }
 
@@ -168,7 +168,7 @@ public class TimeMilliVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param value   value of element
    */
-  public void set(int index, int value) {
+  public void set(long index, int value) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, value);
   }
@@ -204,14 +204,14 @@ public class TimeMilliVector extends BaseFixedWidthVector {
   }
 
   /**
-   * Same as {@link #set(int, int)} except that it handles the
+   * Same as {@link #set(long, int)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param value   value of element
    */
-  public void setSafe(int index, int value) {
+  public void setSafe(long index, int value) {
     handleSafe(index);
     set(index, value);
   }
@@ -247,7 +247,7 @@ public class TimeMilliVector extends BaseFixedWidthVector {
    *
    * @param index   position of element
    */
-  public void setNull(int index) {
+  public void setNull(long index) {
     handleSafe(index);
     // not really needed to set the bit to 0 as long as
     // the buffer always starts from 0.
@@ -262,7 +262,7 @@ public class TimeMilliVector extends BaseFixedWidthVector {
    * @param isSet 0 for NULL value, 1 otherwise
    * @param value element value
    */
-  public void set(int index, int isSet, int value) {
+  public void set(long index, int isSet, int value) {
     if (isSet > 0) {
       set(index, value);
     } else {
@@ -271,7 +271,7 @@ public class TimeMilliVector extends BaseFixedWidthVector {
   }
 
   /**
-   * Same as {@link #set(int, int, int)} except that it handles the case
+   * Same as {@link #set(long, int, int)} except that it handles the case
    * when index is greater than or equal to current value capacity of the
    * vector.
    *
@@ -279,7 +279,7 @@ public class TimeMilliVector extends BaseFixedWidthVector {
    * @param isSet 0 for NULL value, 1 otherwise
    * @param value element value
    */
-  public void setSafe(int index, int isSet, int value) {
+  public void setSafe(long index, int isSet, int value) {
     handleSafe(index);
     set(index, isSet, value);
   }
@@ -295,7 +295,7 @@ public class TimeMilliVector extends BaseFixedWidthVector {
    * @param index position of the element.
    * @return value stored at the index.
    */
-  public static int get(final ArrowBuf buffer, final int index) {
+  public static int get(final ArrowBuf buffer, final long index) {
     return buffer.getInt(index * TYPE_WIDTH);
   }
 
@@ -352,12 +352,12 @@ public class TimeMilliVector extends BaseFixedWidthVector {
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       splitAndTransferTo(startIndex, length, to);
     }
 
     @Override
-    public void copyValueSafe(int fromIndex, int toIndex) {
+    public void copyValueSafe(long fromIndex, long toIndex) {
       to.copyFromSafe(fromIndex, toIndex, TimeMilliVector.this);
     }
   }

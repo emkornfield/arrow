@@ -71,12 +71,12 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
   protected UnionListReader reader;
   private CallBack callBack;
   private final FieldType fieldType;
-  private int validityAllocationSizeInBytes;
+  private long validityAllocationSizeInBytes;
 
   /**
    * The maximum index that is actually set.
    */
-  private int lastSet;
+  private long lastSet;
 
   /**
    * @deprecated Use FieldType or static constructor instead.
@@ -126,7 +126,7 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
   }
 
   @Override
-  public void setInitialCapacity(int numRecords) {
+  public void setInitialCapacity(long numRecords) {
     validityAllocationSizeInBytes = getValidityBufferSizeFromCount(numRecords);
     super.setInitialCapacity(numRecords);
   }
@@ -142,8 +142,7 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
    * do setInitialCapacity(x) such that each vector allocates only
    * what is necessary and not the default amount but the multiplier
    * forces the memory requirement to go beyond what was needed.
-   *
-   * @param numRecords value count
+   *  @param numRecords value count
    * @param density density of ListVector. Density is the average size of
    *                list per position in the List vector. For example, a
    *                density value of 10 implies each position in the list
@@ -152,10 +151,9 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
    *                the list vector, 1 position has a list of size 1 and
    *                remaining positions are null (no lists) or empty lists.
    *                This helps in tightly controlling the memory we provision
-   *                for inner data vector.
    */
   @Override
-  public void setInitialCapacity(int numRecords, double density) {
+  public void setInitialCapacity(long numRecords, double density) {
     validityAllocationSizeInBytes = getValidityBufferSizeFromCount(numRecords);
     super.setInitialCapacity(numRecords, density);
   }
@@ -307,7 +305,7 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
   }
 
   private void reallocValidityBuffer() {
-    final int currentBufferCapacity = validityBuffer.capacity();
+    final long currentBufferCapacity = validityBuffer.capacity();
     long baseSize = validityAllocationSizeInBytes;
 
     if (baseSize < (long) currentBufferCapacity) {
@@ -412,7 +410,7 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
   }
 
   @Override
-  public int hashCode(int index) {
+  public int hashCode(long index) {
     if (isSet(index) == 0) {
       return 0;
     }
@@ -426,7 +424,7 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
   }
 
   @Override
-  public boolean equals(int index, ValueVector to, int toIndex) {
+  public boolean equals(long index, ValueVector to, long toIndex) {
     if (to == null) {
       return false;
     }
@@ -497,7 +495,7 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
      * @param length length of the split.
      */
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       final int startPoint = offsetBuffer.getInt(startIndex * OFFSET_WIDTH);
       final int sliceLength = offsetBuffer.getInt((startIndex + length) * OFFSET_WIDTH) - startPoint;
       to.clear();
@@ -508,7 +506,7 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
         to.offsetBuffer.setInt(i * OFFSET_WIDTH, relativeOffset);
       }
       /* splitAndTransfer validity buffer */
-      splitAndTransferValidityBuffer(startIndex, length, to);
+      splitAndTransferValidityBuffer(startIndex, (int)length, to);
       /* splitAndTransfer data buffer */
       dataTransferPair.splitAndTransfer(startPoint, sliceLength);
       to.lastSet = length - 1;
@@ -518,12 +516,12 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
     /*
      * transfer the validity.
      */
-    private void splitAndTransferValidityBuffer(int startIndex, int length, ListVector target) {
+    private void splitAndTransferValidityBuffer(long startIndex, int length, ListVector target) {
       assert startIndex + length <= valueCount;
-      int firstByteSource = BitVectorHelper.byteIndex(startIndex);
-      int lastByteSource = BitVectorHelper.byteIndex(valueCount - 1);
-      int byteSizeTarget = getValidityBufferSizeFromCount(length);
-      int offset = startIndex % 8;
+      long firstByteSource = BitVectorHelper.byteIndex(startIndex);
+      long lastByteSource = BitVectorHelper.byteIndex(valueCount - 1);
+      long byteSizeTarget = getValidityBufferSizeFromCount(length);
+      long offset = startIndex % 8;
 
       if (length > 0) {
         if (offset == 0) {
@@ -580,7 +578,7 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
     }
 
     @Override
-    public void copyValueSafe(int from, int to) {
+    public void copyValueSafe(long from, long to) {
       this.to.copyFrom(from, to, ListVector.this);
     }
   }
@@ -606,12 +604,12 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
    * @return size of underlying buffers.
    */
   @Override
-  public int getBufferSize() {
+  public long getBufferSize() {
     if (valueCount == 0) {
       return 0;
     }
-    final int offsetBufferSize = (valueCount + 1) * OFFSET_WIDTH;
-    final int validityBufferSize = getValidityBufferSizeFromCount(valueCount);
+    final long offsetBufferSize = (valueCount + 1) * OFFSET_WIDTH;
+    final long validityBufferSize = getValidityBufferSizeFromCount(valueCount);
     return offsetBufferSize + validityBufferSize + vector.getBufferSize();
   }
 
@@ -693,7 +691,7 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
    * @return Object at given position
    */
   @Override
-  public Object getObject(int index) {
+  public Object getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     }
@@ -715,21 +713,18 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
    * @return true if element at given index is null, false otherwise
    */
   @Override
-  public boolean isNull(int index) {
+  public boolean isNull(long index) {
     return (isSet(index) == 0);
   }
 
   /**
-   * Same as {@link #isNull(int)}.
+   * Same as {@link ValueVector#isNull(long)}.
    *
    * @param index  position of element
    * @return 1 if element at given index is not null, 0 otherwise
    */
-  public int isSet(int index) {
-    final int byteIndex = index >> 3;
-    final byte b = validityBuffer.getByte(byteIndex);
-    final int bitIndex = index & 7;
-    return (b >> bitIndex) & 0x01;
+  public int isSet(long index) {
+    return BitVectorHelper.get(validityBuffer, index);
   }
 
   /**
@@ -738,7 +733,7 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
    * @return the number of null elements.
    */
   @Override
-  public int getNullCount() {
+  public long getNullCount() {
     return BitVectorHelper.getNullCount(validityBuffer, valueCount);
   }
 
@@ -747,16 +742,16 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
    * @return number of elements that vector can hold.
    */
   @Override
-  public int getValueCapacity() {
+  public long getValueCapacity() {
     return getValidityAndOffsetValueCapacity();
   }
 
-  private int getValidityAndOffsetValueCapacity() {
-    final int offsetValueCapacity = Math.max(getOffsetBufferValueCapacity() - 1, 0);
+  private long getValidityAndOffsetValueCapacity() {
+    final long offsetValueCapacity = Math.max(getOffsetBufferValueCapacity() - 1, 0);
     return Math.min(offsetValueCapacity, getValidityBufferValueCapacity());
   }
 
-  private int getValidityBufferValueCapacity() {
+  private long getValidityBufferValueCapacity() {
     return validityBuffer.capacity() * 8;
   }
 
@@ -764,7 +759,7 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
    * Sets the list at index to be not-null.  Reallocates validity buffer if index
    * is larger than current capacity.
    */
-  public void setNotNull(int index) {
+  public void setNotNull(long index) {
     while (index >= getValidityAndOffsetValueCapacity()) {
       reallocValidityAndOffsetBuffers();
     }
@@ -778,11 +773,11 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
    * @param index index of the value to start
    */
   @Override
-  public int startNewValue(int index) {
+  public int startNewValue(long index) {
     while (index >= getValidityAndOffsetValueCapacity()) {
       reallocValidityAndOffsetBuffers();
     }
-    for (int i = lastSet + 1; i <= index; i++) {
+    for (long i = lastSet + 1; i <= index; i++) {
       final int currentOffset = offsetBuffer.getInt(i * OFFSET_WIDTH);
       offsetBuffer.setInt((i + 1) * OFFSET_WIDTH, currentOffset);
     }
@@ -808,14 +803,14 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
    * @param valueCount   value count
    */
   @Override
-  public void setValueCount(int valueCount) {
+  public void setValueCount(long valueCount) {
     this.valueCount = valueCount;
     if (valueCount > 0) {
       while (valueCount > getValidityAndOffsetValueCapacity()) {
         /* check if validity and offset buffers need to be re-allocated */
         reallocValidityAndOffsetBuffers();
       }
-      for (int i = lastSet + 1; i < valueCount; i++) {
+      for (long i = lastSet + 1; i < valueCount; i++) {
         /* fill the holes with offsets */
         final int currentOffset = offsetBuffer.getInt(i * OFFSET_WIDTH);
         offsetBuffer.setInt((i + 1) * OFFSET_WIDTH, currentOffset);
@@ -834,7 +829,7 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
     lastSet = value;
   }
 
-  public int getLastSet() {
+  public long getLastSet() {
     return lastSet;
   }
 }

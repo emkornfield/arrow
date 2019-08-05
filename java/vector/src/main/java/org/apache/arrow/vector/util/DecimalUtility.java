@@ -38,10 +38,10 @@ public class DecimalUtility {
    * Read an ArrowType.Decimal at the given value index in the ArrowBuf and convert to a BigDecimal
    * with the given scale.
    */
-  public static BigDecimal getBigDecimalFromArrowBuf(ArrowBuf bytebuf, int index, int scale) {
+  public static BigDecimal getBigDecimalFromArrowBuf(ArrowBuf bytebuf, long index, int scale) {
     byte[] value = new byte[DECIMAL_BYTE_LENGTH];
     byte temp;
-    final int startIndex = index * DECIMAL_BYTE_LENGTH;
+    final long startIndex = index * DECIMAL_BYTE_LENGTH;
 
     // Decimal stored as little endian, need to swap bytes to make BigDecimal
     bytebuf.getBytes(startIndex, value, 0, DECIMAL_BYTE_LENGTH);
@@ -100,7 +100,7 @@ public class DecimalUtility {
    * UnsupportedOperationException if the decimal size is greater than the Decimal vector byte
    * width.
    */
-  public static void writeBigDecimalToArrowBuf(BigDecimal value, ArrowBuf bytebuf, int index) {
+  public static void writeBigDecimalToArrowBuf(BigDecimal value, ArrowBuf bytebuf, long index) {
     final byte[] bytes = value.unscaledValue().toByteArray();
     writeByteArrayToArrowBufHelper(bytes, bytebuf, index);
   }
@@ -108,7 +108,7 @@ public class DecimalUtility {
   /**
    * Write the given long to the ArrowBuf at the given value index.
    */
-  public static void writeLongToArrowBuf(long value, ArrowBuf bytebuf, int index) {
+  public static void writeLongToArrowBuf(long value, ArrowBuf bytebuf, long index) {
     final long addressOfValue = bytebuf.memoryAddress() + index * DECIMAL_BYTE_LENGTH;
     PlatformDependent.putLong(addressOfValue, value);
     final long padValue = Long.signum(value) == -1 ? -1L : 0L;
@@ -120,12 +120,12 @@ public class DecimalUtility {
    * UnsupportedOperationException if the decimal size is greater than the Decimal vector byte
    * width.
    */
-  public static void writeByteArrayToArrowBuf(byte[] bytes, ArrowBuf bytebuf, int index) {
+  public static void writeByteArrayToArrowBuf(byte[] bytes, ArrowBuf bytebuf, long index) {
     writeByteArrayToArrowBufHelper(bytes, bytebuf, index);
   }
 
-  private static void writeByteArrayToArrowBufHelper(byte[] bytes, ArrowBuf bytebuf, int index) {
-    final int startIndex = index * DECIMAL_BYTE_LENGTH;
+  private static void writeByteArrayToArrowBufHelper(byte[] bytes, ArrowBuf bytebuf, long index) {
+    final long startIndex = index * DECIMAL_BYTE_LENGTH;
     if (bytes.length > DECIMAL_BYTE_LENGTH) {
       throw new UnsupportedOperationException("Decimal size greater than 16 bytes");
     }

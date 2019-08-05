@@ -102,7 +102,7 @@ public class VarCharVector extends BaseVariableWidthVector {
    * @param index   position of element to get
    * @return array of bytes for non-null element, null otherwise
    */
-  public byte[] get(int index) {
+  public byte[] get(long index) {
     assert index >= 0;
     if (isSet(index) == 0) {
       return null;
@@ -121,7 +121,7 @@ public class VarCharVector extends BaseVariableWidthVector {
    * @param index   position of element to get
    * @return Text object for non-null element, null otherwise
    */
-  public Text getObject(int index) {
+  public Text getObject(long index) {
     byte[] b = get(index);
     if (b == null) {
       return null;
@@ -137,7 +137,7 @@ public class VarCharVector extends BaseVariableWidthVector {
    * @param index   position of element to get
    * @param holder  data holder to be populated by this function
    */
-  public void get(int index, NullableVarCharHolder holder) {
+  public void get(long index, NullableVarCharHolder holder) {
     assert index >= 0;
     if (isSet(index) == 0) {
       holder.isSet = 0;
@@ -164,7 +164,7 @@ public class VarCharVector extends BaseVariableWidthVector {
    * @param index   position of the element to set
    * @param holder  holder that carries data buffer.
    */
-  public void set(int index, VarCharHolder holder) {
+  public void set(long index, VarCharHolder holder) {
     assert index >= 0;
     fillHoles(index);
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
@@ -183,7 +183,7 @@ public class VarCharVector extends BaseVariableWidthVector {
    * @param index   position of the element to set
    * @param holder  holder that carries data buffer.
    */
-  public void setSafe(int index, VarCharHolder holder) {
+  public void setSafe(long index, VarCharHolder holder) {
     assert index >= 0;
     final int dataLength = holder.end - holder.start;
     fillEmpties(index);
@@ -202,7 +202,7 @@ public class VarCharVector extends BaseVariableWidthVector {
    * @param index   position of the element to set
    * @param holder  holder that carries data buffer.
    */
-  public void set(int index, NullableVarCharHolder holder) {
+  public void set(long index, NullableVarCharHolder holder) {
     assert index >= 0;
     fillHoles(index);
     BitVectorHelper.setValidityBit(validityBuffer, index, holder.isSet);
@@ -225,7 +225,7 @@ public class VarCharVector extends BaseVariableWidthVector {
    * @param index   position of the element to set
    * @param holder  holder that carries data buffer.
    */
-  public void setSafe(int index, NullableVarCharHolder holder) {
+  public void setSafe(long index, NullableVarCharHolder holder) {
     assert index >= 0;
     fillEmpties(index);
     BitVectorHelper.setValidityBit(validityBuffer, index, holder.isSet);
@@ -249,7 +249,7 @@ public class VarCharVector extends BaseVariableWidthVector {
    * @param index   position of the element to set
    * @param text    Text object with data
    */
-  public void set(int index, Text text) {
+  public void set(long index, Text text) {
     set(index, text.getBytes(), 0, text.getLength());
   }
 
@@ -261,7 +261,7 @@ public class VarCharVector extends BaseVariableWidthVector {
    * @param index   position of the element to set.
    * @param text    Text object with data
    */
-  public void setSafe(int index, Text text) {
+  public void setSafe(long index, Text text) {
     setSafe(index, text.getBytes(), 0, text.getLength());
   }
 
@@ -317,12 +317,12 @@ public class VarCharVector extends BaseVariableWidthVector {
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       splitAndTransferTo(startIndex, length, to);
     }
 
     @Override
-    public void copyValueSafe(int fromIndex, int toIndex) {
+    public void copyValueSafe(long fromIndex, long toIndex) {
       to.copyFromSafe(fromIndex, toIndex, VarCharVector.this);
     }
   }

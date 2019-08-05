@@ -45,7 +45,7 @@ import org.apache.arrow.vector.complex.writer.FieldWriter;
 public class ${mode}StructWriter extends AbstractFieldWriter {
 
   protected final ${containerClass} container;
-  private int initialCapacity;
+  private long initialCapacity;
   private final Map<String, FieldWriter> fields = new HashMap<>();
   public ${mode}StructWriter(${containerClass} container) {
     <#if mode == "Single">
@@ -98,11 +98,11 @@ public class ${mode}StructWriter extends AbstractFieldWriter {
   }
 
   @Override
-  public int getValueCapacity() {
+  public long getValueCapacity() {
     return container.getValueCapacity();
   }
 
-  public void setInitialCapacity(int initialCapacity) {
+  public void setInitialCapacity(long initialCapacity) {
     this.initialCapacity = initialCapacity;
     container.setInitialCapacity(initialCapacity);
   }
@@ -122,7 +122,7 @@ public class ${mode}StructWriter extends AbstractFieldWriter {
     String finalName = handleCase(name);
     FieldWriter writer = fields.get(finalName);
     if(writer == null){
-      int vectorCount=container.size();
+      long vectorCount = container.size();
       FieldType fieldType = new FieldType(addVectorAsNullable, MinorType.STRUCT.getType(), null, null);
       StructVector vector = container.addOrGet(name, fieldType, StructVector.class);
       writer = new PromotableWriter(vector, container, getNullableStructWriterFactory());
@@ -166,7 +166,7 @@ public class ${mode}StructWriter extends AbstractFieldWriter {
   public ListWriter list(String name) {
     String finalName = handleCase(name);
     FieldWriter writer = fields.get(finalName);
-    int vectorCount = container.size();
+    long vectorCount = container.size();
     if(writer == null) {
       FieldType fieldType = new FieldType(addVectorAsNullable, MinorType.LIST.getType(), null, null);
       writer = new PromotableWriter(container.addOrGet(name, fieldType, ListVector.class), container, getNullableStructWriterFactory());
@@ -184,12 +184,12 @@ public class ${mode}StructWriter extends AbstractFieldWriter {
     return writer;
   }
 
-  public void setValueCount(int count) {
+  public void setValueCount(long count) {
     container.setValueCount(count);
   }
 
   @Override
-  public void setPosition(int index) {
+  public void setPosition(long index) {
     super.setPosition(index);
     for(final FieldWriter w: fields.values()) {
       w.setPosition(index);

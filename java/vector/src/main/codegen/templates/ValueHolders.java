@@ -36,10 +36,10 @@ public final class ${className} implements ValueHolder{
     <#if mode.name == "Repeated">
     
     /** The first index (inclusive) into the Vector. **/
-    public int start;
+    public long start;
     
     /** The last index (exclusive) into the Vector. **/
-    public int end;
+    public long end;
     
     /** The Vector holding the actual values. **/
     public ${minor.class}Vector vector;

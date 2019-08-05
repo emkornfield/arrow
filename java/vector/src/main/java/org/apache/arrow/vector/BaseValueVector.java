@@ -39,7 +39,8 @@ public abstract class BaseValueVector implements ValueVector {
   private static final Logger logger = LoggerFactory.getLogger(BaseValueVector.class);
 
   public static final String MAX_ALLOCATION_SIZE_PROPERTY = "arrow.vector.max_allocation_bytes";
-  public static final int MAX_ALLOCATION_SIZE = Integer.getInteger(MAX_ALLOCATION_SIZE_PROPERTY, Integer.MAX_VALUE);
+  // TODO(use Long.MAX_VALUE?)
+  public static final long MAX_ALLOCATION_SIZE = Long.getLong(MAX_ALLOCATION_SIZE_PROPERTY, Integer.MAX_VALUE);
   /*
    * For all fixed width vectors, the value and validity buffers are sliced from a single buffer.
    * Similarly, for variable width vectors, the offsets and validity buffers are sliced from a
@@ -47,7 +48,7 @@ public abstract class BaseValueVector implements ValueVector {
    * should be less than power-of-2. For IntVectors, this comes to 3970*4 (15880) for the data
    * buffer and 504 bytes for the validity buffer, totalling to 16384 (2^16).
    */
-  public static final int INITIAL_VALUE_ALLOCATION = 3970;
+  public static final long INITIAL_VALUE_ALLOCATION = 3970;
 
   protected final BufferAllocator allocator;
 
@@ -114,16 +115,16 @@ public abstract class BaseValueVector implements ValueVector {
   }
 
   /* number of bytes for the validity buffer for the given valueCount */
-  protected static int getValidityBufferSizeFromCount(final int valueCount) {
+  protected static long getValidityBufferSizeFromCount(final long valueCount) {
     return DataSizeRoundingUtil.divideBy8Ceil(valueCount);
   }
 
   /* round up bytes for the validity buffer for the given valueCount */
-  private static long roundUp8ForValidityBuffer(int valueCount) {
+  private static long roundUp8ForValidityBuffer(long valueCount) {
     return ((valueCount + 63) >> 6) << 3;
   }
 
-  long computeCombinedBufferSize(int valueCount, int typeWidth) {
+  long computeCombinedBufferSize(long valueCount, int typeWidth) {
     Preconditions.checkArgument(valueCount >= 0, "valueCount must be >= 0");
     Preconditions.checkArgument(typeWidth >= 0, "typeWidth must be >= 0");
 
@@ -161,20 +162,21 @@ public abstract class BaseValueVector implements ValueVector {
     }
   }
 
-  DataAndValidityBuffers allocFixedDataAndValidityBufs(int valueCount, int typeWidth) {
+  DataAndValidityBuffers allocFixedDataAndValidityBufs(long valueCount, int typeWidth) {
     long bufferSize = computeCombinedBufferSize(valueCount, typeWidth);
     assert bufferSize <= MAX_ALLOCATION_SIZE;
 
-    int validityBufferSize;
-    int dataBufferSize;
+    long validityBufferSize;
+    long dataBufferSize;
     if (typeWidth == 0) {
       validityBufferSize = dataBufferSize = (int) (bufferSize / 2);
     } else {
       // Due to roundup to power-of-2 allocation, the bufferSize could be greater than the
       // requested size. Utilize the allocated buffer fully.;
-      int actualCount = (int) ((bufferSize * 8.0) / (8 * typeWidth + 1));
+      // TODO(make this bit operations)
+      long actualCount = (int) ((bufferSize * 8.0) / (8 * typeWidth + 1));
       do {
-        validityBufferSize = (int) roundUp8ForValidityBuffer(actualCount);
+        validityBufferSize = roundUp8ForValidityBuffer(actualCount);
         dataBufferSize = DataSizeRoundingUtil.roundUpTo8Multiple(actualCount * typeWidth);
         if (validityBufferSize + dataBufferSize <= bufferSize) {
           break;
@@ -190,9 +192,9 @@ public abstract class BaseValueVector implements ValueVector {
     /* slice into requested lengths */
     ArrowBuf dataBuf = null;
     ArrowBuf validityBuf = null;
-    int bufferOffset = 0;
+    long bufferOffset = 0;
     for (int numBuffers = 0; numBuffers < 2; ++numBuffers) {
-      int len = (numBuffers == 0 ? dataBufferSize : validityBufferSize);
+      long len = (numBuffers == 0 ? dataBufferSize : validityBufferSize);
       ArrowBuf buf = combinedBuffer.slice(bufferOffset, len);
       buf.getReferenceManager().retain();
       buf.readerIndex(0);
@@ -215,12 +217,12 @@ public abstract class BaseValueVector implements ValueVector {
   }
 
   @Override
-  public void copyFrom(int fromIndex, int thisIndex, ValueVector from) {
+  public void copyFrom(long fromIndex, long thisIndex, ValueVector from) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void copyFromSafe(int fromIndex, int thisIndex, ValueVector from) {
+  public void copyFromSafe(long fromIndex, long thisIndex, ValueVector from) {
     throw new UnsupportedOperationException();
   }
 }

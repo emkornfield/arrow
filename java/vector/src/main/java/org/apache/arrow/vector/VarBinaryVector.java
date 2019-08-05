@@ -105,7 +105,7 @@ public class VarBinaryVector extends BaseVariableWidthVector {
    * @param index   position of element to get
    * @return array of bytes for non-null element, null otherwise
    */
-  public byte[] get(int index) {
+  public byte[] get(long index) {
     assert index >= 0;
     if (isSet(index) == 0) {
       return null;
@@ -124,7 +124,7 @@ public class VarBinaryVector extends BaseVariableWidthVector {
    * @param index   position of element to get
    * @return byte array for non-null element, null otherwise
    */
-  public byte[] getObject(int index) {
+  public byte[] getObject(long index) {
     return get(index);
   }
 
@@ -135,7 +135,7 @@ public class VarBinaryVector extends BaseVariableWidthVector {
    * @param index   position of element to get
    * @param holder  data holder to be populated by this function
    */
-  public void get(int index, NullableVarBinaryHolder holder) {
+  public void get(long index, NullableVarBinaryHolder holder) {
     assert index >= 0;
     if (isSet(index) == 0) {
       holder.isSet = 0;
@@ -162,7 +162,7 @@ public class VarBinaryVector extends BaseVariableWidthVector {
    * @param index   position of the element to set
    * @param holder  holder that carries data buffer.
    */
-  public void set(int index, VarBinaryHolder holder) {
+  public void set(long index, VarBinaryHolder holder) {
     assert index >= 0;
     fillHoles(index);
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
@@ -174,14 +174,14 @@ public class VarBinaryVector extends BaseVariableWidthVector {
   }
 
   /**
-   * Same as {@link #set(int, VarBinaryHolder)} except that it handles the
+   * Same as {@link #set(long, VarBinaryHolder)} except that it handles the
    * case where index and length of new element are beyond the existing
    * capacity of the vector.
    *
    * @param index   position of the element to set
    * @param holder  holder that carries data buffer.
    */
-  public void setSafe(int index, VarBinaryHolder holder) {
+  public void setSafe(long index, VarBinaryHolder holder) {
     assert index >= 0;
     final int dataLength = holder.end - holder.start;
     fillEmpties(index);
@@ -200,7 +200,7 @@ public class VarBinaryVector extends BaseVariableWidthVector {
    * @param index   position of the element to set
    * @param holder  holder that carries data buffer.
    */
-  public void set(int index, NullableVarBinaryHolder holder) {
+  public void set(long index, NullableVarBinaryHolder holder) {
     assert index >= 0;
     fillHoles(index);
     BitVectorHelper.setValidityBit(validityBuffer, index, holder.isSet);
@@ -216,14 +216,14 @@ public class VarBinaryVector extends BaseVariableWidthVector {
   }
 
   /**
-   * Same as {@link #set(int, NullableVarBinaryHolder)} except that it handles the
+   * Same as {@link #set(long, NullableVarBinaryHolder)} except that it handles the
    * case where index and length of new element are beyond the existing
    * capacity of the vector.
    *
    * @param index   position of the element to set
    * @param holder  holder that carries data buffer.
    */
-  public void setSafe(int index, NullableVarBinaryHolder holder) {
+  public void setSafe(long index, NullableVarBinaryHolder holder) {
     assert index >= 0;
     fillEmpties(index);
     BitVectorHelper.setValidityBit(validityBuffer, index, holder.isSet);
@@ -293,12 +293,12 @@ public class VarBinaryVector extends BaseVariableWidthVector {
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       splitAndTransferTo(startIndex, length, to);
     }
 
     @Override
-    public void copyValueSafe(int fromIndex, int toIndex) {
+    public void copyValueSafe(long fromIndex, long toIndex) {
       to.copyFromSafe(fromIndex, toIndex, VarBinaryVector.this);
     }
   }

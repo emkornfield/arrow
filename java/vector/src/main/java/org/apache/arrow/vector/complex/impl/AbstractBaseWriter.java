@@ -28,24 +28,24 @@ import org.apache.arrow.vector.complex.writer.FieldWriter;
 abstract class AbstractBaseWriter implements FieldWriter {
   //private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractBaseWriter.class);
 
-  private int index;
+  private long index;
 
   @Override
   public String toString() {
     return super.toString() + "[index = " + index + "]";
   }
 
-  int idx() {
+  long idx() {
     return index;
   }
 
   @Override
-  public int getPosition() {
+  public long getPosition() {
     return index;
   }
 
   @Override
-  public void setPosition(int index) {
+  public void setPosition(long index) {
     this.index = index;
   }
 

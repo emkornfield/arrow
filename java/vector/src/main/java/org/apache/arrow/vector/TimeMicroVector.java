@@ -139,7 +139,7 @@ public class TimeMicroVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @return element at given index
    */
-  public Long getObject(int index) {
+  public Long getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {
@@ -348,12 +348,12 @@ public class TimeMicroVector extends BaseFixedWidthVector {
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       splitAndTransferTo(startIndex, length, to);
     }
 
     @Override
-    public void copyValueSafe(int fromIndex, int toIndex) {
+    public void copyValueSafe(long fromIndex, long toIndex) {
       to.copyFromSafe(fromIndex, toIndex, TimeMicroVector.this);
     }
   }

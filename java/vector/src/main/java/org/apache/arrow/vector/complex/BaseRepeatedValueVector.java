@@ -53,8 +53,8 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
   protected ArrowBuf offsetBuffer;
   protected FieldVector vector;
   protected final CallBack callBack;
-  protected int valueCount;
-  protected int offsetAllocationSizeInBytes = INITIAL_VALUE_ALLOCATION * OFFSET_WIDTH;
+  protected long valueCount;
+  protected long offsetAllocationSizeInBytes = INITIAL_VALUE_ALLOCATION * OFFSET_WIDTH;
   private final String name;
 
   protected String defaultDataVectorName = DATA_VECTOR_NAME;
@@ -110,7 +110,7 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
   }
 
   protected void reallocOffsetBuffer() {
-    final int currentBufferCapacity = offsetBuffer.capacity();
+    final long currentBufferCapacity = offsetBuffer.capacity();
     long baseSize = offsetAllocationSizeInBytes;
 
     if (baseSize < (long) currentBufferCapacity) {
@@ -145,7 +145,7 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
   }
 
   @Override
-  public void setInitialCapacity(int numRecords) {
+  public void setInitialCapacity(long numRecords) {
     offsetAllocationSizeInBytes = (numRecords + 1) * OFFSET_WIDTH;
     if (vector instanceof BaseFixedWidthVector || vector instanceof BaseVariableWidthVector) {
       vector.setInitialCapacity(numRecords * RepeatedValueVector.DEFAULT_REPEAT_PER_RECORD);
@@ -165,8 +165,7 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
    * do setInitialCapacity(x) such that each vector allocates only
    * what is necessary and not the default amount but the multiplier
    * forces the memory requirement to go beyond what was needed.
-   *
-   * @param numRecords value count
+   *  @param numRecords value count
    * @param density density of ListVector. Density is the average size of
    *                list per position in the List vector. For example, a
    *                density value of 10 implies each position in the list
@@ -175,10 +174,9 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
    *                the list vector, 1 position has a list of size 1 and
    *                remaining positions are null (no lists) or empty lists.
    *                This helps in tightly controlling the memory we provision
-   *                for inner data vector.
    */
   @Override
-  public void setInitialCapacity(int numRecords, double density) {
+  public void setInitialCapacity(long numRecords, double density) {
     if ((numRecords * density) >= Integer.MAX_VALUE) {
       throw new OversizedAllocationException("Requested amount of memory is more than max allowed");
     }
@@ -195,20 +193,20 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
   }
 
   @Override
-  public int getValueCapacity() {
-    final int offsetValueCapacity = Math.max(getOffsetBufferValueCapacity() - 1, 0);
+  public long getValueCapacity() {
+    final long offsetValueCapacity = Math.max(getOffsetBufferValueCapacity() - 1, 0);
     if (vector == DEFAULT_DATA_VECTOR) {
       return offsetValueCapacity;
     }
     return Math.min(vector.getValueCapacity(), offsetValueCapacity);
   }
 
-  protected int getOffsetBufferValueCapacity() {
+  protected long getOffsetBufferValueCapacity() {
     return offsetBuffer.capacity() / OFFSET_WIDTH;
   }
 
   @Override
-  public int getBufferSize() {
+  public long getBufferSize() {
     if (getValueCount() == 0) {
       return 0;
     }
@@ -216,7 +214,7 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
   }
 
   @Override
-  public int getBufferSizeFor(int valueCount) {
+  public long getBufferSizeFor(long valueCount) {
     if (valueCount == 0) {
       return 0;
     }
@@ -305,12 +303,12 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
 
 
   @Override
-  public int getValueCount() {
+  public long getValueCount() {
     return valueCount;
   }
 
   /* returns the value count for inner data vector for this list vector */
-  public int getInnerValueCount() {
+  public long getInnerValueCount() {
     return vector.getValueCount();
   }
 
@@ -321,8 +319,8 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
             offsetBuffer.getInt(index * OFFSET_WIDTH);
   }
 
-  /** Return if value at index is null (this implementation is always false). */
-  public boolean isNull(int index) {
+  /** Returns true if value at index is null (this implementation is always false). */
+  public boolean isNull(long index) {
     return false;
   }
 
@@ -332,7 +330,7 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
   }
 
   /** Starts a new repeated value. */
-  public int startNewValue(int index) {
+  public int startNewValue(long index) {
     while (index >= getOffsetBufferValueCapacity()) {
       reallocOffsetBuffer();
     }
@@ -343,7 +341,7 @@ public abstract class BaseRepeatedValueVector extends BaseValueVector implements
   }
 
   /** Preallocates the number of repeated values. */
-  public void setValueCount(int valueCount) {
+  public void setValueCount(long valueCount) {
     this.valueCount = valueCount;
     while (valueCount > getOffsetBufferValueCapacity()) {
       reallocOffsetBuffer();

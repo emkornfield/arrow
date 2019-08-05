@@ -83,14 +83,14 @@ public interface ValueVector extends Closeable, Iterable<ValueVector> {
    *
    * @param numRecords the initial record capacity.
    */
-  void setInitialCapacity(int numRecords);
+  void setInitialCapacity(long numRecords);
 
   /**
    * Returns the maximum number of values that can be stored in this vector instance.
    *
    * @return the maximum number of values that can be stored in this vector instance.
    */
-  int getValueCapacity();
+  long getValueCapacity();
 
   /**
    * Alternative to clear(). Allows use as an AutoCloseable in try-with-resources.
@@ -156,7 +156,7 @@ public interface ValueVector extends Closeable, Iterable<ValueVector> {
    *
    * @return the number of bytes that is used by this vector instance.
    */
-  int getBufferSize();
+  long getBufferSize();
 
   /**
    * Returns the number of bytes that is used by this vector if it holds the given number
@@ -169,7 +169,7 @@ public interface ValueVector extends Closeable, Iterable<ValueVector> {
    * @param valueCount the number of values to assume this vector contains
    * @return the buffer size if this vector is holding valueCount values
    */
-  int getBufferSizeFor(int valueCount);
+  long getBufferSizeFor(long valueCount);
 
   /**
    * Return the underlying buffers associated with this vector. Note that this doesn't impact the reference counts for
@@ -208,12 +208,12 @@ public interface ValueVector extends Closeable, Iterable<ValueVector> {
    *
    * @return number of values in the vector
    */
-  int getValueCount();
+  long getValueCount();
 
   /**
    * Set number of values in the vector.
    */
-  void setValueCount(int valueCount);
+  void setValueCount(long valueCount);
 
   /**
    * Get friendly type object from the vector.
@@ -221,14 +221,14 @@ public interface ValueVector extends Closeable, Iterable<ValueVector> {
    * @param index index of object to get
    * @return friendly type object
    */
-  Object getObject(int index);
+  Object getObject(long index);
 
   /**
    * Returns number of null elements in the vector.
    *
    * @return number of null elements
    */
-  int getNullCount();
+  long getNullCount();
 
   /**
    * Check whether an element in the vector is null.
@@ -236,12 +236,12 @@ public interface ValueVector extends Closeable, Iterable<ValueVector> {
    * @param index index to check for null
    * @return true if element is null
    */
-  boolean isNull(int index);
+  boolean isNull(long index);
 
   /**
    * Returns hashCode of element in index.
    */
-  int hashCode(int index);
+  int hashCode(long index);
 
   /**
    * Check whether the element in index equals to the element in targetIndex from the target vector.
@@ -250,26 +250,24 @@ public interface ValueVector extends Closeable, Iterable<ValueVector> {
    * @param targetIndex index to compare in target vector
    * @return true if equals, otherwise false.
    */
-  boolean equals(int index, ValueVector target, int targetIndex);
+  boolean equals(long index, ValueVector target, long targetIndex);
 
   /**
    * Copy a cell value from a particular index in source vector to a particular
    * position in this vector.
-   *
-   * @param fromIndex position to copy from in source vector
+   *  @param fromIndex position to copy from in source vector
    * @param thisIndex position to copy to in this vector
    * @param from      source vector
    */
-  void copyFrom(int fromIndex, int thisIndex, ValueVector from);
+  void copyFrom(long fromIndex, long thisIndex, ValueVector from);
 
   /**
-   * Same as {@link #copyFrom(int, int, ValueVector)} except that
+   * Same as {@link #copyFrom(long, long, ValueVector)} except that
    * it handles the case when the capacity of the vector needs to be expanded
    * before copy.
-   *
-   * @param fromIndex position to copy from in source vector
+   *  @param fromIndex position to copy from in source vector
    * @param thisIndex position to copy to in this vector
    * @param from      source vector
    */
-  void copyFromSafe(int fromIndex, int thisIndex, ValueVector from);
+  void copyFromSafe(long fromIndex, long thisIndex, ValueVector from);
 }

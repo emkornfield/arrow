@@ -47,7 +47,7 @@ public class SingleListReaderImpl extends AbstractFieldReader {
   }
 
   @Override
-  public void setPosition(int index) {
+  public void setPosition(long index) {
     super.setPosition(index);
     if (reader != null) {
       reader.setPosition(index);

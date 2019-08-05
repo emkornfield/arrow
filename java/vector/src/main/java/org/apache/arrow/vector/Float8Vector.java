@@ -110,7 +110,7 @@ public class Float8Vector extends BaseFixedWidthVector {
    * @param index   position of element
    * @return element at given index
    */
-  public double get(int index) throws IllegalStateException {
+  public double get(long index) throws IllegalStateException {
     if (NULL_CHECKING_ENABLED && isSet(index) == 0) {
       throw new IllegalStateException("Value at index is null");
     }
@@ -124,7 +124,7 @@ public class Float8Vector extends BaseFixedWidthVector {
    *
    * @param index   position of element
    */
-  public void get(int index, NullableFloat8Holder holder) {
+  public void get(long index, NullableFloat8Holder holder) {
     if (isSet(index) == 0) {
       holder.isSet = 0;
       return;
@@ -134,12 +134,12 @@ public class Float8Vector extends BaseFixedWidthVector {
   }
 
   /**
-   * Same as {@link #get(int)}.
+   * Same as {@link #get(long)}.
    *
    * @param index   position of element
    * @return element at given index
    */
-  public Double getObject(int index) {
+  public Double getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {
@@ -349,12 +349,12 @@ public class Float8Vector extends BaseFixedWidthVector {
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       splitAndTransferTo(startIndex, length, to);
     }
 
     @Override
-    public void copyValueSafe(int fromIndex, int toIndex) {
+    public void copyValueSafe(long fromIndex, long toIndex) {
       to.copyFromSafe(fromIndex, toIndex, Float8Vector.this);
     }
   }

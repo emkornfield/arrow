@@ -138,7 +138,7 @@ public class DateDayVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @return element at given index
    */
-  public Integer getObject(int index) {
+  public Integer getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {
@@ -274,7 +274,7 @@ public class DateDayVector extends BaseFixedWidthVector {
    * @param isSet 0 for NULL value, 1 otherwise
    * @param value element value
    */
-  public void setSafe(int index, int isSet, int value) {
+  public void setSafe(long index, int isSet, int value) {
     handleSafe(index);
     set(index, isSet, value);
   }
@@ -289,7 +289,7 @@ public class DateDayVector extends BaseFixedWidthVector {
    * @param index position of the element.
    * @return value stored at the index.
    */
-  public static int get(final ArrowBuf buffer, final int index) {
+  public static int get(final ArrowBuf buffer, final long index) {
     return buffer.getInt(index * TYPE_WIDTH);
   }
 
@@ -347,12 +347,12 @@ public class DateDayVector extends BaseFixedWidthVector {
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       splitAndTransferTo(startIndex, length, to);
     }
 
     @Override
-    public void copyValueSafe(int fromIndex, int toIndex) {
+    public void copyValueSafe(long fromIndex, long toIndex) {
       to.copyFromSafe(fromIndex, toIndex, DateDayVector.this);
     }
   }

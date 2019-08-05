@@ -41,7 +41,7 @@ public class SelectionVectorInt32 extends SelectionVector {
   }
 
   @Override
-  public int getIndex(int index) {
+  public int getIndex(long index) {
     checkReadBounds(index);
 
     return getBuffer().getInt(index * getRecordSize());

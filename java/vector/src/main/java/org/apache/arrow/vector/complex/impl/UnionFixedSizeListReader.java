@@ -66,7 +66,7 @@ public class UnionFixedSizeListReader extends AbstractFieldReader {
   }
 
   @Override
-  public void setPosition(int index) {
+  public void setPosition(long index) {
     super.setPosition(index);
     data.getReader().setPosition(index * listSize);
     currentOffset = 0;

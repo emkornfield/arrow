@@ -49,7 +49,7 @@ public class PromotableWriter extends AbstractPromotableFieldWriter {
   private final AbstractStructVector parentContainer;
   private final ListVector listVector;
   private final NullableStructWriterFactory nullableStructWriterFactory;
-  private int position;
+  private long position;
   private static final int MAX_DECIMAL_PRECISION = 38;
 
   private enum State {
@@ -163,7 +163,7 @@ public class PromotableWriter extends AbstractPromotableFieldWriter {
   }
 
   @Override
-  public void setPosition(int index) {
+  public void setPosition(long index) {
     super.setPosition(index);
     FieldWriter w = getWriter();
     if (w == null) {
@@ -242,7 +242,7 @@ public class PromotableWriter extends AbstractPromotableFieldWriter {
   }
 
   @Override
-  public void writeDecimal(int start, ArrowBuf buffer) {
+  public void writeDecimal(long start, ArrowBuf buffer) {
     // Cannot infer decimal scale and precision
     if (arrowType == null) {
       throw new IllegalStateException("Cannot infer decimal scale and precision");
@@ -277,7 +277,7 @@ public class PromotableWriter extends AbstractPromotableFieldWriter {
   }
 
   @Override
-  public int getValueCapacity() {
+  public long getValueCapacity() {
     return getWriter().getValueCapacity();
   }
 

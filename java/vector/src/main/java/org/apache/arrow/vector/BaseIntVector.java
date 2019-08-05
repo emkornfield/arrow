@@ -26,18 +26,18 @@ public interface BaseIntVector extends ValueVector {
    * Sets the value at index, note this value may need to be need truncated.
    * Note this is safe version (i.e. call setSafe method in vector)
    */
-  void setWithPossibleTruncate(int index, long value);
+  void setWithPossibleTruncate(long index, long value);
 
   /**
    * Sets the value at index, note this value may need to be need truncated.
    * Note this is unsafe version (i.e. call set method in vector)
    */
-  void setUnsafeWithPossibleTruncate(int index, long value);
+  void setUnsafeWithPossibleTruncate(long index, long value);
 
   /**
    * Gets the value at index.
    * This value may have been extended to long and will throw {@link NullPointerException}
    * if the value is null. Note null check could be turned off via {@link NullCheckingForGet}.
    */
-  long getValueAsLong(int index);
+  long getValueAsLong(long index);
 }

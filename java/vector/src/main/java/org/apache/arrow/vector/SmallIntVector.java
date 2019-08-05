@@ -110,7 +110,7 @@ public class SmallIntVector extends BaseFixedWidthVector implements BaseIntVecto
    * @param index   position of element
    * @return element at given index
    */
-  public short get(int index) throws IllegalStateException {
+  public short get(long index) throws IllegalStateException {
     if (NULL_CHECKING_ENABLED && isSet(index) == 0) {
       throw new IllegalStateException("Value at index is null");
     }
@@ -124,7 +124,7 @@ public class SmallIntVector extends BaseFixedWidthVector implements BaseIntVecto
    *
    * @param index   position of element
    */
-  public void get(int index, NullableSmallIntHolder holder) {
+  public void get(long index, NullableSmallIntHolder holder) {
     if (isSet(index) == 0) {
       holder.isSet = 0;
       return;
@@ -134,12 +134,12 @@ public class SmallIntVector extends BaseFixedWidthVector implements BaseIntVecto
   }
 
   /**
-   * Same as {@link #get(int)}.
+   * Same as {@link #get(long)}.
    *
    * @param index   position of element
    * @return element at given index
    */
-  public Short getObject(int index) {
+  public Short getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {
@@ -154,11 +154,11 @@ public class SmallIntVector extends BaseFixedWidthVector implements BaseIntVecto
    *----------------------------------------------------------------*/
 
 
-  private void setValue(int index, int value) {
+  private void setValue(long index, int value) {
     valueBuffer.setShort(index * TYPE_WIDTH, value);
   }
 
-  private void setValue(int index, short value) {
+  private void setValue(long index, short value) {
     valueBuffer.setShort(index * TYPE_WIDTH, value);
   }
 
@@ -168,7 +168,7 @@ public class SmallIntVector extends BaseFixedWidthVector implements BaseIntVecto
    * @param index   position of element
    * @param value   value of element
    */
-  public void set(int index, int value) {
+  public void set(long index, int value) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, value);
   }
@@ -179,7 +179,7 @@ public class SmallIntVector extends BaseFixedWidthVector implements BaseIntVecto
    * @param index   position of element
    * @param value   value of element
    */
-  public void set(int index, short value) {
+  public void set(long index, short value) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, value);
   }
@@ -192,7 +192,7 @@ public class SmallIntVector extends BaseFixedWidthVector implements BaseIntVecto
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void set(int index, NullableSmallIntHolder holder) throws IllegalArgumentException {
+  public void set(long index, NullableSmallIntHolder holder) throws IllegalArgumentException {
     if (holder.isSet < 0) {
       throw new IllegalArgumentException();
     } else if (holder.isSet > 0) {
@@ -209,59 +209,59 @@ public class SmallIntVector extends BaseFixedWidthVector implements BaseIntVecto
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void set(int index, SmallIntHolder holder) {
+  public void set(long index, SmallIntHolder holder) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, holder.value);
   }
 
   /**
-   * Same as {@link #set(int, int)} except that it handles the
+   * Same as {@link #set(long, int)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param value   value of element
    */
-  public void setSafe(int index, int value) {
+  public void setSafe(long index, int value) {
     handleSafe(index);
     set(index, value);
   }
 
   /**
-   * Same as {@link #set(int, short)} except that it handles the
+   * Same as {@link #set(long, short)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param value   value of element
    */
-  public void setSafe(int index, short value) {
+  public void setSafe(long index, short value) {
     handleSafe(index);
     set(index, value);
   }
 
   /**
-   * Same as {@link #set(int, NullableSmallIntHolder)} except that it handles the
+   * Same as {@link #set(long, NullableSmallIntHolder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void setSafe(int index, NullableSmallIntHolder holder) throws IllegalArgumentException {
+  public void setSafe(long index, NullableSmallIntHolder holder) throws IllegalArgumentException {
     handleSafe(index);
     set(index, holder);
   }
 
   /**
-   * Same as {@link #set(int, SmallIntHolder)} except that it handles the
+   * Same as {@link #set(long, SmallIntHolder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void setSafe(int index, SmallIntHolder holder) {
+  public void setSafe(long index, SmallIntHolder holder) {
     handleSafe(index);
     set(index, holder);
   }
@@ -271,7 +271,7 @@ public class SmallIntVector extends BaseFixedWidthVector implements BaseIntVecto
    *
    * @param index   position of element
    */
-  public void setNull(int index) {
+  public void setNull(long index) {
     handleSafe(index);
     // not really needed to set the bit to 0 as long as
     // the buffer always starts from 0.
@@ -286,7 +286,7 @@ public class SmallIntVector extends BaseFixedWidthVector implements BaseIntVecto
    * @param isSet 0 for NULL value, 1 otherwise
    * @param value element value
    */
-  public void set(int index, int isSet, short value) {
+  public void set(long index, int isSet, short value) {
     if (isSet > 0) {
       set(index, value);
     } else {
@@ -295,7 +295,7 @@ public class SmallIntVector extends BaseFixedWidthVector implements BaseIntVecto
   }
 
   /**
-   * Same as {@link #set(int, int, short)} except that it handles the case
+   * Same as {@link #set(long, int, short)} except that it handles the case
    * when index is greater than or equal to current value capacity of the
    * vector.
    *
@@ -303,7 +303,7 @@ public class SmallIntVector extends BaseFixedWidthVector implements BaseIntVecto
    * @param isSet 0 for NULL value, 1 otherwise
    * @param value element value
    */
-  public void setSafe(int index, int isSet, short value) {
+  public void setSafe(long index, int isSet, short value) {
     handleSafe(index);
     set(index, isSet, value);
   }
@@ -318,7 +318,7 @@ public class SmallIntVector extends BaseFixedWidthVector implements BaseIntVecto
    * @param index position of the element.
    * @return value stored at the index.
    */
-  public static short get(final ArrowBuf buffer, final int index) {
+  public static short get(final ArrowBuf buffer, final long index) {
     return buffer.getShort(index * TYPE_WIDTH);
   }
 
@@ -354,17 +354,17 @@ public class SmallIntVector extends BaseFixedWidthVector implements BaseIntVecto
   }
 
   @Override
-  public void setWithPossibleTruncate(int index, long value) {
+  public void setWithPossibleTruncate(long index, long value) {
     this.setSafe(index, (int) value);
   }
 
   @Override
-  public void setUnsafeWithPossibleTruncate(int index, long value) {
+  public void setUnsafeWithPossibleTruncate(long index, long value) {
     this.set(index, (int) value);
   }
 
   @Override
-  public long getValueAsLong(int index) {
+  public long getValueAsLong(long index) {
     return this.get(index);
   }
 
@@ -390,12 +390,12 @@ public class SmallIntVector extends BaseFixedWidthVector implements BaseIntVecto
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       splitAndTransferTo(startIndex, length, to);
     }
 
     @Override
-    public void copyValueSafe(int fromIndex, int toIndex) {
+    public void copyValueSafe(long fromIndex, long toIndex) {
       to.copyFromSafe(fromIndex, toIndex, SmallIntVector.this);
     }
   }

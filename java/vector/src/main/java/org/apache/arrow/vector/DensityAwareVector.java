@@ -49,9 +49,8 @@ public interface DensityAwareVector {
 
   /**
    * Set value with density.
-   *
-   * @param valueCount the number of values in this vector
+   *  @param valueCount the number of values in this vector
    * @param density the density of the vector
    */
-  void setInitialCapacity(int valueCount, double density);
+  void setInitialCapacity(long valueCount, double density);
 }

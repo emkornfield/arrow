@@ -38,15 +38,15 @@ public class BitVectorHelper {
   /**
    * Get the index of byte corresponding to bit index in validity buffer.
    */
-  public static int byteIndex(int absoluteBitIndex) {
+  public static long byteIndex(long absoluteBitIndex) {
     return absoluteBitIndex >> 3;
   }
 
   /**
    * Get the relative index of bit within the byte in validity buffer.
    */
-  public static int bitIndex(int absoluteBitIndex) {
-    return absoluteBitIndex & 7;
+  public static int bitIndex(long absoluteBitIndex) {
+    return (int)(absoluteBitIndex & 7);
   }
 
   /**
@@ -55,8 +55,8 @@ public class BitVectorHelper {
    * @param validityBuffer validity buffer of the vector
    * @param index index to be set
    */
-  public static void setValidityBitToOne(ArrowBuf validityBuffer, int index) {
-    final int byteIndex = byteIndex(index);
+  public static void setValidityBitToOne(ArrowBuf validityBuffer, long index) {
+    final long byteIndex = byteIndex(index);
     final int bitIndex = bitIndex(index);
     byte currentByte = validityBuffer.getByte(byteIndex);
     final byte bitMask = (byte) (1L << bitIndex);
@@ -71,8 +71,8 @@ public class BitVectorHelper {
    * @param index index to be set
    * @param value value to set
    */
-  public static void setValidityBit(ArrowBuf validityBuffer, int index, int value) {
-    final int byteIndex = byteIndex(index);
+  public static void setValidityBit(ArrowBuf validityBuffer, long index, int value) {
+    final long byteIndex = byteIndex(index);
     final int bitIndex = bitIndex(index);
     byte currentByte = validityBuffer.getByte(byteIndex);
     final byte bitMask = (byte) (1L << bitIndex);
@@ -96,7 +96,7 @@ public class BitVectorHelper {
    * @return ArrowBuf
    */
   public static ArrowBuf setValidityBit(ArrowBuf validityBuffer, BufferAllocator allocator,
-                                        int valueCount, int index, int value) {
+                                        int valueCount, long index, int value) {
     if (validityBuffer == null) {
       validityBuffer = allocator.buffer(getValidityBufferSize(valueCount));
     }
@@ -115,10 +115,10 @@ public class BitVectorHelper {
    * @param index index of the buffer
    * @return 1 if bit is set, 0 otherwise.
    */
-  public static int get(final ArrowBuf buffer, int index) {
-    final int byteIndex = index >> 3;
+  public static int get(final ArrowBuf buffer, long index) {
+    final long byteIndex = index >> 3;
     final byte b = buffer.getByte(byteIndex);
-    final int bitIndex = index & 7;
+    final long bitIndex = index & 7;
     return (b >> bitIndex) & 0x01;
   }
 
@@ -129,7 +129,7 @@ public class BitVectorHelper {
    * @param valueCount number of elements in the vector
    * @return buffer size
    */
-  public static int getValidityBufferSize(int valueCount) {
+  public static long getValidityBufferSize(long valueCount) {
     return DataSizeRoundingUtil.divideBy8Ceil(valueCount);
   }
 
@@ -141,17 +141,17 @@ public class BitVectorHelper {
    * @param valueCount number of values in the vector
    * @return number of bits not set.
    */
-  public static int getNullCount(final ArrowBuf validityBuffer, final int valueCount) {
+  public static long getNullCount(final ArrowBuf validityBuffer, final long valueCount) {
     if (valueCount == 0) {
       return 0;
     }
     int count = 0;
-    final int sizeInBytes = getValidityBufferSize(valueCount);
+    final long sizeInBytes = getValidityBufferSize(valueCount);
     // If value count is not a multiple of 8, then calculate number of used bits in the last byte
-    final int remainder = valueCount % 8;
-    final int fullBytesCount = remainder == 0 ? sizeInBytes : sizeInBytes - 1;
+    final long remainder = valueCount % 8;
+    final long fullBytesCount = remainder == 0 ? sizeInBytes : sizeInBytes - 1;
 
-    int index = 0;
+    long index = 0;
     while (index + 8 <= fullBytesCount) {
       long longValue = validityBuffer.getLong(index);
       count += Long.bitCount(longValue);
@@ -192,23 +192,23 @@ public class BitVectorHelper {
    * @return true if all bits are 0 or 1 according to the parameter, and false otherwise.
    */
   public static boolean checkAllBitsEqualTo(
-          final ArrowBuf validityBuffer, final int valueCount, final boolean checkOneBits) {
+          final ArrowBuf validityBuffer, final long valueCount, final boolean checkOneBits) {
     if (valueCount == 0) {
       return true;
     }
-    final int sizeInBytes = getValidityBufferSize(valueCount);
+    final long sizeInBytes = getValidityBufferSize(valueCount);
 
     // boundary check
     validityBuffer.checkBytes(0, sizeInBytes);
 
     // If value count is not a multiple of 8, then calculate number of used bits in the last byte
-    final int remainder = valueCount % 8;
-    final int fullBytesCount = remainder == 0 ? sizeInBytes : sizeInBytes - 1;
+    final long remainder = valueCount % 8;
+    final long fullBytesCount = remainder == 0 ? sizeInBytes : sizeInBytes - 1;
 
     // the integer number to compare against
     final int intToCompare = checkOneBits ? -1 : 0;
 
-    int index = 0;
+    long index = 0;
     while (index + 8 <= fullBytesCount) {
       long longValue = getLong(validityBuffer.memoryAddress() + index);
       if (longValue != (long) intToCompare) {
@@ -252,14 +252,14 @@ public class BitVectorHelper {
   }
 
   /** Returns the byte at index from data right-shifted by offset. */
-  public static byte getBitsFromCurrentByte(final ArrowBuf data, final int index, final int offset) {
+  public static byte getBitsFromCurrentByte(final ArrowBuf data, final long index, final long offset) {
     return (byte) ((data.getByte(index) & 0xFF) >>> offset);
   }
 
   /**
    * Returns the byte at <code>index</code> from left-shifted by (8 - <code>offset</code>).
    */
-  public static byte getBitsFromNextByte(ArrowBuf data, int index, int offset) {
+  public static byte getBitsFromNextByte(ArrowBuf data, long index, long offset) {
     return (byte) ((data.getByte(index) << (8 - offset)));
   }
 
@@ -314,7 +314,7 @@ public class BitVectorHelper {
    * @param byteIndex byteIndex within the buffer
    * @param bitMask bit mask to be set
    */
-  static void setBitMaskedByte(ArrowBuf data, int byteIndex, byte bitMask) {
+  static void setBitMaskedByte(ArrowBuf data, long byteIndex, byte bitMask) {
     byte currentByte = data.getByte(byteIndex);
     currentByte |= bitMask;
     data.setByte(byteIndex, currentByte);

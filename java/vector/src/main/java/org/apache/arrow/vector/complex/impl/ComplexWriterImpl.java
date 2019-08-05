@@ -127,7 +127,7 @@ public class ComplexWriterImpl extends AbstractFieldWriter implements ComplexWri
   }
 
   @Override
-  public void setPosition(int index) {
+  public void setPosition(long index) {
     super.setPosition(index);
     switch (mode) {
       case STRUCT:

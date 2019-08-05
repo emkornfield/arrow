@@ -55,7 +55,7 @@ public class NonNullableStructVector extends AbstractStructVector {
 
   private final SingleStructReaderImpl reader = new SingleStructReaderImpl(this);
   protected final FieldType fieldType;
-  public int valueCount;
+  public long valueCount;
 
   /**
    * @deprecated Use FieldType or static constructor instead.
@@ -90,7 +90,7 @@ public class NonNullableStructVector extends AbstractStructVector {
    * Copies the element at fromIndex in the provided vector to thisIndex.  Reallocates buffers
    * if thisIndex is larger then current capacity.
    */
-  public void copyFromSafe(int fromIndex, int thisIndex, NonNullableStructVector from) {
+  public void copyFromSafe(long fromIndex, int thisIndex, NonNullableStructVector from) {
     if (ephPair == null || ephPair.from != from) {
       ephPair = (StructTransferPair) from.makeTransferPair(this);
     }
@@ -107,14 +107,14 @@ public class NonNullableStructVector extends AbstractStructVector {
   }
 
   @Override
-  public void setInitialCapacity(int numRecords) {
+  public void setInitialCapacity(long numRecords) {
     for (final ValueVector v : (Iterable<ValueVector>) this) {
       v.setInitialCapacity(numRecords);
     }
   }
 
   @Override
-  public void setInitialCapacity(int valueCount, double density) {
+  public void setInitialCapacity(long valueCount, double density) {
     for (final ValueVector vector : (Iterable<ValueVector>) this) {
       if (vector instanceof DensityAwareVector) {
         ((DensityAwareVector)vector).setInitialCapacity(valueCount, density);
@@ -125,7 +125,7 @@ public class NonNullableStructVector extends AbstractStructVector {
   }
 
   @Override
-  public int getBufferSize() {
+  public long getBufferSize() {
     if (valueCount == 0 || size() == 0) {
       return 0;
     }
@@ -138,7 +138,7 @@ public class NonNullableStructVector extends AbstractStructVector {
   }
 
   @Override
-  public int getBufferSizeFor(final int valueCount) {
+  public long getBufferSizeFor(final long valueCount) {
     if (valueCount == 0) {
       return 0;
     }
@@ -244,14 +244,14 @@ public class NonNullableStructVector extends AbstractStructVector {
     }
 
     @Override
-    public void copyValueSafe(int from, int to) {
+    public void copyValueSafe(long from, long to) {
       for (TransferPair p : pairs) {
         p.copyValueSafe(from, to);
       }
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       for (TransferPair p : pairs) {
         p.splitAndTransfer(startIndex, length);
       }
@@ -260,19 +260,19 @@ public class NonNullableStructVector extends AbstractStructVector {
   }
 
   @Override
-  public int getValueCapacity() {
+  public long getValueCapacity() {
     if (size() == 0) {
       return 0;
     }
 
     return getChildren().stream()
-        .mapToInt(child -> child.getValueCapacity())
+        .mapToLong(child -> child.getValueCapacity())
         .min()
-        .getAsInt();
+        .getAsLong();
   }
 
   @Override
-  public Object getObject(int index) {
+  public Object getObject(long index) {
     Map<String, Object> vv = new JsonStringHashMap<>();
     for (String child : getChildFieldNames()) {
       ValueVector v = getChild(child);
@@ -287,7 +287,7 @@ public class NonNullableStructVector extends AbstractStructVector {
   }
 
   @Override
-  public int hashCode(int index) {
+  public int hashCode(long index) {
     int hash = 0;
     for (String child : getChildFieldNames()) {
       ValueVector v = getChild(child);
@@ -299,7 +299,7 @@ public class NonNullableStructVector extends AbstractStructVector {
   }
 
   @Override
-  public boolean equals(int index, ValueVector to, int toIndex) {
+  public boolean equals(long index, ValueVector to, long toIndex) {
     if (to == null) {
       return false;
     }
@@ -337,12 +337,12 @@ public class NonNullableStructVector extends AbstractStructVector {
   }
 
   @Override
-  public boolean isNull(int index) {
+  public boolean isNull(long index) {
     return false;
   }
 
   @Override
-  public int getNullCount() {
+  public long getNullCount() {
     return 0;
   }
 
@@ -352,7 +352,7 @@ public class NonNullableStructVector extends AbstractStructVector {
   }
 
   @Override
-  public int getValueCount() {
+  public long getValueCount() {
     return valueCount;
   }
 
@@ -361,7 +361,7 @@ public class NonNullableStructVector extends AbstractStructVector {
   }
 
   @Override
-  public void setValueCount(int valueCount) {
+  public void setValueCount(long valueCount) {
     for (final ValueVector v : getChildren()) {
       v.setValueCount(valueCount);
     }

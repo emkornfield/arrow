@@ -117,7 +117,7 @@ public class IntervalDayVector extends BaseFixedWidthVector {
    * @param index  position of the element.
    * @return day value stored at the index.
    */
-  public static int getDays(final ArrowBuf buffer, final int index) {
+  public static int getDays(final ArrowBuf buffer, final long index) {
     return buffer.getInt(index * TYPE_WIDTH);
   }
 
@@ -131,7 +131,7 @@ public class IntervalDayVector extends BaseFixedWidthVector {
    * @param index  position of the element.
    * @return milliseconds value stored at the index.
    */
-  public static int getMilliseconds(final ArrowBuf buffer, final int index) {
+  public static int getMilliseconds(final ArrowBuf buffer, final long index) {
     return buffer.getInt((index * TYPE_WIDTH) + MILLISECOND_OFFSET);
   }
 
@@ -172,11 +172,11 @@ public class IntervalDayVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @return element at given index
    */
-  public Duration getObject(int index) {
+  public Duration getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {
-      final int startIndex = index * TYPE_WIDTH;
+      final long startIndex = index * TYPE_WIDTH;
       final int days = valueBuffer.getInt(startIndex);
       final int milliseconds = valueBuffer.getInt(startIndex + MILLISECOND_OFFSET);
       return Duration.ofDays(days).plusMillis(milliseconds);
@@ -434,12 +434,12 @@ public class IntervalDayVector extends BaseFixedWidthVector {
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       splitAndTransferTo(startIndex, length, to);
     }
 
     @Override
-    public void copyValueSafe(int fromIndex, int toIndex) {
+    public void copyValueSafe(long fromIndex, long toIndex) {
       to.copyFromSafe(fromIndex, toIndex, IntervalDayVector.this);
     }
   }

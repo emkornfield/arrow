@@ -48,7 +48,7 @@ public class ${holderMode}${name}HolderReaderImpl extends AbstractFieldReader {
   }
 
   @Override
-  public int size() {
+  public long size() {
     throw new UnsupportedOperationException("You can't call size on a Holder value reader.");
   }
 
@@ -59,7 +59,7 @@ public class ${holderMode}${name}HolderReaderImpl extends AbstractFieldReader {
   }
 
   @Override
-  public void setPosition(int index) {
+  public void setPosition(long index) {
     throw new UnsupportedOperationException("You can't call next on a single value reader.");
   }
 
@@ -102,7 +102,7 @@ public class ${holderMode}${name}HolderReaderImpl extends AbstractFieldReader {
   </#if>
 
   <#if type.major == "VarLen">
-    int length = holder.end - holder.start;
+    long length = holder.end - holder.start;
     byte[] value = new byte [length];
     holder.buffer.getBytes(holder.start, value, 0, length);
     <#if minor.class == "VarBinary">

@@ -51,9 +51,9 @@ public class PooledByteBufAllocatorL {
   /**
    * Returns a {@linkplain io.netty.buffer.UnsafeDirectLittleEndian} of the given size.
    */
-  public UnsafeDirectLittleEndian allocate(int size) {
+  public UnsafeDirectLittleEndian allocate(long size) {
     try {
-      return allocator.directBuffer(size, Integer.MAX_VALUE);
+      return allocator.directBuffer(ArrowBuf.checkedCastToInt(size), Integer.MAX_VALUE);
     } catch (OutOfMemoryError e) {
       throw new OutOfMemoryException("Failure allocating buffer.", e);
     }

@@ -54,8 +54,8 @@ abstract class AbstractFieldReader extends AbstractBaseReader implements FieldRe
           "Character", "Text", "String", "Byte", "byte[]"] as friendlyType>
   <#assign safeType=friendlyType />
   <#if safeType=="byte[]"><#assign safeType="ByteArray" /></#if>
-  public ${friendlyType} read${safeType}(int arrayIndex) {
-    fail("read${safeType}(int arrayIndex)");
+  public ${friendlyType} read${safeType}(long arrayIndex) {
+    fail("read${safeType}(long arrayIndex)");
     return null;
   }
 
@@ -87,11 +87,11 @@ abstract class AbstractFieldReader extends AbstractBaseReader implements FieldRe
     fail("${name}");
   }
 
-  public void read(int arrayIndex, ${name}Holder holder) {
+  public void read(long arrayIndex, ${name}Holder holder) {
     fail("Repeated${name}");
   }
 
-  public void read(int arrayIndex, Nullable${name}Holder holder) {
+  public void read(long arrayIndex, Nullable${name}Holder holder) {
     fail("Repeated${name}");
   }
 
@@ -114,7 +114,7 @@ abstract class AbstractFieldReader extends AbstractBaseReader implements FieldRe
     return null;
   }
 
-  public int size() {
+  public long size() {
     fail("size()");
     return -1;
   }

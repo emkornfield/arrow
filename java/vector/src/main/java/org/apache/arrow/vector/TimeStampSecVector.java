@@ -120,12 +120,12 @@ public class TimeStampSecVector extends TimeStampVector {
   }
 
   /**
-   * Same as {@link #get(int)}.
+   * Same as {@link #get(long)}.
    *
    * @param index   position of element
    * @return element at given index
    */
-  public LocalDateTime getObject(int index) {
+  public LocalDateTime getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {

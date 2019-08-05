@@ -26,31 +26,30 @@ public interface VariableWidthVector extends ValueVector, DensityAwareVector {
 
   /**
    * Allocate a new memory space for this vector.  Must be called prior to using the ValueVector.
-   *
-   * @param totalBytes Desired size of the underlying data buffer.
+   *  @param totalBytes Desired size of the underlying data buffer.
    * @param valueCount Number of values in the vector.
    */
-  void allocateNew(int totalBytes, int valueCount);
+  void allocateNew(long totalBytes, long valueCount);
 
   /**
    * Provide the maximum amount of variable width bytes that can be stored in this vector.
    *
    * @return the byte capacity of this vector
    */
-  int getByteCapacity();
+  long getByteCapacity();
 
   /**
    * Provide the number of bytes contained in the valueBuffer.
    * @return the number of bytes in valueBuffer.
    */
-  int sizeOfValueBuffer();
+  long sizeOfValueBuffer();
 
   /**
    * Gets the pointer for the data at the given index.
    * @param index the index for the data.
    * @return the pointer to the data.
    */
-  ArrowBufPointer getDataPointer(int index);
+  ArrowBufPointer getDataPointer(long index);
 
   /**
    * Gets the pointer for the data at the given index.
@@ -58,5 +57,5 @@ public interface VariableWidthVector extends ValueVector, DensityAwareVector {
    * @param reuse the data pointer to fill, this avoids creating a new pointer object.
    * @return the pointer to the data, it should be the same one as the input parameter.
    */
-  ArrowBufPointer getDataPointer(int index, ArrowBufPointer reuse);
+  ArrowBufPointer getDataPointer(long index, ArrowBufPointer reuse);
 }

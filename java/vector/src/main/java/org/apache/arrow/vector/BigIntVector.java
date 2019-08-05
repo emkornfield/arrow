@@ -108,7 +108,7 @@ public class BigIntVector extends BaseFixedWidthVector implements BaseIntVector 
    * @param index   position of element
    * @return element at given index
    */
-  public long get(int index) throws IllegalStateException {
+  public long get(long index) throws IllegalStateException {
     if (NULL_CHECKING_ENABLED && isSet(index) == 0) {
       throw new IllegalStateException("Value at index is null");
     }
@@ -132,12 +132,12 @@ public class BigIntVector extends BaseFixedWidthVector implements BaseIntVector 
   }
 
   /**
-   * Same as {@link #get(int)}.
+   * Same as {@link #get(long)}.
    *
    * @param index   position of element
    * @return element at given index
    */
-  public Long getObject(int index) {
+  public Long getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {
@@ -152,7 +152,7 @@ public class BigIntVector extends BaseFixedWidthVector implements BaseIntVector 
    *----------------------------------------------------------------*/
 
 
-  private void setValue(int index, long value) {
+  private void setValue(long index, long value) {
     valueBuffer.setLong(index * TYPE_WIDTH, value);
   }
 
@@ -162,7 +162,7 @@ public class BigIntVector extends BaseFixedWidthVector implements BaseIntVector 
    * @param index   position of element
    * @param value   value of element
    */
-  public void set(int index, long value) {
+  public void set(long index, long value) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, value);
   }
@@ -175,7 +175,7 @@ public class BigIntVector extends BaseFixedWidthVector implements BaseIntVector 
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void set(int index, NullableBigIntHolder holder) throws IllegalArgumentException {
+  public void set(long index, NullableBigIntHolder holder) throws IllegalArgumentException {
     if (holder.isSet < 0) {
       throw new IllegalArgumentException();
     } else if (holder.isSet > 0) {
@@ -192,39 +192,39 @@ public class BigIntVector extends BaseFixedWidthVector implements BaseIntVector 
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void set(int index, BigIntHolder holder) {
+  public void set(long index, BigIntHolder holder) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, holder.value);
   }
 
   /**
-   * Same as {@link #set(int, long)} except that it handles the
+   * Same as {@link #set(long, long)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param value   value of element
    */
-  public void setSafe(int index, long value) {
+  public void setSafe(long index, long value) {
     handleSafe(index);
     set(index, value);
   }
 
   /**
-   * Same as {@link #set(int, NullableBigIntHolder)} except that it handles the
+   * Same as {@link #set(long, NullableBigIntHolder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void setSafe(int index, NullableBigIntHolder holder) throws IllegalArgumentException {
+  public void setSafe(long index, NullableBigIntHolder holder) throws IllegalArgumentException {
     handleSafe(index);
     set(index, holder);
   }
 
   /**
-   * Same as {@link #set(int, BigIntHolder)} except that it handles the
+   * Same as {@link #set(long, BigIntHolder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
@@ -286,7 +286,7 @@ public class BigIntVector extends BaseFixedWidthVector implements BaseIntVector 
    * @param index position of the element.
    * @return value stored at the index.
    */
-  public static long get(final ArrowBuf buffer, final int index) {
+  public static long get(final ArrowBuf buffer, final long index) {
     return buffer.getLong(index * TYPE_WIDTH);
   }
 
@@ -323,17 +323,17 @@ public class BigIntVector extends BaseFixedWidthVector implements BaseIntVector 
   }
 
   @Override
-  public void setWithPossibleTruncate(int index, long value) {
+  public void setWithPossibleTruncate(long index, long value) {
     this.setSafe(index, value);
   }
 
   @Override
-  public void setUnsafeWithPossibleTruncate(int index, long value) {
+  public void setUnsafeWithPossibleTruncate(long index, long value) {
     this.set(index, value);
   }
 
   @Override
-  public long getValueAsLong(int index) {
+  public long getValueAsLong(long index) {
     return this.get(index);
   }
 
@@ -359,12 +359,12 @@ public class BigIntVector extends BaseFixedWidthVector implements BaseIntVector 
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       splitAndTransferTo(startIndex, length, to);
     }
 
     @Override
-    public void copyValueSafe(int fromIndex, int toIndex) {
+    public void copyValueSafe(long fromIndex, long toIndex) {
       to.copyFromSafe(fromIndex, toIndex, BigIntVector.this);
     }
   }

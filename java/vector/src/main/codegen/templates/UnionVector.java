@@ -235,7 +235,7 @@ public class UnionVector implements FieldVector {
     return listVector;
   }
 
-  public int getTypeValue(int index) {
+  public int getTypeValue(long index) {
     return typeBuffer.getByte(index * TYPE_WIDTH);
   }
 
@@ -414,11 +414,11 @@ public class UnionVector implements FieldVector {
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       to.clear();
       internalStructVectorTransferPair.splitAndTransfer(startIndex, length);
-      final int startPoint = startIndex * TYPE_WIDTH;
-      final int sliceLength = length * TYPE_WIDTH;
+      final long startPoint = startIndex * TYPE_WIDTH;
+      final long sliceLength = length * TYPE_WIDTH;
       final ArrowBuf slicedBuffer = typeBuffer.slice(startPoint, sliceLength);
       final ReferenceManager refManager = slicedBuffer.getReferenceManager();
       to.typeBuffer = refManager.transferOwnership(slicedBuffer, to.allocator).getTransferredBuffer();
@@ -431,7 +431,7 @@ public class UnionVector implements FieldVector {
     }
 
     @Override
-    public void copyValueSafe(int from, int to) {
+    public void copyValueSafe(long from, long to) {
       this.to.copyFrom(from, to, UnionVector.this);
     }
   }
@@ -520,7 +520,7 @@ public class UnionVector implements FieldVector {
       }
     }
 
-    public Object getObject(int index) {
+    public Object getObject(long index) {
       ValueVector vector = getVector(index);
       if (vector != null) {
         return vector.getObject(index);
@@ -528,14 +528,14 @@ public class UnionVector implements FieldVector {
       return null;
     }
 
-    public byte[] get(int index) {
+    public byte[] get(long index) {
       return null;
     }
 
-    public void get(int index, ComplexHolder holder) {
+    public void get(long index, ComplexHolder holder) {
     }
 
-    public void get(int index, UnionHolder holder) {
+    public void get(long index, UnionHolder holder) {
       FieldReader reader = new UnionReader(UnionVector.this);
       reader.setPosition(index);
       holder.reader = reader;
@@ -545,7 +545,7 @@ public class UnionVector implements FieldVector {
       return valueCount;
     }
 
-    public boolean isNull(int index) {
+    public boolean isNull(long index) {
       return (typeBuffer.getByte(index * TYPE_WIDTH) == 0);
     }
 
@@ -560,7 +560,7 @@ public class UnionVector implements FieldVector {
       return nullCount;
     }
 
-    public int isSet(int index) {
+    public int isSet(long index) {
       return isNull(index) ? 0 : 1;
     }
 
@@ -574,7 +574,7 @@ public class UnionVector implements FieldVector {
       internalStruct.setValueCount(valueCount);
     }
 
-    public void setSafe(int index, UnionHolder holder) {
+    public void setSafe(long index, UnionHolder holder) {
       FieldReader reader = holder.reader;
       if (writer == null) {
         writer = new UnionWriter(UnionVector.this);
@@ -614,7 +614,7 @@ public class UnionVector implements FieldVector {
         <#assign fields = minor.fields!type.fields />
         <#assign uncappedName = name?uncap_first/>
         <#if !minor.typeParams?? >
-    public void setSafe(int index, Nullable${name}Holder holder) {
+    public void setSafe(long index, Nullable${name}Holder holder) {
       setType(index, MinorType.${name?upper_case});
       get${name}Vector().setSafe(index, holder);
     }
@@ -623,7 +623,7 @@ public class UnionVector implements FieldVector {
       </#list>
     </#list>
 
-    public void setType(int index, MinorType type) {
+    public void setType(long index, MinorType type) {
       while (index >= getTypeBufferValueCapacity()) {
         reallocTypeBuffer();
       }
@@ -635,12 +635,12 @@ public class UnionVector implements FieldVector {
     }
 
     @Override
-    public int hashCode(int index) {
+    public int hashCode(long index) {
       return getVector(index).hashCode(index);
     }
 
     @Override
-    public boolean equals(int index, ValueVector to, int toIndex) {
+    public boolean equals(long index, ValueVector to, long toIndex) {
       if (to == null) {
         return false;
       }

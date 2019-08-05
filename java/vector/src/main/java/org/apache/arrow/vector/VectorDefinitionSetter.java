@@ -22,5 +22,5 @@ package org.apache.arrow.vector;
  */
 public interface VectorDefinitionSetter {
 
-  void setIndexDefined(int index);
+  void setIndexDefined(long index);
 }

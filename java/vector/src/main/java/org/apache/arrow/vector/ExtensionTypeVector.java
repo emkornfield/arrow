@@ -89,12 +89,12 @@ public abstract class ExtensionTypeVector<T extends BaseValueVector & FieldVecto
   }
 
   @Override
-  public void setInitialCapacity(int numRecords) {
+  public void setInitialCapacity(long numRecords) {
     this.underlyingVector.setInitialCapacity(numRecords);
   }
 
   @Override
-  public int getValueCapacity() {
+  public long getValueCapacity() {
     return this.underlyingVector.getValueCapacity();
   }
 
@@ -134,12 +134,12 @@ public abstract class ExtensionTypeVector<T extends BaseValueVector & FieldVecto
   }
 
   @Override
-  public int getBufferSize() {
+  public long getBufferSize() {
     return underlyingVector.getBufferSize();
   }
 
   @Override
-  public int getBufferSizeFor(int valueCount) {
+  public long getBufferSizeFor(long valueCount) {
     return underlyingVector.getBufferSizeFor(valueCount);
   }
 
@@ -164,12 +164,12 @@ public abstract class ExtensionTypeVector<T extends BaseValueVector & FieldVecto
   }
 
   @Override
-  public int getValueCount() {
+  public long getValueCount() {
     return underlyingVector.getValueCount();
   }
 
   @Override
-  public void setValueCount(int valueCount) {
+  public void setValueCount(long valueCount) {
     underlyingVector.setValueCount(valueCount);
   }
 
@@ -180,15 +180,15 @@ public abstract class ExtensionTypeVector<T extends BaseValueVector & FieldVecto
    * data.
    */
   @Override
-  public abstract Object getObject(int index);
+  public abstract Object getObject(long index);
 
   @Override
-  public int getNullCount() {
+  public long getNullCount() {
     return underlyingVector.getNullCount();
   }
 
   @Override
-  public boolean isNull(int index) {
+  public boolean isNull(long index) {
     return underlyingVector.isNull(index);
   }
 

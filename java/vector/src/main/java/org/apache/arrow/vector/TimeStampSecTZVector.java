@@ -114,7 +114,7 @@ public class TimeStampSecTZVector extends TimeStampVector {
    *
    * @param index   position of element
    */
-  public void get(int index, NullableTimeStampSecTZHolder holder) {
+  public void get(long index, NullableTimeStampSecTZHolder holder) {
     if (isSet(index) == 0) {
       holder.isSet = 0;
       return;
@@ -124,12 +124,12 @@ public class TimeStampSecTZVector extends TimeStampVector {
   }
 
   /**
-   * Same as {@link #get(int)}.
+   * Same as {@link #get(long)}.
    *
    * @param index   position of element
    * @return element at given index
    */
-  public Long getObject(int index) {
+  public Long getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {
@@ -153,7 +153,7 @@ public class TimeStampSecTZVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void set(int index, NullableTimeStampSecTZHolder holder) throws IllegalArgumentException {
+  public void set(long index, NullableTimeStampSecTZHolder holder) throws IllegalArgumentException {
     if (holder.isSet < 0) {
       throw new IllegalArgumentException();
     } else if (holder.isSet > 0) {
@@ -170,33 +170,33 @@ public class TimeStampSecTZVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void set(int index, TimeStampSecTZHolder holder) {
+  public void set(long index, TimeStampSecTZHolder holder) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, holder.value);
   }
 
   /**
-   * Same as {@link #set(int, NullableTimeStampSecTZHolder)} except that it handles the
+   * Same as {@link #set(long, NullableTimeStampSecTZHolder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void setSafe(int index, NullableTimeStampSecTZHolder holder) throws IllegalArgumentException {
+  public void setSafe(long index, NullableTimeStampSecTZHolder holder) throws IllegalArgumentException {
     handleSafe(index);
     set(index, holder);
   }
 
   /**
-   * Same as {@link #set(int, TimeStampSecTZHolder)} except that it handles the
+   * Same as {@link #set(long, TimeStampSecTZHolder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void setSafe(int index, TimeStampSecTZHolder holder) {
+  public void setSafe(long index, TimeStampSecTZHolder holder) {
     handleSafe(index);
     set(index, holder);
   }

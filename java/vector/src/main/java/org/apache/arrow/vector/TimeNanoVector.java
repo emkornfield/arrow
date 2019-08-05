@@ -110,7 +110,7 @@ public class TimeNanoVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @return element at given index
    */
-  public long get(int index) throws IllegalStateException {
+  public long get(long index) throws IllegalStateException {
     if (NULL_CHECKING_ENABLED && isSet(index) == 0) {
       throw new IllegalStateException("Value at index is null");
     }
@@ -124,7 +124,7 @@ public class TimeNanoVector extends BaseFixedWidthVector {
    *
    * @param index   position of element
    */
-  public void get(int index, NullableTimeNanoHolder holder) {
+  public void get(long index, NullableTimeNanoHolder holder) {
     if (isSet(index) == 0) {
       holder.isSet = 0;
       return;
@@ -134,12 +134,12 @@ public class TimeNanoVector extends BaseFixedWidthVector {
   }
 
   /**
-   * Same as {@link #get(int)}.
+   * Same as {@link #get(long)}.
    *
    * @param index   position of element
    * @return element at given index
    */
-  public Long getObject(int index) {
+  public Long getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {
@@ -155,7 +155,7 @@ public class TimeNanoVector extends BaseFixedWidthVector {
    *----------------------------------------------------------------*/
 
 
-  private void setValue(int index, long value) {
+  private void setValue(long index, long value) {
     valueBuffer.setLong(index * TYPE_WIDTH, value);
   }
 
@@ -165,7 +165,7 @@ public class TimeNanoVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param value   value of element
    */
-  public void set(int index, long value) {
+  public void set(long index, long value) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, value);
   }
@@ -178,7 +178,7 @@ public class TimeNanoVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void set(int index, NullableTimeNanoHolder holder) throws IllegalArgumentException {
+  public void set(long index, NullableTimeNanoHolder holder) throws IllegalArgumentException {
     if (holder.isSet < 0) {
       throw new IllegalArgumentException();
     } else if (holder.isSet > 0) {
@@ -195,46 +195,46 @@ public class TimeNanoVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void set(int index, TimeNanoHolder holder) {
+  public void set(long index, TimeNanoHolder holder) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, holder.value);
   }
 
   /**
-   * Same as {@link #set(int, long)} except that it handles the
+   * Same as {@link #set(long, long)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param value   value of element
    */
-  public void setSafe(int index, long value) {
+  public void setSafe(long index, long value) {
     handleSafe(index);
     set(index, value);
   }
 
   /**
-   * Same as {@link #set(int, NullableTimeNanoHolder)} except that it handles the
+   * Same as {@link #set(long, NullableTimeNanoHolder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void setSafe(int index, NullableTimeNanoHolder holder) throws IllegalArgumentException {
+  public void setSafe(long index, NullableTimeNanoHolder holder) throws IllegalArgumentException {
     handleSafe(index);
     set(index, holder);
   }
 
   /**
-   * Same as {@link #set(int, TimeNanoHolder)} except that it handles the
+   * Same as {@link #set(long, TimeNanoHolder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void setSafe(int index, TimeNanoHolder holder) {
+  public void setSafe(long index, TimeNanoHolder holder) {
     handleSafe(index);
     set(index, holder);
   }
@@ -244,7 +244,7 @@ public class TimeNanoVector extends BaseFixedWidthVector {
    *
    * @param index   position of element
    */
-  public void setNull(int index) {
+  public void setNull(long index) {
     handleSafe(index);
     // not really needed to set the bit to 0 as long as
     // the buffer always starts from 0.
@@ -259,7 +259,7 @@ public class TimeNanoVector extends BaseFixedWidthVector {
    * @param isSet 0 for NULL value, 1 otherwise
    * @param value element value
    */
-  public void set(int index, int isSet, long value) {
+  public void set(long index, int isSet, long value) {
     if (isSet > 0) {
       set(index, value);
     } else {
@@ -268,7 +268,7 @@ public class TimeNanoVector extends BaseFixedWidthVector {
   }
 
   /**
-   * Same as {@link #set(int, int, long)} except that it handles the case
+   * Same as {@link #set(long, int, long)} except that it handles the case
    * when index is greater than or equal to current value capacity of the
    * vector.
    *
@@ -276,7 +276,7 @@ public class TimeNanoVector extends BaseFixedWidthVector {
    * @param isSet 0 for NULL value, 1 otherwise
    * @param value element value
    */
-  public void setSafe(int index, int isSet, long value) {
+  public void setSafe(long index, int isSet, long value) {
     handleSafe(index);
     set(index, isSet, value);
   }
@@ -291,7 +291,7 @@ public class TimeNanoVector extends BaseFixedWidthVector {
    * @param index position of the element.
    * @return value stored at the index.
    */
-  public static long get(final ArrowBuf buffer, final int index) {
+  public static long get(final ArrowBuf buffer, final long index) {
     return buffer.getLong(index * TYPE_WIDTH);
   }
 
@@ -348,12 +348,12 @@ public class TimeNanoVector extends BaseFixedWidthVector {
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       splitAndTransferTo(startIndex, length, to);
     }
 
     @Override
-    public void copyValueSafe(int fromIndex, int toIndex) {
+    public void copyValueSafe(long fromIndex, long toIndex) {
       to.copyFromSafe(fromIndex, toIndex, TimeNanoVector.this);
     }
   }

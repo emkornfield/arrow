@@ -43,7 +43,7 @@ public class UnionListWriter extends AbstractFieldWriter {
   protected PromotableWriter writer;
   private boolean inStruct = false;
   private String structName;
-  private int lastIndex = 0;
+  private long lastIndex = 0;
   private static final int OFFSET_WIDTH = 4;
 
   public UnionListWriter(ListVector vector) {
@@ -74,12 +74,12 @@ public class UnionListWriter extends AbstractFieldWriter {
     return null;
   }
 
-  public void setValueCount(int count) {
+  public void setValueCount(long count) {
     vector.setValueCount(count);
   }
 
   @Override
-  public int getValueCapacity() {
+  public long getValueCapacity() {
     return vector.getValueCapacity();
   }
 
@@ -89,7 +89,7 @@ public class UnionListWriter extends AbstractFieldWriter {
   }
 
   @Override
-  public void setPosition(int index) {
+  public void setPosition(long index) {
     super.setPosition(index);
   }
   <#list vv.types as type><#list type.minor as minor><#assign name = minor.class?cap_first />
@@ -178,7 +178,7 @@ public class UnionListWriter extends AbstractFieldWriter {
     writer.setPosition(writer.idx()+1);
   }
 
-  public void writeDecimal(int start, ArrowBuf buffer) {
+  public void writeDecimal(long start, ArrowBuf buffer) {
     writer.writeDecimal(start, buffer);
     writer.setPosition(writer.idx()+1);
   }

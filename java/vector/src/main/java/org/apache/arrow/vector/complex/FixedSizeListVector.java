@@ -69,8 +69,8 @@ public class FixedSizeListVector extends BaseValueVector implements FieldVector,
   private final String name;
 
   private UnionFixedSizeListReader reader;
-  private int valueCount;
-  private int validityAllocationSizeInBytes;
+  private long valueCount;
+  private long validityAllocationSizeInBytes;
 
   /**
    * @deprecated use FieldType or static constructor instead.
@@ -240,11 +240,11 @@ public class FixedSizeListVector extends BaseValueVector implements FieldVector,
   }
 
   private void reallocValidityBuffer() {
-    final int currentBufferCapacity = validityBuffer.capacity();
+    final long currentBufferCapacity = validityBuffer.capacity();
     long baseSize = validityAllocationSizeInBytes;
 
-    if (baseSize < (long) currentBufferCapacity) {
-      baseSize = (long) currentBufferCapacity;
+    if (baseSize < currentBufferCapacity) {
+      baseSize = currentBufferCapacity;
     }
 
     long newAllocationSize = baseSize * 2L;
@@ -268,13 +268,13 @@ public class FixedSizeListVector extends BaseValueVector implements FieldVector,
   }
 
   @Override
-  public void setInitialCapacity(int numRecords) {
+  public void setInitialCapacity(long numRecords) {
     validityAllocationSizeInBytes = getValidityBufferSizeFromCount(numRecords);
     vector.setInitialCapacity(numRecords * listSize);
   }
 
   @Override
-  public int getValueCapacity() {
+  public long getValueCapacity() {
     if (vector == ZeroVector.INSTANCE) {
       return 0;
     }
@@ -282,7 +282,7 @@ public class FixedSizeListVector extends BaseValueVector implements FieldVector,
   }
 
   @Override
-  public int getBufferSize() {
+  public long getBufferSize() {
     if (getValueCount() == 0) {
       return 0;
     }
@@ -290,7 +290,7 @@ public class FixedSizeListVector extends BaseValueVector implements FieldVector,
   }
 
   @Override
-  public int getBufferSizeFor(int valueCount) {
+  public long getBufferSizeFor(long valueCount) {
     if (valueCount == 0) {
       return 0;
     }
@@ -370,7 +370,7 @@ public class FixedSizeListVector extends BaseValueVector implements FieldVector,
     copyFrom(inIndex, outIndex, from);
   }
 
-  public void copyFrom(int fromIndex, int thisIndex, FixedSizeListVector from) {
+  public void copyFrom(long fromIndex, int thisIndex, FixedSizeListVector from) {
     TransferPair pair = from.makeTransferPair(this);
     pair.copyValueSafe(fromIndex, thisIndex);
   }
@@ -415,7 +415,7 @@ public class FixedSizeListVector extends BaseValueVector implements FieldVector,
   }
 
   @Override
-  public Object getObject(int index) {
+  public Object getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     }
@@ -427,29 +427,26 @@ public class FixedSizeListVector extends BaseValueVector implements FieldVector,
   }
 
   /**
-   * Returns whether the value at index null.
+   * Returns true whether the value at index is null.
    */
-  public boolean isNull(int index) {
+  public boolean isNull(long index) {
     return (isSet(index) == 0);
   }
 
   /**
    * Returns non-zero when the value at index is non-null.
    */
-  public int isSet(int index) {
-    final int byteIndex = index >> 3;
-    final byte b = validityBuffer.getByte(byteIndex);
-    final int bitIndex = index & 7;
-    return (b >> bitIndex) & 0x01;
+  public int isSet(long index) {
+    return BitVectorHelper.get(validityBuffer, index);
   }
 
   @Override
-  public int getNullCount() {
+  public long getNullCount() {
     return BitVectorHelper.getNullCount(validityBuffer, valueCount);
   }
 
   @Override
-  public int getValueCount() {
+  public long getValueCount() {
     return valueCount;
   }
 
@@ -457,7 +454,7 @@ public class FixedSizeListVector extends BaseValueVector implements FieldVector,
    * Returns the number of elements the validity buffer can represent with its
    * current capacity.
    */
-  private int getValidityBufferValueCapacity() {
+  private long getValidityBufferValueCapacity() {
     return validityBuffer.capacity() * 8;
   }
 
@@ -480,7 +477,7 @@ public class FixedSizeListVector extends BaseValueVector implements FieldVector,
   }
 
   @Override
-  public void setValueCount(int valueCount) {
+  public void setValueCount(long valueCount) {
     this.valueCount = valueCount;
     while (valueCount > getValidityBufferValueCapacity()) {
       reallocValidityBuffer();
@@ -504,7 +501,7 @@ public class FixedSizeListVector extends BaseValueVector implements FieldVector,
   }
 
   @Override
-  public int hashCode(int index) {
+  public int hashCode(long index) {
     if (isSet(index) == 0) {
       return 0;
     }
@@ -516,7 +513,7 @@ public class FixedSizeListVector extends BaseValueVector implements FieldVector,
   }
 
   @Override
-  public boolean equals(int index, ValueVector to, int toIndex) {
+  public boolean equals(long index, ValueVector to, long toIndex) {
     if (to == null) {
       return false;
     }
@@ -559,7 +556,7 @@ public class FixedSizeListVector extends BaseValueVector implements FieldVector,
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       to.clear();
       to.allocateNew();
       for (int i = 0; i < length; i++) {
@@ -573,13 +570,13 @@ public class FixedSizeListVector extends BaseValueVector implements FieldVector,
     }
 
     @Override
-    public void copyValueSafe(int fromIndex, int toIndex) {
+    public void copyValueSafe(long fromIndex, long toIndex) {
       while (toIndex >= to.getValueCapacity()) {
         to.reAlloc();
       }
       BitVectorHelper.setValidityBit(to.validityBuffer, toIndex, isSet(fromIndex));
-      int fromOffset = fromIndex * listSize;
-      int toOffset = toIndex * listSize;
+      long fromOffset = fromIndex * listSize;
+      long toOffset = toIndex * listSize;
       for (int i = 0; i < listSize; i++) {
         dataPair.copyValueSafe(fromOffset + i, toOffset + i);
       }

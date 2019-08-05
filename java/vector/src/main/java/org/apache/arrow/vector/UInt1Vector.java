@@ -83,7 +83,7 @@ public class UInt1Vector extends BaseFixedWidthVector implements BaseIntVector {
    * @param index position of the element.
    * @return value stored at the index.
    */
-  public static short getNoOverflow(final ArrowBuf buffer, final int index) {
+  public static short getNoOverflow(final ArrowBuf buffer, final long index) {
     byte b =  buffer.getByte(index * TYPE_WIDTH);
     return (short)(0xFF & b);
   }
@@ -95,7 +95,7 @@ public class UInt1Vector extends BaseFixedWidthVector implements BaseIntVector {
    * @param index   position of element
    * @return element at given index
    */
-  public byte get(int index) throws IllegalStateException {
+  public byte get(long index) throws IllegalStateException {
     if (NULL_CHECKING_ENABLED && isSet(index) == 0) {
       throw new IllegalStateException("Value at index is null");
     }
@@ -109,7 +109,7 @@ public class UInt1Vector extends BaseFixedWidthVector implements BaseIntVector {
    *
    * @param index   position of element
    */
-  public void get(int index, NullableUInt1Holder holder) {
+  public void get(long index, NullableUInt1Holder holder) {
     if (isSet(index) == 0) {
       holder.isSet = 0;
       return;
@@ -119,12 +119,12 @@ public class UInt1Vector extends BaseFixedWidthVector implements BaseIntVector {
   }
 
   /**
-   * Same as {@link #get(int)}.
+   * Same as {@link #get(long)}.
    *
    * @param index   position of element
    * @return element at given index
    */
-  public Byte getObject(int index) {
+  public Byte getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {
@@ -138,7 +138,7 @@ public class UInt1Vector extends BaseFixedWidthVector implements BaseIntVector {
    * @param index   position of element
    * @return element at given index
    */
-  public Short getObjectNoOverflow(int index) {
+  public Short getObjectNoOverflow(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {
@@ -154,11 +154,11 @@ public class UInt1Vector extends BaseFixedWidthVector implements BaseIntVector {
    *----------------------------------------------------------------*/
 
 
-  private void setValue(int index, int value) {
+  private void setValue(long index, int value) {
     valueBuffer.setByte(index * TYPE_WIDTH, value);
   }
 
-  private void setValue(int index, byte value) {
+  private void setValue(long index, byte value) {
     valueBuffer.setByte(index * TYPE_WIDTH, value);
   }
 
@@ -168,7 +168,7 @@ public class UInt1Vector extends BaseFixedWidthVector implements BaseIntVector {
    * @param index   position of element
    * @param value   value of element
    */
-  public void set(int index, int value) {
+  public void set(long index, int value) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, value);
   }
@@ -179,7 +179,7 @@ public class UInt1Vector extends BaseFixedWidthVector implements BaseIntVector {
    * @param index   position of element
    * @param value   value of element
    */
-  public void set(int index, byte value) {
+  public void set(long index, byte value) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, value);
   }
@@ -192,7 +192,7 @@ public class UInt1Vector extends BaseFixedWidthVector implements BaseIntVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void set(int index, NullableUInt1Holder holder) throws IllegalArgumentException {
+  public void set(long index, NullableUInt1Holder holder) throws IllegalArgumentException {
     if (holder.isSet < 0) {
       throw new IllegalArgumentException();
     } else if (holder.isSet > 0) {
@@ -209,59 +209,59 @@ public class UInt1Vector extends BaseFixedWidthVector implements BaseIntVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void set(int index, UInt1Holder holder) {
+  public void set(long index, UInt1Holder holder) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, holder.value);
   }
 
   /**
-   * Same as {@link #set(int, int)} except that it handles the
+   * Same as {@link #set(long, int)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param value   value of element
    */
-  public void setSafe(int index, int value) {
+  public void setSafe(long index, int value) {
     handleSafe(index);
     set(index, value);
   }
 
   /**
-   * Same as {@link #set(int, byte)} except that it handles the
+   * Same as {@link #set(long, byte)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param value   value of element
    */
-  public void setSafe(int index, byte value) {
+  public void setSafe(long index, byte value) {
     handleSafe(index);
     set(index, value);
   }
 
   /**
-   * Same as {@link #set(int, NullableUInt1Holder)} except that it handles the
+   * Same as {@link #set(long, NullableUInt1Holder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void setSafe(int index, NullableUInt1Holder holder) throws IllegalArgumentException {
+  public void setSafe(long index, NullableUInt1Holder holder) throws IllegalArgumentException {
     handleSafe(index);
     set(index, holder);
   }
 
   /**
-   * Same as {@link #set(int, UInt1Holder)} except that it handles the
+   * Same as {@link #set(long, UInt1Holder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void setSafe(int index, UInt1Holder holder) {
+  public void setSafe(long index, UInt1Holder holder) {
     handleSafe(index);
     set(index, holder);
   }
@@ -271,7 +271,7 @@ public class UInt1Vector extends BaseFixedWidthVector implements BaseIntVector {
    *
    * @param index   position of element
    */
-  public void setNull(int index) {
+  public void setNull(long index) {
     handleSafe(index);
     // not really needed to set the bit to 0 as long as
     // the buffer always starts from 0.
@@ -282,7 +282,7 @@ public class UInt1Vector extends BaseFixedWidthVector implements BaseIntVector {
    * Sets the value at index to value isSet > 0, otherwise sets the index position
    * to invalid/null.
    */
-  public void set(int index, int isSet, byte value) {
+  public void set(long index, int isSet, byte value) {
     if (isSet > 0) {
       set(index, value);
     } else {
@@ -291,10 +291,10 @@ public class UInt1Vector extends BaseFixedWidthVector implements BaseIntVector {
   }
 
   /**
-   * Same as {@link #set(int, int, byte)} but will reallocate the buffer if index
+   * Same as {@link #set(long, int, byte)} but will reallocate the buffer if index
    * is larger than current capacity.
    */
-  public void setSafe(int index, int isSet, byte value) {
+  public void setSafe(long index, int isSet, byte value) {
     handleSafe(index);
     set(index, isSet, value);
   }
@@ -318,17 +318,17 @@ public class UInt1Vector extends BaseFixedWidthVector implements BaseIntVector {
   }
 
   @Override
-  public void setWithPossibleTruncate(int index, long value) {
+  public void setWithPossibleTruncate(long index, long value) {
     this.setSafe(index, (int) value);
   }
 
   @Override
-  public void setUnsafeWithPossibleTruncate(int index, long value) {
+  public void setUnsafeWithPossibleTruncate(long index, long value) {
     this.set(index, (int) value);
   }
 
   @Override
-  public long getValueAsLong(int index) {
+  public long getValueAsLong(long index) {
     return this.get(index);
   }
 
@@ -356,12 +356,12 @@ public class UInt1Vector extends BaseFixedWidthVector implements BaseIntVector {
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       splitAndTransferTo(startIndex, length, to);
     }
 
     @Override
-    public void copyValueSafe(int fromIndex, int toIndex) {
+    public void copyValueSafe(long fromIndex, long toIndex) {
       to.copyFromSafe(fromIndex, toIndex, UInt1Vector.this);
     }
   }

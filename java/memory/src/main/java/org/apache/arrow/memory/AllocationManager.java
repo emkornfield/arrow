@@ -70,7 +70,7 @@ public class AllocationManager {
   private volatile BufferLedger owningLedger;
   private volatile long amDestructionTime = 0;
 
-  AllocationManager(BaseAllocator accountingAllocator, int size) {
+  AllocationManager(BaseAllocator accountingAllocator, long size) {
     Preconditions.checkNotNull(accountingAllocator);
     accountingAllocator.assertOpen();
 

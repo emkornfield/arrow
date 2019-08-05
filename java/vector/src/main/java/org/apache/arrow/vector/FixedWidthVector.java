@@ -30,7 +30,7 @@ public interface FixedWidthVector extends ValueVector {
    *
    * @param valueCount Number of values in the vector.
    */
-  void allocateNew(int valueCount);
+  void allocateNew(long valueCount);
 
   /**
    * Zero out the underlying buffer backing this vector.
@@ -42,7 +42,7 @@ public interface FixedWidthVector extends ValueVector {
    * @param index the index for the data.
    * @return the pointer to the data.
    */
-  ArrowBufPointer getDataPointer(int index);
+  ArrowBufPointer getDataPointer(long index);
 
   /**
    * Gets the pointer for the data at the given index.
@@ -50,5 +50,5 @@ public interface FixedWidthVector extends ValueVector {
    * @param reuse the data pointer to fill, this avoids creating a new pointer object.
    * @return the pointer to the data, it should be the same one as the input parameter
    */
-  ArrowBufPointer getDataPointer(int index, ArrowBufPointer reuse);
+  ArrowBufPointer getDataPointer(long index, ArrowBufPointer reuse);
 }

@@ -116,7 +116,7 @@ public class IntervalYearVector extends BaseFixedWidthVector {
    * @param index  position of the element.
    * @return value stored at the index.
    */
-  public static int getTotalMonths(final ArrowBuf buffer, final int index) {
+  public static int getTotalMonths(final ArrowBuf buffer, final long index) {
     return buffer.getInt(index * TYPE_WIDTH);
   }
 
@@ -155,7 +155,7 @@ public class IntervalYearVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @return element at given index
    */
-  public Period getObject(int index) {
+  public Period getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {
@@ -383,12 +383,12 @@ public class IntervalYearVector extends BaseFixedWidthVector {
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       splitAndTransferTo(startIndex, length, to);
     }
 
     @Override
-    public void copyValueSafe(int fromIndex, int toIndex) {
+    public void copyValueSafe(long fromIndex, long toIndex) {
       to.copyFromSafe(fromIndex, toIndex, IntervalYearVector.this);
     }
   }

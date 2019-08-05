@@ -69,7 +69,7 @@ public class SingleStructReaderImpl extends AbstractFieldReader {
   }
 
   @Override
-  public void setPosition(int index) {
+  public void setPosition(long index) {
     super.setPosition(index);
     for (FieldReader r : fields.values()) {
       r.setPosition(index);

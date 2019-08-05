@@ -34,7 +34,7 @@ public interface BaseReader extends Positionable{
   MinorType getMinorType();
   void reset();
   void read(UnionHolder holder);
-  void read(int index, UnionHolder holder);
+  void read(long index, UnionHolder holder);
   void copyAsValue(UnionWriter writer);
   boolean isSet();
 
@@ -44,7 +44,7 @@ public interface BaseReader extends Positionable{
   
   public interface RepeatedStructReader extends StructReader{
     boolean next();
-    int size();
+    long size();
     void copyAsValue(StructWriter writer);
   }
   
@@ -54,7 +54,7 @@ public interface BaseReader extends Positionable{
   
   public interface RepeatedListReader extends ListReader{
     boolean next();
-    int size();
+    long size();
     void copyAsValue(ListWriter writer);
   }
   

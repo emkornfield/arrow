@@ -67,11 +67,11 @@ public class UnionReader extends AbstractFieldReader {
     holder.isSet = this.isSet() ? 1 : 0;
   }
 
-  public void read(int index, UnionHolder holder) {
+  public void read(long index, UnionHolder holder) {
     getList().read(index, holder);
   }
 
-  private FieldReader getReaderForIndex(int index) {
+  private FieldReader getReaderForIndex(long index) {
     int typeValue = data.getTypeValue(index);
     FieldReader reader = (FieldReader) readers[typeValue];
     if (reader != null) {
@@ -144,7 +144,7 @@ public class UnionReader extends AbstractFieldReader {
 
   </#list>
 
-  public int size() {
+  public long size() {
     return getReaderForIndex(idx()).size();
   }
 
@@ -187,7 +187,7 @@ public class UnionReader extends AbstractFieldReader {
   }
 
   @Override
-  public void setPosition(int index) {
+  public void setPosition(long index) {
     super.setPosition(index);
     for (BaseReader reader : readers) {
       if (reader != null) {

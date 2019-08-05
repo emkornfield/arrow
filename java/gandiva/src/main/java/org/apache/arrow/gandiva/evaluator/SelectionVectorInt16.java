@@ -41,7 +41,7 @@ public class SelectionVectorInt16 extends SelectionVector {
   }
 
   @Override
-  public int getIndex(int index) {
+  public int getIndex(long index) {
     checkReadBounds(index);
 
     char value = getBuffer().getChar(index * getRecordSize());

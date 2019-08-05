@@ -60,7 +60,7 @@ public class StructVector extends NonNullableStructVector implements FieldVector
   private final NullableStructWriter writer = new NullableStructWriter(this);
 
   protected ArrowBuf validityBuffer;
-  private int validityAllocationSizeInBytes;
+  private long validityAllocationSizeInBytes;
 
   /**
    * @deprecated Use FieldType or static constructor instead.
@@ -177,7 +177,7 @@ public class StructVector extends NonNullableStructVector implements FieldVector
     }
 
     @Override
-    public void copyValueSafe(int fromIndex, int toIndex) {
+    public void copyValueSafe(long fromIndex, long toIndex) {
       while (toIndex >= target.getValidityBufferValueCapacity()) {
         target.reallocValidityBuffer();
       }
@@ -186,7 +186,7 @@ public class StructVector extends NonNullableStructVector implements FieldVector
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       target.clear();
       splitAndTransferValidityBuffer(startIndex, length, target);
       super.splitAndTransfer(startIndex, length);
@@ -196,12 +196,12 @@ public class StructVector extends NonNullableStructVector implements FieldVector
   /*
    * transfer the validity.
    */
-  private void splitAndTransferValidityBuffer(int startIndex, int length, StructVector target) {
+  private void splitAndTransferValidityBuffer(long startIndex, long length, StructVector target) {
     assert startIndex + length <= valueCount;
-    int firstByteSource = BitVectorHelper.byteIndex(startIndex);
-    int lastByteSource = BitVectorHelper.byteIndex(valueCount - 1);
-    int byteSizeTarget = BitVectorHelper.getValidityBufferSize(length);
-    int offset = startIndex % 8;
+    long firstByteSource = BitVectorHelper.byteIndex(startIndex);
+    long lastByteSource = BitVectorHelper.byteIndex(valueCount - 1);
+    long byteSizeTarget = BitVectorHelper.getValidityBufferSize(length);
+    long offset = startIndex % 8;
 
     if (length > 0) {
       if (offset == 0) {
@@ -256,7 +256,7 @@ public class StructVector extends NonNullableStructVector implements FieldVector
    * Get the value capacity of the internal validity buffer.
    * @return number of elements that validity buffer can hold
    */
-  private int getValidityBufferValueCapacity() {
+  private long getValidityBufferValueCapacity() {
     return validityBuffer.capacity() * 8;
   }
 
@@ -265,7 +265,7 @@ public class StructVector extends NonNullableStructVector implements FieldVector
    * @return number of elements that vector can hold.
    */
   @Override
-  public int getValueCapacity() {
+  public long getValueCapacity() {
     return Math.min(getValidityBufferValueCapacity(),
             super.getValueCapacity());
   }
@@ -344,7 +344,7 @@ public class StructVector extends NonNullableStructVector implements FieldVector
    * @return size of underlying buffers.
    */
   @Override
-  public int getBufferSize() {
+  public long getBufferSize() {
     if (valueCount == 0) {
       return 0;
     }
@@ -360,7 +360,7 @@ public class StructVector extends NonNullableStructVector implements FieldVector
    *         a given number of elements
    */
   @Override
-  public int getBufferSizeFor(final int valueCount) {
+  public long getBufferSizeFor(final long valueCount) {
     if (valueCount == 0) {
       return 0;
     }
@@ -369,13 +369,13 @@ public class StructVector extends NonNullableStructVector implements FieldVector
   }
 
   @Override
-  public void setInitialCapacity(int numRecords) {
+  public void setInitialCapacity(long numRecords) {
     validityAllocationSizeInBytes = BitVectorHelper.getValidityBufferSize(numRecords);
     super.setInitialCapacity(numRecords);
   }
 
   @Override
-  public void setInitialCapacity(int numRecords, double density) {
+  public void setInitialCapacity(long numRecords, double density) {
     validityAllocationSizeInBytes = BitVectorHelper.getValidityBufferSize(numRecords);
     super.setInitialCapacity(numRecords, density);
   }
@@ -417,7 +417,7 @@ public class StructVector extends NonNullableStructVector implements FieldVector
   }
 
   private void reallocValidityBuffer() {
-    final int currentBufferCapacity = validityBuffer.capacity();
+    final long currentBufferCapacity = validityBuffer.capacity();
     long baseSize = validityAllocationSizeInBytes;
 
     if (baseSize < (long) currentBufferCapacity) {
@@ -471,7 +471,7 @@ public class StructVector extends NonNullableStructVector implements FieldVector
   }
 
   @Override
-  public Object getObject(int index) {
+  public Object getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {
@@ -480,7 +480,7 @@ public class StructVector extends NonNullableStructVector implements FieldVector
   }
 
   @Override
-  public int hashCode(int index) {
+  public int hashCode(long index) {
     if (isSet(index) == 0) {
       return 0;
     } else {
@@ -501,25 +501,22 @@ public class StructVector extends NonNullableStructVector implements FieldVector
   /**
    * Return the number of null values in the vector.
    */
-  public int getNullCount() {
+  public long getNullCount() {
     return BitVectorHelper.getNullCount(validityBuffer, valueCount);
   }
 
   /**
    * Returns true if the value at the provided index is null.
    */
-  public boolean isNull(int index) {
+  public boolean isNull(long index) {
     return isSet(index) == 0;
   }
 
   /**
    * Returns true the value at the given index is set (i.e. not null).
    */
-  public int isSet(int index) {
-    final int byteIndex = index >> 3;
-    final byte b = validityBuffer.getByte(byteIndex);
-    final int bitIndex = index & 7;
-    return (b >> bitIndex) & 0x01;
+  public int isSet(long index) {
+    return BitVectorHelper.get(validityBuffer, index);
   }
 
   /**
@@ -546,7 +543,7 @@ public class StructVector extends NonNullableStructVector implements FieldVector
   }
 
   @Override
-  public void setValueCount(int valueCount) {
+  public void setValueCount(long valueCount) {
     assert valueCount >= 0;
     while (valueCount > getValidityBufferValueCapacity()) {
       /* realloc the inner buffers if needed */

@@ -68,7 +68,7 @@ public abstract class SelectionVector {
   /*
    * Get the value at specified index.
    */
-  public abstract int getIndex(int index);
+  public abstract int getIndex(long index);
 
   /*
    * Get the record size of the selection vector itself.
@@ -77,7 +77,7 @@ public abstract class SelectionVector {
 
   abstract SelectionVectorType getType();
 
-  final void checkReadBounds(int index) {
+  final void checkReadBounds(long index) {
     if (index >= this.recordCount) {
       throw new IllegalArgumentException("index " + index + " is >= recordCount " + recordCount);
     }

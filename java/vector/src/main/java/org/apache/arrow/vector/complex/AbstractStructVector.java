@@ -298,7 +298,7 @@ public abstract class AbstractStructVector extends AbstractContainerVector {
   }
 
   @Override
-  public int getBufferSize() {
+  public long getBufferSize() {
     int actualBufSize = 0;
 
     for (final ValueVector v : vectors.values()) {

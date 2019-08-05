@@ -114,12 +114,12 @@ public abstract class AbstractContainerVector implements ValueVector, DensityAwa
   }
 
   @Override
-  public void copyFrom(int fromIndex, int thisIndex, ValueVector from) {
+  public void copyFrom(long fromIndex, long thisIndex, ValueVector from) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void copyFromSafe(int fromIndex, int thisIndex, ValueVector from) {
+  public void copyFromSafe(long fromIndex, long thisIndex, ValueVector from) {
     throw new UnsupportedOperationException();
   }
 }

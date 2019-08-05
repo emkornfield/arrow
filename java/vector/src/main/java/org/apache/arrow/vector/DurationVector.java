@@ -109,7 +109,8 @@ public class DurationVector extends BaseFixedWidthVector {
    * @param index  position of the element.
    * @return value stored at the index.
    */
-  public static long get(final ArrowBuf buffer, final int index) {
+  public static long get(final ArrowBuf buffer, final long index) {
+
     return buffer.getLong(index * TYPE_WIDTH);
   }
 
@@ -119,7 +120,7 @@ public class DurationVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @return element at given index
    */
-  public ArrowBuf get(int index) throws IllegalStateException {
+  public ArrowBuf get(long index) throws IllegalStateException {
     if (isSet(index) == 0) {
       return null;
     }
@@ -133,7 +134,7 @@ public class DurationVector extends BaseFixedWidthVector {
    *
    * @param index   position of element
    */
-  public void get(int index, NullableDurationHolder holder) {
+  public void get(long index, NullableDurationHolder holder) {
     if (isSet(index) == 0) {
       holder.isSet = 0;
       return;
@@ -143,12 +144,13 @@ public class DurationVector extends BaseFixedWidthVector {
   }
 
   /**
-   * Same as {@link #get(int)}.
+   * Returns the value of {@link #get(long)} converted to a {@link Duration}.
+   * Returns null if the value is not set.
    *
    * @param index   position of element
    * @return element at given index
    */
-  public Duration getObject(int index) {
+  public Duration getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {
@@ -181,7 +183,7 @@ public class DurationVector extends BaseFixedWidthVector {
    * @param index position of the element
    * @return String Builder object with Interval in java.time.Duration format.
    */
-  public StringBuilder getAsStringBuilder(int index) {
+  public StringBuilder getAsStringBuilder(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {
@@ -189,7 +191,7 @@ public class DurationVector extends BaseFixedWidthVector {
     }
   }
 
-  private StringBuilder getAsStringBuilderHelper(int index) {
+  private StringBuilder getAsStringBuilderHelper(long index) {
     return new StringBuilder(getObject(index).toString());
   }
 
@@ -205,7 +207,7 @@ public class DurationVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param value   value of element
    */
-  public void set(int index, ArrowBuf value) {
+  public void set(long index, ArrowBuf value) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     valueBuffer.setBytes(index * TYPE_WIDTH, value, 0, TYPE_WIDTH);
   }
@@ -216,8 +218,8 @@ public class DurationVector extends BaseFixedWidthVector {
    * @param index          position of element
    * @param value   The duration value (in the timeunit associated with this vector)
    */
-  public void set(int index, long value) {
-    final int offsetIndex = index * TYPE_WIDTH;
+  public void set(long index, long value) {
+    final long offsetIndex = index * TYPE_WIDTH;
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     valueBuffer.setLong(offsetIndex, value);
   }
@@ -230,7 +232,7 @@ public class DurationVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void set(int index, NullableDurationHolder holder) throws IllegalArgumentException {
+  public void set(long index, NullableDurationHolder holder) throws IllegalArgumentException {
     if (holder.isSet < 0) {
       throw new IllegalArgumentException();
     } else if (holder.isSet > 0) {
@@ -246,58 +248,58 @@ public class DurationVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void set(int index, DurationHolder holder) {
+  public void set(long index, DurationHolder holder) {
     set(index, holder.value);
   }
 
   /**
-   * Same as {@link #set(int, ArrowBuf)} except that it handles the
+   * Same as {@link #set(long, ArrowBuf)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param value   value of element
    */
-  public void setSafe(int index, ArrowBuf value) {
+  public void setSafe(long index, ArrowBuf value) {
     handleSafe(index);
     set(index, value);
   }
 
   /**
-   * Same as {@link #set(int, long)} except that it handles the
+   * Same as {@link #set(long, long)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index          position of element
    * @param value   duration in the time unit this vector was constructed with
    */
-  public void setSafe(int index, long value) {
+  public void setSafe(long index, long value) {
     handleSafe(index);
     set(index, value);
   }
 
   /**
-   * Same as {@link #set(int, NullableDurationHolder)} except that it handles the
+   * Same as {@link #set(long, NullableDurationHolder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void setSafe(int index, NullableDurationHolder holder) throws IllegalArgumentException {
+  public void setSafe(long index, NullableDurationHolder holder) throws IllegalArgumentException {
     handleSafe(index);
     set(index, holder);
   }
 
   /**
-   * Same as {@link #set(int, DurationHolder)} except that it handles the
+   * Same as {@link #set(long, DurationHolder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void setSafe(int index, DurationHolder holder) {
+  public void setSafe(long index, DurationHolder holder) {
     handleSafe(index);
     set(index, holder);
   }
@@ -307,7 +309,7 @@ public class DurationVector extends BaseFixedWidthVector {
    *
    * @param index   position of element
    */
-  public void setNull(int index) {
+  public void setNull(long index) {
     handleSafe(index);
     // not really needed to set the bit to 0 as long as
     // the buffer always starts from 0.
@@ -322,7 +324,7 @@ public class DurationVector extends BaseFixedWidthVector {
    * @param isSet 0 for NULL value, 1 otherwise
    * @param value The duration value (in the TimeUnit associated with this vector).
    */
-  public void set(int index, int isSet, long value) {
+  public void set(long index, int isSet, long value) {
     if (isSet > 0) {
       set(index, value);
     } else {
@@ -331,7 +333,7 @@ public class DurationVector extends BaseFixedWidthVector {
   }
 
   /**
-   * Same as {@link #set(int, int, long)} except that it handles the case
+   * Same as {@link #set(long, int, long)} except that it handles the case
    * when index is greater than or equal to current value capacity of the
    * vector.
    *
@@ -339,7 +341,7 @@ public class DurationVector extends BaseFixedWidthVector {
    * @param isSet 0 for NULL value, 1 otherwise
    * @param value The duration value (in the timeunit associated with this vector)
    */
-  public void setSafe(int index, int isSet, long value) {
+  public void setSafe(long index, int isSet, long value) {
     handleSafe(index);
     set(index, isSet, value);
   }
@@ -398,12 +400,12 @@ public class DurationVector extends BaseFixedWidthVector {
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       splitAndTransferTo(startIndex, length, to);
     }
 
     @Override
-    public void copyValueSafe(int fromIndex, int toIndex) {
+    public void copyValueSafe(long fromIndex, long toIndex) {
       to.copyFromSafe(fromIndex, toIndex, DurationVector.this);
     }
   }

@@ -50,7 +50,7 @@ public class ${eName}WriterImpl extends AbstractFieldWriter {
   }
 
   @Override
-  public int getValueCapacity() {
+  public long getValueCapacity() {
     return vector.getValueCapacity();
   }
 
@@ -70,7 +70,7 @@ public class ${eName}WriterImpl extends AbstractFieldWriter {
   }
 
   @Override
-  protected int idx() {
+  protected long idx() {
     return super.idx();
   }
 
@@ -91,7 +91,7 @@ public class ${eName}WriterImpl extends AbstractFieldWriter {
     vector.setValueCount(idx()+1);
   }
 
-  public void setPosition(int idx) {
+  public void setPosition(long idx) {
     super.setPosition(idx);
     mutator.startNewValue(idx);
   }

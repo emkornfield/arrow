@@ -104,8 +104,8 @@ public class BitVector extends BaseFixedWidthVector {
    * @param valueCount desired number of elements in the vector
    */
   @Override
-  public void setInitialCapacity(int valueCount) {
-    final int size = getValidityBufferSizeFromCount(valueCount);
+  public void setInitialCapacity(long valueCount) {
+    final long size = getValidityBufferSizeFromCount(valueCount);
     if (size * 2 > MAX_ALLOCATION_SIZE) {
       throw new OversizedAllocationException("Requested amount of memory is more than max allowed");
     }
@@ -118,7 +118,7 @@ public class BitVector extends BaseFixedWidthVector {
    * @return number of elements that vector can hold.
    */
   @Override
-  public int getValueCapacity() {
+  public long getValueCapacity() {
     return validityBuffer.capacity() * 8;
   }
 
@@ -130,7 +130,7 @@ public class BitVector extends BaseFixedWidthVector {
    *         a given number of elements
    */
   @Override
-  public int getBufferSizeFor(final int count) {
+  public long getBufferSizeFor(final long count) {
     if (count == 0) {
       return 0;
     }
@@ -144,7 +144,7 @@ public class BitVector extends BaseFixedWidthVector {
    * @return size of underlying buffers.
    */
   @Override
-  public int getBufferSize() {
+  public long getBufferSize() {
     return getBufferSizeFor(valueCount);
   }
 
@@ -174,10 +174,10 @@ public class BitVector extends BaseFixedWidthVector {
       ArrowBuf sourceBuffer,
       ArrowBuf destBuffer) {
     assert startIndex + length <= valueCount;
-    int firstByteSource = BitVectorHelper.byteIndex(startIndex);
-    int lastByteSource = BitVectorHelper.byteIndex(valueCount - 1);
-    int byteSizeTarget = getValidityBufferSizeFromCount(length);
-    int offset = startIndex % 8;
+    long firstByteSource = BitVectorHelper.byteIndex(startIndex);
+    long lastByteSource = BitVectorHelper.byteIndex(valueCount - 1);
+    long byteSizeTarget = getValidityBufferSizeFromCount(length);
+    long offset = startIndex % 8;
 
     if (length > 0) {
       if (offset == 0) {
@@ -239,11 +239,8 @@ public class BitVector extends BaseFixedWidthVector {
    |                                                                |
    *----------------------------------------------------------------*/
 
-  private int getBit(int index) {
-    final int byteIndex = index >> 3;
-    final byte b = valueBuffer.getByte(byteIndex);
-    final int bitIndex = index & 7;
-    return (b >> bitIndex) & 0x01;
+  private int getBit(long index) {
+    return BitVectorHelper.get(valueBuffer, index);
   }
 
   /**
@@ -281,7 +278,7 @@ public class BitVector extends BaseFixedWidthVector {
    * @param index position of element
    * @return element at given index
    */
-  public Boolean getObject(int index) {
+  public Boolean getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {
@@ -292,13 +289,12 @@ public class BitVector extends BaseFixedWidthVector {
   /**
    * Copy a cell value from a particular index in source vector to a particular
    * position in this vector.
-   *
-   * @param fromIndex position to copy from in source vector
+   *  @param fromIndex position to copy from in source vector
    * @param thisIndex position to copy to in this vector
    * @param from      source vector
    */
   @Override
-  public void copyFrom(int fromIndex, int thisIndex, ValueVector from) {
+  public void copyFrom(long fromIndex, long thisIndex, ValueVector from) {
     Preconditions.checkArgument(this.getMinorType() == from.getMinorType());
     boolean fromIsSet = BitVectorHelper.get(from.getValidityBuffer(), fromIndex) != 0;
     if (fromIsSet) {
@@ -477,16 +473,16 @@ public class BitVector extends BaseFixedWidthVector {
    * @param firstBitIndex the index of the first bit to set
    * @param count         the number of bits to set
    */
-  public void setRangeToOne(int firstBitIndex, int count) {
-    int startByteIndex = BitVectorHelper.byteIndex(firstBitIndex);
-    final int lastBitIndex = firstBitIndex + count;
-    final int endByteIndex = BitVectorHelper.byteIndex(lastBitIndex);
-    final int startByteBitIndex = BitVectorHelper.bitIndex(firstBitIndex);
-    final int endBytebitIndex = BitVectorHelper.bitIndex(lastBitIndex);
+  public void setRangeToOne(long firstBitIndex, long count) {
+    long startByteIndex = BitVectorHelper.byteIndex(firstBitIndex);
+    final long lastBitIndex = firstBitIndex + count;
+    final long endByteIndex = BitVectorHelper.byteIndex(lastBitIndex);
+    final long startByteBitIndex = BitVectorHelper.bitIndex(firstBitIndex);
+    final long endBytebitIndex = BitVectorHelper.bitIndex(lastBitIndex);
     if (count < 8 && startByteIndex == endByteIndex) {
       // handles the case where we don't have a first and a last byte
       byte bitMask = 0;
-      for (int i = startByteBitIndex; i < endBytebitIndex; ++i) {
+      for (long i = startByteBitIndex; i < endBytebitIndex; ++i) {
         bitMask |= (byte) (1L << i);
       }
       BitVectorHelper.setBitMaskedByte(validityBuffer, startByteIndex, bitMask);
@@ -501,14 +497,14 @@ public class BitVector extends BaseFixedWidthVector {
       }
 
       // fill in one full byte at a time
-      for (int i = startByteIndex; i < endByteIndex; i++) {
+      for (long i = startByteIndex; i < endByteIndex; i++) {
         validityBuffer.setByte(i, 0xFF);
         valueBuffer.setByte(i, 0xFF);
       }
 
       // fill in the last byte (if it's not full)
       if (endBytebitIndex != 0) {
-        final int byteIndex = BitVectorHelper.byteIndex(lastBitIndex - endBytebitIndex);
+        final long byteIndex = BitVectorHelper.byteIndex(lastBitIndex - endBytebitIndex);
         final byte bitMask = (byte) (0xFFL >>> ((8 - endBytebitIndex) & 7));
         BitVectorHelper.setBitMaskedByte(validityBuffer, byteIndex, bitMask);
         BitVectorHelper.setBitMaskedByte(valueBuffer, byteIndex, bitMask);
@@ -570,12 +566,12 @@ public class BitVector extends BaseFixedWidthVector {
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       splitAndTransferTo(startIndex, length, to);
     }
 
     @Override
-    public void copyValueSafe(int fromIndex, int toIndex) {
+    public void copyValueSafe(long fromIndex, long toIndex) {
       to.copyFromSafe(fromIndex, toIndex, BitVector.this);
     }
   }

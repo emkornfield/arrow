@@ -36,7 +36,7 @@ import org.apache.arrow.vector.types.pojo.Schema;
 public class VectorSchemaRoot implements AutoCloseable {
 
   private Schema schema;
-  private int rowCount;
+  private long rowCount;
   private final List<FieldVector> fieldVectors;
   private final Map<String, FieldVector> fieldVectorsMap = new HashMap<>();
 
@@ -66,7 +66,7 @@ public class VectorSchemaRoot implements AutoCloseable {
    * @param fieldVectors The data vectors (must be equal in size to <code>fields</code>.
    * @param rowCount The number of rows contained.
    */
-  public VectorSchemaRoot(List<Field> fields, List<FieldVector> fieldVectors, int rowCount) {
+  public VectorSchemaRoot(List<Field> fields, List<FieldVector> fieldVectors, long rowCount) {
     this(new Schema(fields), fieldVectors, rowCount);
   }
 
@@ -77,7 +77,7 @@ public class VectorSchemaRoot implements AutoCloseable {
    * @param fieldVectors The data vectors.
    * @param rowCount  The number of rows
    */
-  public VectorSchemaRoot(Schema schema, List<FieldVector> fieldVectors, int rowCount) {
+  public VectorSchemaRoot(Schema schema, List<FieldVector> fieldVectors, long rowCount) {
     if (schema.getFields().size() != fieldVectors.size()) {
       throw new IllegalArgumentException("Fields must match field vectors. Found " +
           fieldVectors.size() + " vectors and " + schema.getFields().size() + " fields");
@@ -146,7 +146,7 @@ public class VectorSchemaRoot implements AutoCloseable {
     return schema;
   }
 
-  public int getRowCount() {
+  public long getRowCount() {
     return rowCount;
   }
 

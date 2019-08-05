@@ -200,18 +200,18 @@ public class TestExtensionType {
     }
 
     @Override
-    public UUID getObject(int index) {
+    public UUID getObject(long index) {
       final ByteBuffer bb = ByteBuffer.wrap(getUnderlyingVector().getObject(index));
       return new UUID(bb.getLong(), bb.getLong());
     }
 
     @Override
-    public int hashCode(int index) {
+    public int hashCode(long index) {
       return getUnderlyingVector().hashCode(index);
     }
 
     @Override
-    public boolean equals(int index, ValueVector to, int toIndex) {
+    public boolean equals(long index, ValueVector to, long toIndex) {
       return getUnderlyingVector().equals(index, to, toIndex);
     }
 

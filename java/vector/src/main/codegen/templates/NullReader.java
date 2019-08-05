@@ -74,20 +74,20 @@ public class NullReader extends AbstractBaseReader implements FieldReader{
     holder.isSet = 0;
   }
 
-  public void read(int arrayIndex, ${name}Holder holder){
+  public void read(long arrayIndex, ${name}Holder holder){
     throw new ArrayIndexOutOfBoundsException();
   }
   
   public void copyAsValue(${minor.class}Writer writer){}
   public void copyAsField(String name, ${minor.class}Writer writer){}
 
-  public void read(int arrayIndex, Nullable${name}Holder holder){
+  public void read(long arrayIndex, Nullable${name}Holder holder){
     throw new ArrayIndexOutOfBoundsException();
   }
   </#list></#list>
   
-  public int size(){
-    return 0;
+  public long size(){
+    return 0L;
   }
   
   public boolean isSet(){
@@ -132,7 +132,7 @@ public class NullReader extends AbstractBaseReader implements FieldReader{
   <#assign safeType=friendlyType />
   <#if safeType=="byte[]"><#assign safeType="ByteArray" /></#if>
   
-  public ${friendlyType} read${safeType}(int arrayIndex){
+  public ${friendlyType} read${safeType}(long arrayIndex){
     return null;
   }
   

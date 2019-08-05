@@ -71,9 +71,9 @@ public abstract class ArrowBufHasher {
    * @param length length of the memory region.
    * @return the hash code.
    */
-  public int hashCode(long address, int length) {
+  public int hashCode(long address, long length) {
     int hashValue = 0;
-    int index = 0;
+    long index = 0;
     while (index + 8 <= length) {
       long longValue = getLong(address + index);
       if (!LITTLE_ENDIAN) {
@@ -112,7 +112,7 @@ public abstract class ArrowBufHasher {
    * @param length length of the memory region.
    * @return the hash code.
    */
-  public int hashCode(ArrowBuf buf, int offset, int length) {
+  public int hashCode(ArrowBuf buf, long offset, long length) {
     buf.checkBytes(offset, offset + length);
     return hashCode(buf.memoryAddress() + offset, length);
   }

@@ -212,14 +212,14 @@ public class JsonFileWriter implements AutoCloseable {
     generator.writeStartObject();
     {
       generator.writeObjectField("name", field.getName());
-      int valueCount = vector.getValueCount();
+      long valueCount = vector.getValueCount();
       generator.writeObjectField("count", valueCount);
 
       for (int v = 0; v < vectorTypes.size(); v++) {
         BufferType bufferType = vectorTypes.get(v);
         ArrowBuf vectorBuffer = vectorBuffers.get(v);
         generator.writeArrayFieldStart(bufferType.getName());
-        final int bufferValueCount = (bufferType.equals(OFFSET)) ? valueCount + 1 : valueCount;
+        final long bufferValueCount = (bufferType.equals(OFFSET)) ? valueCount + 1 : valueCount;
         for (int i = 0; i < bufferValueCount; i++) {
           if (bufferType.equals(DATA) && (vector.getMinorType() == MinorType.VARCHAR ||
                   vector.getMinorType() == MinorType.VARBINARY)) {
@@ -254,7 +254,7 @@ public class JsonFileWriter implements AutoCloseable {
       ArrowBuf buffer,
       ArrowBuf offsetBuffer,
       FieldVector vector,
-      final int index) throws IOException {
+      final long index) throws IOException {
     if (bufferType.equals(TYPE)) {
       generator.writeNumber(buffer.getByte(index * TinyIntVector.TYPE_WIDTH));
     } else if (bufferType.equals(OFFSET)) {

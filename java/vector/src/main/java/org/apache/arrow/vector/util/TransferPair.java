@@ -25,9 +25,9 @@ import org.apache.arrow.vector.ValueVector;
 public interface TransferPair {
   void transfer();
 
-  void splitAndTransfer(int startIndex, int length);
+  void splitAndTransfer(long startIndex, long length);
 
   ValueVector getTo();
 
-  void copyValueSafe(int from, int to);
+  void copyValueSafe(long from, long to);
 }

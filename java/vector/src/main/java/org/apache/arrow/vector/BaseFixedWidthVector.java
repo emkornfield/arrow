@@ -44,13 +44,13 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
         implements FixedWidthVector, FieldVector, VectorDefinitionSetter {
   private final int typeWidth;
 
-  protected int lastValueCapacity;
+  protected long lastValueCapacity;
 
   protected final Field field;
   private int allocationMonitor;
   protected ArrowBuf validityBuffer;
   protected ArrowBuf valueBuffer;
-  protected int valueCount;
+  protected long valueCount;
 
   /**
    * Constructs a new instance.
@@ -162,7 +162,7 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
    * @param valueCount desired number of elements in the vector
    */
   @Override
-  public void setInitialCapacity(int valueCount) {
+  public void setInitialCapacity(long valueCount) {
     computeAndCheckBufferSize(valueCount);
     lastValueCapacity = valueCount;
   }
@@ -172,15 +172,15 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
    * @return number of elements that vector can hold.
    */
   @Override
-  public int getValueCapacity() {
+  public long getValueCapacity() {
     return Math.min(getValueBufferValueCapacity(), getValidityBufferValueCapacity());
   }
 
-  private int getValueBufferValueCapacity() {
+  private long getValueBufferValueCapacity() {
     return valueBuffer.capacity() / typeWidth;
   }
 
-  private int getValidityBufferValueCapacity() {
+  private long getValidityBufferValueCapacity() {
     return validityBuffer.capacity() * 8;
   }
 
@@ -258,7 +258,7 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
   /**
    * Allocate memory for the vector. We internally use a default value count
    * of 4096 to allocate memory for at least these many elements in the
-   * vector. See {@link #allocateNew(int)} for allocating memory for specific
+   * vector. See {@link FixedWidthVector#allocateNew(long)} for allocating memory for specific
    * number of elements in the vector.
    *
    * @return false if memory allocation fails, true otherwise.
@@ -280,7 +280,7 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
    * @param valueCount the desired number of elements in the vector
    * @throws org.apache.arrow.memory.OutOfMemoryException on error
    */
-  public void allocateNew(int valueCount) {
+  public void allocateNew(long valueCount) {
     computeAndCheckBufferSize(valueCount);
 
     /* we are doing a new allocation -- release the current buffers */
@@ -297,7 +297,7 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
   /*
    * Compute the buffer size required for 'valueCount', and check if it's within bounds.
    */
-  private long computeAndCheckBufferSize(int valueCount) {
+  private long computeAndCheckBufferSize(long valueCount) {
     final long size = computeCombinedBufferSize(valueCount, typeWidth);
     if (size > MAX_ALLOCATION_SIZE) {
       throw new OversizedAllocationException("Memory required for vector capacity " +
@@ -316,7 +316,7 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
    * within the bounds of max allocation allowed and any other error
    * conditions.
    */
-  private void allocateBytes(int valueCount) {
+  private void allocateBytes(long valueCount) {
     DataAndValidityBuffers buffers = allocFixedDataAndValidityBufs(valueCount, typeWidth);
     valueBuffer = buffers.getDataBuf();
     validityBuffer = buffers.getValidityBuf();
@@ -331,7 +331,7 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
    * validityBuffer of the target vector. This is unlike the databuffer which we can
    * always slice for the target vector.
    */
-  private void allocateValidityBuffer(final int validityBufferSize) {
+  private void allocateValidityBuffer(final long validityBufferSize) {
     validityBuffer = allocator.buffer(validityBufferSize);
     validityBuffer.readerIndex(0);
   }
@@ -343,7 +343,7 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
    *         a given number of elements
    */
   @Override
-  public int getBufferSizeFor(final int count) {
+  public long getBufferSizeFor(final long count) {
     if (count == 0) {
       return 0;
     }
@@ -356,7 +356,7 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
    * @return size of underlying buffers.
    */
   @Override
-  public int getBufferSize() {
+  public long getBufferSize() {
     if (valueCount == 0) {
       return 0;
     }
@@ -409,7 +409,7 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
    */
   @Override
   public void reAlloc() {
-    int targetValueCount = getValueCapacity() * 2;
+    long targetValueCount = getValueCapacity() * 2;
     if (targetValueCount == 0) {
       if (lastValueCapacity > 0) {
         targetValueCount = lastValueCapacity;
@@ -421,7 +421,7 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
 
     DataAndValidityBuffers buffers = allocFixedDataAndValidityBufs(targetValueCount, typeWidth);
     final ArrowBuf newValueBuffer = buffers.getDataBuf();
-    newValueBuffer.setBytes(0, valueBuffer, 0, valueBuffer.capacity());
+    newValueBuffer.setBytes(0L, valueBuffer, 0L, valueBuffer.capacity());
     newValueBuffer.setZero(valueBuffer.capacity(), newValueBuffer.capacity() - valueBuffer.capacity());
     valueBuffer.getReferenceManager().release();
     valueBuffer = newValueBuffer;
@@ -572,7 +572,7 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
    * @param length length of the split.
    * @param target destination vector
    */
-  public void splitAndTransferTo(int startIndex, int length,
+  public void splitAndTransferTo(long startIndex, long length,
                                  BaseFixedWidthVector target) {
     compareTypes(target, "splitAndTransferTo");
     target.clear();
@@ -584,10 +584,10 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
   /**
    * Data buffer can always be split and transferred using slicing.
    */
-  private void splitAndTransferValueBuffer(int startIndex, int length,
+  private void splitAndTransferValueBuffer(long startIndex, long length,
                                            BaseFixedWidthVector target) {
-    final int startPoint = startIndex * typeWidth;
-    final int sliceLength = length * typeWidth;
+    final long startPoint = startIndex * typeWidth;
+    final long sliceLength = length * typeWidth;
     final ArrowBuf slicedBuffer = valueBuffer.slice(startPoint, sliceLength);
     target.valueBuffer = transferBuffer(slicedBuffer, target.allocator);
   }
@@ -596,13 +596,13 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
    * Validity buffer has multiple cases of split and transfer depending on
    * the starting position of the source index.
    */
-  private void splitAndTransferValidityBuffer(int startIndex, int length,
+  private void splitAndTransferValidityBuffer(long startIndex, long length,
                                               BaseFixedWidthVector target) {
     assert startIndex + length <= valueCount;
-    int firstByteSource = BitVectorHelper.byteIndex(startIndex);
-    int lastByteSource = BitVectorHelper.byteIndex(valueCount - 1);
-    int byteSizeTarget = getValidityBufferSizeFromCount(length);
-    int offset = startIndex % 8;
+    long firstByteSource = BitVectorHelper.byteIndex(startIndex);
+    long lastByteSource = BitVectorHelper.byteIndex(valueCount - 1);
+    long byteSizeTarget = getValidityBufferSizeFromCount(length);
+    long offset = startIndex % 8;
 
     if (length > 0) {
       if (offset == 0) {
@@ -621,7 +621,7 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
          */
         target.allocateValidityBuffer(byteSizeTarget);
 
-        for (int i = 0; i < byteSizeTarget - 1; i++) {
+        for (long i = 0; i < byteSizeTarget - 1; i++) {
           byte b1 = BitVectorHelper.getBitsFromCurrentByte(this.validityBuffer,
                   firstByteSource + i, offset);
           byte b2 = BitVectorHelper.getBitsFromNextByte(this.validityBuffer,
@@ -669,18 +669,18 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
    * @return the number of null elements.
    */
   @Override
-  public int getNullCount() {
+  public long getNullCount() {
     return BitVectorHelper.getNullCount(validityBuffer, valueCount);
   }
 
   /**
    * Get the value count of vector. This will always be zero unless
-   * {@link #setValueCount(int)} has been called prior to calling this.
+   * {@link ValueVector#setValueCount(long)} has been called prior to calling this.
    *
    * @return valueCount for the vector
    */
   @Override
-  public int getValueCount() {
+  public long getValueCount() {
     return valueCount;
   }
 
@@ -690,9 +690,9 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
    * @param valueCount  value count to set
    */
   @Override
-  public void setValueCount(int valueCount) {
+  public void setValueCount(long valueCount) {
     this.valueCount = valueCount;
-    final int currentValueCapacity = getValueCapacity();
+    final long currentValueCapacity = getValueCapacity();
     while (valueCount > getValueCapacity()) {
       reAlloc();
     }
@@ -739,7 +739,7 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
    * @param index  position to check
    * @return true if index is within the current value capacity
    */
-  public boolean isSafe(int index) {
+  public boolean isSafe(long index) {
     return index < getValueCapacity();
   }
 
@@ -750,20 +750,20 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
    * @return true if element at given index is null, false otherwise
    */
   @Override
-  public boolean isNull(int index) {
+  public boolean isNull(long index) {
     return (isSet(index) == 0);
   }
 
   /**
-   * Same as {@link #isNull(int)}.
+   * Same as {@link ValueVector#isNull(long)}.
    *
    * @param index  position of element
    * @return 1 if element at given index is not null, 0 otherwise
    */
-  public int isSet(int index) {
-    final int byteIndex = index >> 3;
+  public int isSet(long index) {
+    final long byteIndex = index >> 3;
     final byte b = validityBuffer.getByte(byteIndex);
-    final int bitIndex = index & 7;
+    final long bitIndex = index & 7;
     return (b >> bitIndex) & 0x01;
   }
 
@@ -773,24 +773,24 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
    * @param index position of the element.
    */
   @Override
-  public void setIndexDefined(int index) {
+  public void setIndexDefined(long index) {
     handleSafe(index);
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
   }
 
-  public void set(int index, byte[] value, int start, int length) {
+  public void set(long index, byte[] value, int start, int length) {
     throw new UnsupportedOperationException();
   }
 
-  public void setSafe(int index, byte[] value, int start, int length) {
+  public void setSafe(long index, byte[] value, int start, int length) {
     throw new UnsupportedOperationException();
   }
 
-  public void set(int index, ByteBuffer value, int start, int length) {
+  public void set(long index, ByteBuffer value, int start, int length) {
     throw new UnsupportedOperationException();
   }
 
-  public void setSafe(int index, ByteBuffer value, int start, int length) {
+  public void setSafe(long index, ByteBuffer value, int start, int length) {
     throw new UnsupportedOperationException();
   }
 
@@ -802,7 +802,7 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
    *----------------------------------------------------------------*/
 
 
-  protected void handleSafe(int index) {
+  protected void handleSafe(long index) {
     while (index >= getValueCapacity()) {
       decrementAllocationMonitor();
       reAlloc();
@@ -812,12 +812,11 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
   /**
    * Copy a cell value from a particular index in source vector to a particular
    * position in this vector. The source vector should be of the same type as this one.
-   *
-   * @param fromIndex position to copy from in source vector
+   *  @param fromIndex position to copy from in source vector
    * @param thisIndex position to copy to in this vector
    * @param from      source vector
    */
-  public void copyFrom(int fromIndex, int thisIndex, ValueVector from) {
+  public void copyFrom(long fromIndex, long thisIndex, ValueVector from) {
     Preconditions.checkArgument(this.getMinorType() == from.getMinorType());
     if (from.isNull(fromIndex)) {
       BitVectorHelper.setValidityBit(this.getValidityBuffer(), thisIndex, 0);
@@ -829,27 +828,26 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
   }
 
   /**
-   * Same as {@link #copyFrom(int, int, ValueVector)} except that
+   * Same as {@link ValueVector#copyFrom(long, long, ValueVector)} except that
    * it handles the case when the capacity of the vector needs to be expanded
    * before copy.
-   *
-   * @param fromIndex position to copy from in source vector
+   *  @param fromIndex position to copy from in source vector
    * @param thisIndex position to copy to in this vector
    * @param from      source vector
    */
-  public void copyFromSafe(int fromIndex, int thisIndex, ValueVector from) {
+  public void copyFromSafe(long fromIndex, long thisIndex, ValueVector from) {
     Preconditions.checkArgument(this.getMinorType() == from.getMinorType());
     handleSafe(thisIndex);
     copyFrom(fromIndex, thisIndex, from);
   }
 
   @Override
-  public ArrowBufPointer getDataPointer(int index) {
+  public ArrowBufPointer getDataPointer(long index) {
     return getDataPointer(index, new ArrowBufPointer());
   }
 
   @Override
-  public ArrowBufPointer getDataPointer(int index, ArrowBufPointer reuse) {
+  public ArrowBufPointer getDataPointer(long index, ArrowBufPointer reuse) {
     if (isNull(index)) {
       reuse.set(null, 0, 0);
     } else {
@@ -859,14 +857,14 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
   }
 
   @Override
-  public int hashCode(int index) {
-    int start = typeWidth * index;
-    int end = typeWidth * (index + 1);
+  public int hashCode(long index) {
+    long start = typeWidth * index;
+    long end = typeWidth * (index + 1);
     return ByteFunctionHelpers.hash(this.getDataBuffer(), start, end);
   }
 
   @Override
-  public boolean equals(int index, ValueVector to, int toIndex) {
+  public boolean equals(long index, ValueVector to, long toIndex) {
     if (to == null) {
       return false;
     }
@@ -876,13 +874,13 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
 
     BaseFixedWidthVector that = (BaseFixedWidthVector) to;
 
-    int leftStart = typeWidth * index;
-    int leftEnd = typeWidth * (index + 1);
+    long leftStart = typeWidth * index;
+    long leftEnd = typeWidth * (index + 1);
 
-    int rightStart = typeWidth * toIndex;
-    int rightEnd = typeWidth * (toIndex + 1);
+    long rightStart = typeWidth * toIndex;
+    long rightEnd = typeWidth * (toIndex + 1);
 
-    int ret = ByteFunctionHelpers.equal(this.getDataBuffer(), leftStart, leftEnd,
+    long ret = ByteFunctionHelpers.equal(this.getDataBuffer(), leftStart, leftEnd,
         that.getDataBuffer(), rightStart, rightEnd);
     return ret == 1;
   }

@@ -49,7 +49,7 @@ public class ZeroVector implements FieldVector {
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
     }
 
     @Override
@@ -58,7 +58,7 @@ public class ZeroVector implements FieldVector {
     }
 
     @Override
-    public void copyValueSafe(int from, int to) {
+    public void copyValueSafe(long from, long to) {
     }
   };
 
@@ -100,12 +100,12 @@ public class ZeroVector implements FieldVector {
   }
 
   @Override
-  public int getBufferSize() {
+  public long getBufferSize() {
     return 0;
   }
 
   @Override
-  public int getBufferSizeFor(final int valueCount) {
+  public long getBufferSizeFor(final long valueCount) {
     return 0;
   }
 
@@ -134,11 +134,11 @@ public class ZeroVector implements FieldVector {
   }
 
   @Override
-  public void setInitialCapacity(int numRecords) {
+  public void setInitialCapacity(long numRecords) {
   }
 
   @Override
-  public int getValueCapacity() {
+  public long getValueCapacity() {
     return 0;
   }
 
@@ -222,46 +222,46 @@ public class ZeroVector implements FieldVector {
   }
 
   @Override
-  public int getValueCount() {
+  public long getValueCount() {
     return 0;
   }
 
   @Override
-  public void setValueCount(int valueCount) {
+  public void setValueCount(long valueCount) {
   }
 
   @Override
-  public Object getObject(int index) {
+  public Object getObject(long index) {
     return null;
   }
 
   @Override
-  public int getNullCount() {
+  public long getNullCount() {
     return 0;
   }
 
   @Override
-  public boolean isNull(int index) {
+  public boolean isNull(long index) {
     return false;
   }
 
   @Override
-  public int hashCode(int index) {
+  public int hashCode(long index) {
     return 0;
   }
 
   @Override
-  public boolean equals(int index, ValueVector to, int toIndex) {
+  public boolean equals(long index, ValueVector to, long toIndex) {
     return false;
   }
 
   @Override
-  public void copyFrom(int fromIndex, int thisIndex, ValueVector from) {
+  public void copyFrom(long fromIndex, long thisIndex, ValueVector from) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void copyFromSafe(int fromIndex, int thisIndex, ValueVector from) {
+  public void copyFromSafe(long fromIndex, long thisIndex, ValueVector from) {
     throw new UnsupportedOperationException();
   }
 }

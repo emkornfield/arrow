@@ -129,7 +129,7 @@ public class TimeStampMilliTZVector extends TimeStampVector {
    * @param index   position of element
    * @return element at given index
    */
-  public Long getObject(int index) {
+  public Long getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {

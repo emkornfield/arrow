@@ -110,7 +110,7 @@ public class TimeStampMilliVector extends TimeStampVector {
    *
    * @param index   position of element
    */
-  public void get(int index, NullableTimeStampMilliHolder holder) {
+  public void get(long index, NullableTimeStampMilliHolder holder) {
     if (isSet(index) == 0) {
       holder.isSet = 0;
       return;
@@ -125,7 +125,7 @@ public class TimeStampMilliVector extends TimeStampVector {
    * @param index   position of element
    * @return element at given index
    */
-  public LocalDateTime getObject(int index) {
+  public LocalDateTime getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {
@@ -150,7 +150,7 @@ public class TimeStampMilliVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void set(int index, NullableTimeStampMilliHolder holder) throws IllegalArgumentException {
+  public void set(long index, NullableTimeStampMilliHolder holder) throws IllegalArgumentException {
     if (holder.isSet < 0) {
       throw new IllegalArgumentException();
     } else if (holder.isSet > 0) {
@@ -167,7 +167,7 @@ public class TimeStampMilliVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void set(int index, TimeStampMilliHolder holder) {
+  public void set(long index, TimeStampMilliHolder holder) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     setValue(index, holder.value);
   }
@@ -180,7 +180,7 @@ public class TimeStampMilliVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void setSafe(int index, NullableTimeStampMilliHolder holder) throws IllegalArgumentException {
+  public void setSafe(long index, NullableTimeStampMilliHolder holder) throws IllegalArgumentException {
     handleSafe(index);
     set(index, holder);
   }
@@ -193,7 +193,7 @@ public class TimeStampMilliVector extends TimeStampVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void setSafe(int index, TimeStampMilliHolder holder) {
+  public void setSafe(long index, TimeStampMilliHolder holder) {
     handleSafe(index);
     set(index, holder);
   }

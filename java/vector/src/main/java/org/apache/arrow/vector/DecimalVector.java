@@ -123,7 +123,7 @@ public class DecimalVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @return element at given index
    */
-  public ArrowBuf get(int index) throws IllegalStateException {
+  public ArrowBuf get(long index) throws IllegalStateException {
     if (NULL_CHECKING_ENABLED && isSet(index) == 0) {
       throw new IllegalStateException("Value at index is null");
     }
@@ -137,7 +137,7 @@ public class DecimalVector extends BaseFixedWidthVector {
    *
    * @param index   position of element
    */
-  public void get(int index, NullableDecimalHolder holder) {
+  public void get(long index, NullableDecimalHolder holder) {
     if (isSet(index) == 0) {
       holder.isSet = 0;
       return;
@@ -150,12 +150,12 @@ public class DecimalVector extends BaseFixedWidthVector {
   }
 
   /**
-   * Same as {@link #get(int)}.
+   * Same as {@link #get(long)}.
    *
    * @param index   position of element
    * @return element at given index
    */
-  public BigDecimal getObject(int index) {
+  public BigDecimal getObject(long index) {
     if (isSet(index) == 0) {
       return null;
     } else {
@@ -184,7 +184,7 @@ public class DecimalVector extends BaseFixedWidthVector {
    * @param index    position of element
    * @param buffer   ArrowBuf containing decimal value.
    */
-  public void set(int index, ArrowBuf buffer) {
+  public void set(long index, ArrowBuf buffer) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     valueBuffer.setBytes(index * TYPE_WIDTH, buffer, 0, TYPE_WIDTH);
   }
@@ -204,7 +204,7 @@ public class DecimalVector extends BaseFixedWidthVector {
    * @param index position of element
    * @param value array of bytes containing decimal in big endian byte order.
    */
-  public void setBigEndian(int index, byte[] value) {
+  public void setBigEndian(long index, byte[] value) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     final int length = value.length;
 
@@ -240,7 +240,7 @@ public class DecimalVector extends BaseFixedWidthVector {
    * @param start    start index of data in the buffer
    * @param buffer   ArrowBuf containing decimal value.
    */
-  public void set(int index, int start, ArrowBuf buffer) {
+  public void set(long index, int start, ArrowBuf buffer) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     valueBuffer.setBytes(index * TYPE_WIDTH, buffer, start, TYPE_WIDTH);
   }
@@ -252,7 +252,7 @@ public class DecimalVector extends BaseFixedWidthVector {
    * @param buffer contains the decimal in little endian bytes
    * @param length length of the value in the buffer
    */
-  public void setSafe(int index, int start, ArrowBuf buffer, int length) {
+  public void setSafe(long index, int start, ArrowBuf buffer, int length) {
     handleSafe(index);
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
 
@@ -279,7 +279,7 @@ public class DecimalVector extends BaseFixedWidthVector {
    * @param buffer contains the decimal in big endian bytes
    * @param length length of the value in the buffer
    */
-  public void setBigEndianSafe(int index, int start, ArrowBuf buffer, int length) {
+  public void setBigEndianSafe(long index, int start, ArrowBuf buffer, int length) {
     handleSafe(index);
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
 
@@ -309,7 +309,7 @@ public class DecimalVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param value   BigDecimal containing decimal value.
    */
-  public void set(int index, BigDecimal value) {
+  public void set(long index, BigDecimal value) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     DecimalUtility.checkPrecisionAndScale(value, precision, scale);
     DecimalUtility.writeBigDecimalToArrowBuf(value, valueBuffer, index);
@@ -321,7 +321,7 @@ public class DecimalVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param value   long value.
    */
-  public void set(int index, long value) {
+  public void set(long index, long value) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     DecimalUtility.writeLongToArrowBuf(value, valueBuffer, index);
   }
@@ -334,7 +334,7 @@ public class DecimalVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void set(int index, NullableDecimalHolder holder) throws IllegalArgumentException {
+  public void set(long index, NullableDecimalHolder holder) throws IllegalArgumentException {
     if (holder.isSet < 0) {
       throw new IllegalArgumentException();
     } else if (holder.isSet > 0) {
@@ -351,36 +351,36 @@ public class DecimalVector extends BaseFixedWidthVector {
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void set(int index, DecimalHolder holder) {
+  public void set(long index, DecimalHolder holder) {
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
     valueBuffer.setBytes(index * TYPE_WIDTH, holder.buffer, holder.start, TYPE_WIDTH);
   }
 
   /**
-   * Same as {@link #set(int, ArrowBuf)} except that it handles the
+   * Same as {@link #set(long, ArrowBuf)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param buffer  ArrowBuf containing decimal value.
    */
-  public void setSafe(int index, ArrowBuf buffer) {
+  public void setSafe(long index, ArrowBuf buffer) {
     handleSafe(index);
     set(index, buffer);
   }
 
   /**
-   * Same as {@link #setBigEndian(int, byte[])} except that it handles the
+   * Same as {@link #setBigEndian(long, byte[])} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    */
-  public void setBigEndianSafe(int index, byte[] value) {
+  public void setBigEndianSafe(long index, byte[] value) {
     handleSafe(index);
     setBigEndian(index, value);
   }
 
   /**
-   * Same as {@link #set(int, int, ArrowBuf)} except that it handles the
+   * Same as {@link #set(long, int, ArrowBuf)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
@@ -388,59 +388,59 @@ public class DecimalVector extends BaseFixedWidthVector {
    * @param start    start index of data in the buffer
    * @param buffer   ArrowBuf containing decimal value.
    */
-  public void setSafe(int index, int start, ArrowBuf buffer) {
+  public void setSafe(long index, int start, ArrowBuf buffer) {
     handleSafe(index);
     set(index, start, buffer);
   }
 
   /**
-   * Same as {@link #set(int, BigDecimal)} except that it handles the
+   * Same as {@link #set(long, BigDecimal)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param value   BigDecimal containing decimal value.
    */
-  public void setSafe(int index, BigDecimal value) {
+  public void setSafe(long index, BigDecimal value) {
     handleSafe(index);
     set(index, value);
   }
 
   /**
-   * Same as {@link #set(int, long)} except that it handles the
+   * Same as {@link #set(long, long)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param value   long value.
    */
-  public void setSafe(int index, long value) {
+  public void setSafe(long index, long value) {
     handleSafe(index);
     set(index, value);
   }
 
   /**
-   * Same as {@link #set(int, NullableDecimalHolder)} except that it handles the
+   * Same as {@link #set(long, NullableDecimalHolder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param holder  nullable data holder for value of element
    */
-  public void setSafe(int index, NullableDecimalHolder holder) throws IllegalArgumentException {
+  public void setSafe(long index, NullableDecimalHolder holder) throws IllegalArgumentException {
     handleSafe(index);
     set(index, holder);
   }
 
   /**
-   * Same as {@link #set(int, DecimalHolder)} except that it handles the
+   * Same as {@link #set(long, DecimalHolder)} except that it handles the
    * case when index is greater than or equal to existing
    * value capacity {@link #getValueCapacity()}.
    *
    * @param index   position of element
    * @param holder  data holder for value of element
    */
-  public void setSafe(int index, DecimalHolder holder) {
+  public void setSafe(long index, DecimalHolder holder) {
     handleSafe(index);
     set(index, holder);
   }
@@ -450,7 +450,7 @@ public class DecimalVector extends BaseFixedWidthVector {
    *
    * @param index   position of element
    */
-  public void setNull(int index) {
+  public void setNull(long index) {
     handleSafe(index);
     // not really needed to set the bit to 0 as long as
     // the buffer always starts from 0.
@@ -466,7 +466,7 @@ public class DecimalVector extends BaseFixedWidthVector {
    * @param start start position of the value in the buffer
    * @param buffer buffer containing the value to be stored in the vector
    */
-  public void set(int index, int isSet, int start, ArrowBuf buffer) {
+  public void set(long index, int isSet, int start, ArrowBuf buffer) {
     if (isSet > 0) {
       set(index, start, buffer);
     } else {
@@ -475,7 +475,7 @@ public class DecimalVector extends BaseFixedWidthVector {
   }
 
   /**
-   * Same as {@link #setSafe(int, int, int, ArrowBuf)} except that it handles
+   * Same as {@link #set(long, int, int, ArrowBuf)} except that it handles
    * the case when the position of new value is beyond the current value
    * capacity of the vector.
    *
@@ -484,7 +484,7 @@ public class DecimalVector extends BaseFixedWidthVector {
    * @param start start position of the value in the buffer
    * @param buffer buffer containing the value to be stored in the vector
    */
-  public void setSafe(int index, int isSet, int start, ArrowBuf buffer) {
+  public void setSafe(long index, int isSet, int start, ArrowBuf buffer) {
     handleSafe(index);
     set(index, isSet, start, buffer);
   }
@@ -544,12 +544,12 @@ public class DecimalVector extends BaseFixedWidthVector {
     }
 
     @Override
-    public void splitAndTransfer(int startIndex, int length) {
+    public void splitAndTransfer(long startIndex, long length) {
       splitAndTransferTo(startIndex, length, to);
     }
 
     @Override
-    public void copyValueSafe(int fromIndex, int toIndex) {
+    public void copyValueSafe(long fromIndex, long toIndex) {
       to.copyFromSafe(fromIndex, toIndex, DecimalVector.this);
     }
   }

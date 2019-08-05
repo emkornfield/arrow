@@ -51,7 +51,7 @@ public class UnionWriter extends AbstractFieldWriter implements FieldWriter {
   }
 
   @Override
-  public void setPosition(int index) {
+  public void setPosition(long index) {
     super.setPosition(index);
     for (BaseWriter writer : writers) {
       writer.setPosition(index);
@@ -243,7 +243,7 @@ public class UnionWriter extends AbstractFieldWriter implements FieldWriter {
   }
 
   @Override
-  public int getValueCapacity() {
+  public long getValueCapacity() {
     return data.getValueCapacity();
   }
 }
