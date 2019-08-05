@@ -33,6 +33,7 @@ import java.math.BigDecimal;
 package org.apache.arrow.vector.complex.impl;
 
 <#include "/@includes/vv_imports.ftl" />
+import org.apache.arrow.memory.util.LargeMemoryUtil;
 
 /*
  * This class is generated using freemarker and the ${.template_name} template.

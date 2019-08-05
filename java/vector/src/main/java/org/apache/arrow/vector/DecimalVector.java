@@ -252,7 +252,7 @@ public class DecimalVector extends BaseFixedWidthVector {
    * @param buffer contains the decimal in little endian bytes
    * @param length length of the value in the buffer
    */
-  public void setSafe(long index, int start, ArrowBuf buffer, int length) {
+  public void setSafe(long index, long start, ArrowBuf buffer, int length) {
     handleSafe(index);
     BitVectorHelper.setValidityBitToOne(validityBuffer, index);
 
