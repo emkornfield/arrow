@@ -69,7 +69,7 @@ public class BaseValueVectorBenchmarks {
   }
 
   /**
-   * Test {@link BaseValueVector#computeCombinedBufferSize(int, int)}.
+   * Test {@link BaseValueVector#computeCombinedBufferSize(long, int)}.
    * @return useless. To avoid DCE by JIT.
    */
   @Benchmark

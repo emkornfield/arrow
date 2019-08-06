@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.apache.arrow.memory.BufferAllocator;
 import org.apache.arrow.memory.RootAllocator;
+import org.apache.arrow.vector.BigIntVector;
 import org.apache.arrow.vector.IntVector;
 import org.junit.After;
 import org.junit.Before;
@@ -67,7 +68,7 @@ public class TestIndexSorter {
       DefaultVectorComparators.IntComparator intComparator = new DefaultVectorComparators.IntComparator();
       intComparator.attachVector(vec);
 
-      IntVector indices = new IntVector("", allocator);
+      BigIntVector indices = new BigIntVector("", allocator);
       indices.setValueCount(10);
       indexSorter.sort(vec, indices, intComparator);
 

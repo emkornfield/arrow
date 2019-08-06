@@ -325,18 +325,18 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
     newBuf.setZero(currentBufferCapacity, newBuf.capacity() - currentBufferCapacity);
     validityBuffer.getReferenceManager().release(1);
     validityBuffer = newBuf;
-    validityAllocationSizeInBytes = (int) newAllocationSize;
+    validityAllocationSizeInBytes = newAllocationSize;
   }
 
   /**
-   * Same as {@link #copyFrom(int, int, ListVector)} except that
+   * Same as {@link #copyFrom(long, long, ListVector)} except that
    * it handles the case when the capacity of the vector needs to be expanded
    * before copy.
    * @param inIndex position to copy from in source vector
    * @param outIndex position to copy to in this vector
    * @param from source vector
    */
-  public void copyFromSafe(int inIndex, int outIndex, ListVector from) {
+  public void copyFromSafe(long inIndex, long outIndex, ListVector from) {
     copyFrom(inIndex, outIndex, from);
   }
 
@@ -347,7 +347,7 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
    * @param outIndex position to copy to in this vector
    * @param from source vector
    */
-  public void copyFrom(int inIndex, int outIndex, ListVector from) {
+  public void copyFrom(long inIndex, long outIndex, ListVector from) {
     FieldReader in = from.getReader();
     in.setPosition(inIndex);
     FieldWriter out = getWriter();

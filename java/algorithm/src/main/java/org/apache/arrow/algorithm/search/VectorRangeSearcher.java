@@ -40,16 +40,16 @@ public class VectorRangeSearcher {
    * @param <V> the vector type.
    * @return the index of the first matched element if any, and -1 otherwise.
    */
-  public static <V extends ValueVector> int getFirstMatch(
+  public static <V extends ValueVector> long getFirstMatch(
           V targetVector, VectorValueComparator<V> comparator, V keyVector, int keyIndex) {
     comparator.attachVectors(keyVector, targetVector);
 
-    int low = 0;
-    int high = targetVector.getValueCount() - 1;
+    long low = 0;
+    long high = targetVector.getValueCount() - 1;
 
     while (low <= high) {
-      int mid = low + (high - low) / 2;
-      int result = comparator.compare(keyIndex, mid);
+      long mid = low + (high - low) / 2;
+      long result = comparator.compare(keyIndex, mid);
       if (result < 0) {
         // the key is smaller
         high = mid - 1;
@@ -60,12 +60,12 @@ public class VectorRangeSearcher {
         // the key equals the mid value, find the lower bound by going left-ward.
 
         // compare with the left neighbour
-        int left = mid - 1;
+        long left = mid - 1;
         if (left == -1) {
           // this is the first value in the vector
           return mid;
         } else {
-          int leftResult = comparator.compare(keyIndex, left);
+          long leftResult = comparator.compare(keyIndex, left);
           if (leftResult > 0) {
             // the key is greater than the left neighbour, and equal to the current one
             // we find it
@@ -93,16 +93,16 @@ public class VectorRangeSearcher {
    * @param <V> the vector type.
    * @return the index of the last matched element if any, and -1 otherwise.
    */
-  public static <V extends ValueVector> int getLastMatch(
+  public static <V extends ValueVector> long getLastMatch(
           V targetVector, VectorValueComparator<V> comparator, V keyVector, int keyIndex) {
     comparator.attachVectors(keyVector, targetVector);
 
-    int low = 0;
-    int high = targetVector.getValueCount() - 1;
+    long low = 0;
+    long high = targetVector.getValueCount() - 1;
 
     while (low <= high) {
-      int mid = low + (high - low) / 2;
-      int result = comparator.compare(keyIndex, mid);
+      long mid = low + (high - low) / 2;
+      long result = comparator.compare(keyIndex, mid);
       if (result < 0) {
         // the key is smaller
         high = mid - 1;
@@ -113,7 +113,7 @@ public class VectorRangeSearcher {
         // the key equals the mid value, find the upper bound by going right-ward.
 
         // compare with the right neighbour
-        int right = mid + 1;
+        long right = mid + 1;
         if (right == targetVector.getValueCount()) {
           // this is the last value in the vector
           return mid;

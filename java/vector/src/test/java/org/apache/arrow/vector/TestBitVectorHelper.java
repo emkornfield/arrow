@@ -39,7 +39,7 @@ public class TestBitVectorHelper {
     validityBuffer.setByte(0, 0b10110);
 
     // we will only consider 0b110 here, since we only 3 items and only one is null
-    int count = BitVectorHelper.getNullCount(validityBuffer, 3);
+    long count = BitVectorHelper.getNullCount(validityBuffer, 3);
     assertEquals(count, 1);
 
     // test case 2, no null value for 0xFF

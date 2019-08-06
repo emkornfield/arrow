@@ -40,16 +40,16 @@ public final class VectorSearcher {
    * @param <V> the vector type.
    * @return the index of a matched element if any, and -1 otherwise.
    */
-  public static <V extends ValueVector> int binarySearch(
+  public static <V extends ValueVector> long binarySearch(
           V targetVector, VectorValueComparator<V> comparator, V keyVector, int keyIndex) {
     comparator.attachVectors(keyVector, targetVector);
 
     // perform binary search
-    int low = 0;
-    int high = targetVector.getValueCount() - 1;
+    long low = 0;
+    long high = targetVector.getValueCount() - 1;
 
     while (low <= high) {
-      int mid = low + (high - low) / 2;
+      long mid = low + (high - low) / 2;
       int cmp = comparator.compare(keyIndex, mid);
       if (cmp < 0) {
         high = mid - 1;

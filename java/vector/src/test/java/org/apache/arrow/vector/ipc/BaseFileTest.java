@@ -202,14 +202,14 @@ public class BaseFileTest {
   public void printVectors(List<FieldVector> vectors) {
     for (FieldVector vector : vectors) {
       LOGGER.debug(vector.getField().getName());
-      int valueCount = vector.getValueCount();
-      for (int i = 0; i < valueCount; i++) {
+      long valueCount = vector.getValueCount();
+      for (long i = 0; i < valueCount; i++) {
         LOGGER.debug(String.valueOf(vector.getObject(i)));
       }
     }
   }
 
-  protected void validateComplexContent(int count, VectorSchemaRoot root) {
+  protected void validateComplexContent(long count, VectorSchemaRoot root) {
     Assert.assertEquals(count, root.getRowCount());
     printVectors(root.getFieldVectors());
     for (int i = 0; i < count; i++) {

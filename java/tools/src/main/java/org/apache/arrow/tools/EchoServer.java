@@ -120,9 +120,9 @@ public class EchoServer {
         try (ArrowStreamWriter writer = new ArrowStreamWriter(root, reader, socket
             .getOutputStream())) {
           writer.start();
-          int echoed = 0;
+          long echoed = 0;
           while (true) {
-            int rowCount = reader.getVectorSchemaRoot().getRowCount();
+            long rowCount = reader.getVectorSchemaRoot().getRowCount();
             if (rowCount == 0) {
               break;
             } else {

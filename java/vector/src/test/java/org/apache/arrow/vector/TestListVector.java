@@ -135,7 +135,7 @@ public class TestListVector {
       BigIntVector dataVector = (BigIntVector) listVector.getDataVector();
 
       /* check current lastSet */
-      assertEquals(Integer.toString(-1), Integer.toString(listVector.getLastSet()));
+      assertEquals(Integer.toString(-1), Long.toString(listVector.getLastSet()));
 
       int index = 0;
       int offset = 0;
@@ -165,7 +165,7 @@ public class TestListVector {
       offsetBuffer.setInt((index + 1) * ListVector.OFFSET_WIDTH, 8);
 
       /* check current lastSet */
-      assertEquals(Integer.toString(-1), Integer.toString(listVector.getLastSet()));
+      assertEquals(Integer.toString(-1), Long.toString(listVector.getLastSet()));
 
       /* set lastset and arbitrary valuecount for list vector.
        *

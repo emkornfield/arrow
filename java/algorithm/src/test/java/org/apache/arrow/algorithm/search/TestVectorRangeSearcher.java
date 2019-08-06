@@ -70,7 +70,7 @@ public class TestVectorRangeSearcher {
       // do search
       VectorValueComparator<IntVector> comparator = DefaultVectorComparators.createDefaultComparator(intVector);
       for (int i = 0; i < maxValue; i++) {
-        int result = VectorRangeSearcher.getFirstMatch(intVector, comparator, intVector, i * repeat);
+        long result = VectorRangeSearcher.getFirstMatch(intVector, comparator, intVector, i * repeat);
         assertEquals(i * repeat, result);
       }
     }
@@ -105,7 +105,7 @@ public class TestVectorRangeSearcher {
       // do search
       VectorValueComparator<IntVector> comparator = DefaultVectorComparators.createDefaultComparator(intVector);
       for (int i = 0; i < maxValue; i++) {
-        int result = VectorRangeSearcher.getFirstMatch(intVector, comparator, negVector, i);
+        long result = VectorRangeSearcher.getFirstMatch(intVector, comparator, negVector, i);
         assertEquals(-1, result);
       }
     }
@@ -135,7 +135,7 @@ public class TestVectorRangeSearcher {
       // do search
       VectorValueComparator<IntVector> comparator = DefaultVectorComparators.createDefaultComparator(intVector);
       for (int i = 0; i < maxValue; i++) {
-        int result = VectorRangeSearcher.getLastMatch(intVector, comparator, intVector, i * repeat);
+        long result = VectorRangeSearcher.getLastMatch(intVector, comparator, intVector, i * repeat);
         assertEquals((i + 1) * repeat - 1, result);
       }
     }
@@ -170,7 +170,7 @@ public class TestVectorRangeSearcher {
       // do search
       VectorValueComparator<IntVector> comparator = DefaultVectorComparators.createDefaultComparator(intVector);
       for (int i = 0; i < maxValue; i++) {
-        int result = VectorRangeSearcher.getLastMatch(intVector, comparator, negVector, i);
+        long result = VectorRangeSearcher.getLastMatch(intVector, comparator, negVector, i);
         assertEquals(-1, result);
       }
     }

@@ -973,7 +973,7 @@ public class TestComplexWriter {
     Float4Vector float4Vector = (Float4Vector)parent.getChild("float4Field");
     Float8Vector float8Vector = (Float8Vector)parent.getChild("float8Field");
 
-    int capacity = singleStructWriter.getValueCapacity();
+    long capacity = singleStructWriter.getValueCapacity();
     assertTrue(capacity >= initialCapacity && capacity <  initialCapacity * 2);
     capacity = intVector.getValueCapacity();
     assertTrue(capacity >= initialCapacity && capacity <  initialCapacity * 2);

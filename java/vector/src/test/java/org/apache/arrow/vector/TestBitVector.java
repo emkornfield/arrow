@@ -116,7 +116,7 @@ public class TestBitVector {
           transferPair.splitAndTransfer(start, length);
 
           /* check the toVector output after doing splitAndTransfer */
-          for (int i = 0; i < length; i++) {
+          for (long i = 0; i < length; i++) {
             int actual = toVector.get(i);
             int expected = sourceVector.get(start + i);
             assertEquals("different data values not expected --> sourceVector index: " + (start + i) +
@@ -225,7 +225,7 @@ public class TestBitVector {
   public void testReallocAfterVectorTransfer1() {
     try (final BitVector vector = new BitVector(EMPTY_SCHEMA_PATH, allocator)) {
       vector.allocateNew(4096);
-      int valueCapacity = vector.getValueCapacity();
+      long valueCapacity = vector.getValueCapacity();
       assertEquals(4096, valueCapacity);
 
       for (int i = 0; i < valueCapacity; i++) {
@@ -246,7 +246,7 @@ public class TestBitVector {
       vector.setSafeToOne(valueCapacity);
       assertEquals(valueCapacity * 2, vector.getValueCapacity());
 
-      for (int i = valueCapacity; i < valueCapacity * 2; i++) {
+      for (long i = valueCapacity; i < valueCapacity * 2; i++) {
         if ((i & 1) == 1) {
           vector.setToOne(i);
         }
@@ -264,7 +264,7 @@ public class TestBitVector {
       vector.setSafeToOne(valueCapacity * 2);
       assertEquals(valueCapacity * 4, vector.getValueCapacity());
 
-      for (int i = valueCapacity * 2; i < valueCapacity * 4; i++) {
+      for (long i = valueCapacity * 2; i < valueCapacity * 4; i++) {
         if ((i & 1) == 1) {
           vector.setToOne(i);
         }
@@ -309,16 +309,16 @@ public class TestBitVector {
   public void testReallocAfterVectorTransfer2() {
     try (final BitVector vector = new BitVector(EMPTY_SCHEMA_PATH, allocator)) {
       vector.allocateNew(4096);
-      int valueCapacity = vector.getValueCapacity();
+      long valueCapacity = vector.getValueCapacity();
       assertEquals(4096, valueCapacity);
 
-      for (int i = 0; i < valueCapacity; i++) {
+      for (long i = 0; i < valueCapacity; i++) {
         if ((i & 1) == 1) {
           vector.set(i, 1);
         }
       }
 
-      for (int i = 0; i < valueCapacity; i++) {
+      for (long i = 0; i < valueCapacity; i++) {
         if ((i & 1) == 1) {
           assertFalse("unexpected cleared bit at index: " + i, vector.isNull(i));
         } else {
@@ -330,13 +330,13 @@ public class TestBitVector {
       vector.setSafe(valueCapacity, 1, 1);
       assertEquals(valueCapacity * 2, vector.getValueCapacity());
 
-      for (int i = valueCapacity; i < valueCapacity * 2; i++) {
+      for (long i = valueCapacity; i < valueCapacity * 2; i++) {
         if ((i & 1) == 1) {
           vector.set(i, 1);
         }
       }
 
-      for (int i = 0; i < valueCapacity * 2; i++) {
+      for (long i = 0; i < valueCapacity * 2; i++) {
         if (((i & 1) == 1) || (i == valueCapacity)) {
           assertFalse("unexpected cleared bit at index: " + i, vector.isNull(i));
         } else {
@@ -348,7 +348,7 @@ public class TestBitVector {
       vector.setSafe(valueCapacity * 2, 1, 1);
       assertEquals(valueCapacity * 4, vector.getValueCapacity());
 
-      for (int i = valueCapacity * 2; i < valueCapacity * 4; i++) {
+      for (long i = valueCapacity * 2; i < valueCapacity * 4; i++) {
         if ((i & 1) == 1) {
           vector.set(i, 1);
         }

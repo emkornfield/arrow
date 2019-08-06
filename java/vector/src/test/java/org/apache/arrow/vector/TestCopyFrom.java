@@ -77,29 +77,29 @@ public class TestCopyFrom {
       vector.allocateNew();
       assertTrue(vector.getValueCapacity() >= 1);
       assertEquals(0, vector.getValueCount());
-      int initialCapacity = vector.getValueCapacity();
+      long initialCapacity = vector.getValueCapacity();
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if (i % 3 == 0) {
           continue;
         }
-        byte[] b = Integer.toString(i).getBytes();
+        byte[] b = Long.toString(i).getBytes();
         vector.setSafe(i, b, 0, b.length);
       }
 
       /* NO reAlloc() should have happened in setSafe() */
-      int capacity = vector.getValueCapacity();
+      long capacity = vector.getValueCapacity();
       assertEquals(initialCapacity, capacity);
 
       vector.setValueCount(initialCapacity);
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if (i % 3 == 0) {
           assertNull(vector.getObject(i));
         } else {
           assertEquals(
               "unexpected value at index: " + i,
-              Integer.toString(i),
+              Long.toString(i),
               vector.getObject(i).toString());
         }
       }
@@ -109,14 +109,14 @@ public class TestCopyFrom {
       capacity = vector2.getValueCapacity();
       assertEquals(initialCapacity, capacity);
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         vector2.copyFromSafe(i, i, vector);
         if (i % 3 == 0) {
           assertNull(vector2.getObject(i));
         } else {
           assertEquals(
               "unexpected value at index: " + i,
-              Integer.toString(i),
+              Long.toString(i),
               vector2.getObject(i).toString());
         }
       }
@@ -127,13 +127,13 @@ public class TestCopyFrom {
 
       vector2.setValueCount(initialCapacity);
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if (i % 3 == 0) {
           assertNull(vector2.getObject(i));
         } else {
           assertEquals(
               "unexpected value at index: " + i,
-              Integer.toString(i),
+              Long.toString(i),
               vector2.getObject(i).toString());
         }
       }
@@ -149,29 +149,29 @@ public class TestCopyFrom {
       vector.allocateNew();
       assertTrue(vector.getValueCapacity() >= 1);
       assertEquals(0, vector.getValueCount());
-      int initialCapacity = vector.getValueCapacity();
+      long initialCapacity = vector.getValueCapacity();
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if (i % 3 == 0) {
           continue;
         }
-        byte[] b = Integer.toString(i).getBytes();
+        byte[] b = Long.toString(i).getBytes();
         vector.setSafe(i, b, 0, b.length);
       }
 
       /* NO reAlloc() should have happened in setSafe() */
-      int capacity = vector.getValueCapacity();
+      long capacity = vector.getValueCapacity();
       assertEquals(initialCapacity, capacity);
 
       vector.setValueCount(initialCapacity);
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if (i % 3 == 0) {
           assertNull(vector.getObject(i));
         } else {
           assertEquals(
               "unexpected value at index: " + i,
-              Integer.toString(i),
+              Long.toString(i),
               vector.getObject(i).toString());
         }
       }
@@ -185,14 +185,14 @@ public class TestCopyFrom {
       assertTrue(capacity >= initialCapacity / 4);
       assertTrue(capacity < initialCapacity / 2);
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         vector2.copyFromSafe(i, i, vector);
         if (i % 3 == 0) {
           assertNull(vector2.getObject(i));
         } else {
           assertEquals(
               "unexpected value at index: " + i,
-              Integer.toString(i),
+              Long.toString(i),
               vector2.getObject(i).toString());
         }
       }
@@ -203,13 +203,13 @@ public class TestCopyFrom {
 
       vector2.setValueCount(initialCapacity);
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if (i % 3 == 0) {
           assertNull(vector2.getObject(i));
         } else {
           assertEquals(
               "unexpected value at index: " + i,
-              Integer.toString(i),
+              Long.toString(i),
               vector2.getObject(i).toString());
         }
       }
@@ -224,13 +224,13 @@ public class TestCopyFrom {
       vector1.allocateNew();
       assertTrue(vector1.getValueCapacity() >= vector1.INITIAL_VALUE_ALLOCATION);
       assertEquals(0, vector1.getValueCount());
-      int initialCapacity = vector1.getValueCapacity();
+      long initialCapacity = vector1.getValueCapacity();
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           continue;
         }
-        vector1.setSafe(i, 1000 + i);
+        vector1.setSafe(i, 1000 + (int)i);
       }
 
       vector1.setValueCount(initialCapacity);
@@ -241,7 +241,7 @@ public class TestCopyFrom {
       assertEquals(initialCapacity, vector1.getValueCapacity());
       assertEquals(initialCapacity, vector1.getValueCount());
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           assertNull(vector1.getObject(i));
         } else {
@@ -256,7 +256,7 @@ public class TestCopyFrom {
       assertTrue(vector2.getValueCapacity() >= initialCapacity / 4);
       assertTrue(vector2.getValueCapacity() < initialCapacity / 2);
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         vector2.copyFromSafe(i, i, vector1);
       }
 
@@ -286,9 +286,9 @@ public class TestCopyFrom {
       vector1.allocateNew();
       assertTrue(vector1.getValueCapacity() >= vector1.INITIAL_VALUE_ALLOCATION);
       assertEquals(0, vector1.getValueCount());
-      int initialCapacity = vector1.getValueCapacity();
+      long initialCapacity = vector1.getValueCapacity();
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           continue;
         }
@@ -303,7 +303,7 @@ public class TestCopyFrom {
       assertEquals(initialCapacity, vector1.getValueCapacity());
       assertEquals(initialCapacity, vector1.getValueCount());
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           assertNull(vector1.getObject(i));
         } else {
@@ -318,7 +318,7 @@ public class TestCopyFrom {
       assertTrue(vector2.getValueCapacity() >= initialCapacity / 4);
       assertTrue(vector2.getValueCapacity() < initialCapacity / 2);
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         vector2.copyFromSafe(i, i, vector1);
       }
 
@@ -427,9 +427,9 @@ public class TestCopyFrom {
       vector1.allocateNew();
       assertTrue(vector1.getValueCapacity() >= vector1.INITIAL_VALUE_ALLOCATION);
       assertEquals(0, vector1.getValueCount());
-      int initialCapacity = vector1.getValueCapacity();
+      long initialCapacity = vector1.getValueCapacity();
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           continue;
         }
@@ -444,7 +444,7 @@ public class TestCopyFrom {
       assertEquals(initialCapacity, vector1.getValueCapacity());
       assertEquals(initialCapacity, vector1.getValueCount());
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           assertNull(vector1.getObject(i));
         } else {
@@ -459,7 +459,7 @@ public class TestCopyFrom {
       assertTrue(vector2.getValueCapacity() >= initialCapacity / 4);
       assertTrue(vector2.getValueCapacity() < initialCapacity / 2);
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         vector2.copyFromSafe(i, i, vector1);
       }
 
@@ -471,7 +471,7 @@ public class TestCopyFrom {
       assertTrue(vector2.getValueCapacity() >= initialCapacity * 2);
 
       /* check vector data after copy and realloc */
-      for (int i = 0; i < initialCapacity * 2; i++) {
+      for (long i = 0; i < initialCapacity * 2; i++) {
         if (((i & 1) == 0) || (i >= initialCapacity)) {
           assertNull(vector2.getObject(i));
         } else {
@@ -489,9 +489,9 @@ public class TestCopyFrom {
       vector1.allocateNew();
       assertTrue(vector1.getValueCapacity() >= vector1.INITIAL_VALUE_ALLOCATION);
       assertEquals(0, vector1.getValueCount());
-      int initialCapacity = vector1.getValueCapacity();
+      long initialCapacity = vector1.getValueCapacity();
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           continue;
         }
@@ -506,7 +506,7 @@ public class TestCopyFrom {
       assertEquals(initialCapacity, vector1.getValueCapacity());
       assertEquals(initialCapacity, vector1.getValueCount());
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           assertNull(vector1.getObject(i));
         } else {
@@ -522,7 +522,7 @@ public class TestCopyFrom {
       assertTrue(vector2.getValueCapacity() >= initialCapacity / 4);
       assertTrue(vector2.getValueCapacity() < initialCapacity / 2);
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         vector2.copyFromSafe(i, i, vector1);
       }
 
@@ -534,7 +534,7 @@ public class TestCopyFrom {
       assertTrue(vector2.getValueCapacity() >= initialCapacity * 2);
 
       /* check vector data after copy and realloc */
-      for (int i = 0; i < initialCapacity * 2; i++) {
+      for (long i = 0; i < initialCapacity * 2; i++) {
         if (((i & 1) == 0) || (i >= initialCapacity)) {
           assertNull(vector2.getObject(i));
         } else {
@@ -553,15 +553,15 @@ public class TestCopyFrom {
       vector1.allocateNew();
       assertTrue(vector1.getValueCapacity() >= vector1.INITIAL_VALUE_ALLOCATION);
       assertEquals(0, vector1.getValueCount());
-      int initialCapacity = vector1.getValueCapacity();
+      long initialCapacity = vector1.getValueCapacity();
 
       final int days = 10;
       final int milliseconds = 10000;
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           continue;
         }
-        vector1.setSafe(i, days + i, milliseconds + i);
+        vector1.setSafe(i, days + (int)i, milliseconds + (int)i);
       }
 
       vector1.setValueCount(initialCapacity);
@@ -572,7 +572,7 @@ public class TestCopyFrom {
       assertEquals(initialCapacity, vector1.getValueCapacity());
       assertEquals(initialCapacity, vector1.getValueCount());
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           assertNull(vector1.getObject(i));
         } else {
@@ -589,7 +589,7 @@ public class TestCopyFrom {
       assertTrue(vector2.getValueCapacity() >= initialCapacity / 4);
       assertTrue(vector2.getValueCapacity() < initialCapacity / 2);
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         vector2.copyFromSafe(i, i, vector1);
       }
 
@@ -601,7 +601,7 @@ public class TestCopyFrom {
       assertTrue(vector2.getValueCapacity() >= initialCapacity * 2);
 
       /* check vector data after copy and realloc */
-      for (int i = 0; i < initialCapacity * 2; i++) {
+      for (long i = 0; i < initialCapacity * 2; i++) {
         if (((i & 1) == 0) || (i >= initialCapacity)) {
           assertNull(vector2.getObject(i));
         } else {
@@ -621,18 +621,18 @@ public class TestCopyFrom {
       vector1.allocateNew();
       assertTrue(vector1.getValueCapacity() >= vector1.INITIAL_VALUE_ALLOCATION);
       assertEquals(0, vector1.getValueCount());
-      int initialCapacity = vector1.getValueCapacity();
+      long initialCapacity = vector1.getValueCapacity();
 
       final int interval = 30; /* 2 years 6 months */
       final Period[] periods = new Period[4096];
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           continue;
         }
-        vector1.setSafe(i, interval + i);
-        final int years = (interval + i) / org.apache.arrow.vector.util.DateUtility.yearsToMonths;
-        final int months = (interval + i) % org.apache.arrow.vector.util.DateUtility.yearsToMonths;
-        periods[i] = Period.ofYears(years).plusMonths(months).normalized();
+        vector1.setSafe(i, interval + (int)i);
+        final long years = (interval + i) / org.apache.arrow.vector.util.DateUtility.yearsToMonths;
+        final long months = (interval + i) % org.apache.arrow.vector.util.DateUtility.yearsToMonths;
+        periods[(int)i] = Period.ofYears((int)years).plusMonths(months).normalized();
       }
 
       vector1.setValueCount(initialCapacity);
@@ -643,13 +643,13 @@ public class TestCopyFrom {
       assertEquals(initialCapacity, vector1.getValueCapacity());
       assertEquals(initialCapacity, vector1.getValueCount());
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           assertNull(vector1.getObject(i));
         } else {
           final Period p = vector1.getObject(i).normalized();
           assertEquals(interval + i, vector1.get(i));
-          assertEquals(periods[i], p);
+          assertEquals(periods[(int)i], p);
         }
       }
 
@@ -660,7 +660,7 @@ public class TestCopyFrom {
       assertTrue(vector2.getValueCapacity() >= initialCapacity / 4);
       assertTrue(vector2.getValueCapacity() < initialCapacity / 2);
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         vector2.copyFromSafe(i, i, vector1);
       }
 
@@ -672,12 +672,12 @@ public class TestCopyFrom {
       assertTrue(vector2.getValueCapacity() >= initialCapacity * 2);
 
       /* check vector data after copy and realloc */
-      for (int i = 0; i < initialCapacity * 2; i++) {
+      for (long i = 0; i < initialCapacity * 2; i++) {
         if (((i & 1) == 0) || (i >= initialCapacity)) {
           assertNull(vector2.getObject(i));
         } else {
           final Period p = vector2.getObject(i).normalized();
-          assertEquals(periods[i], p);
+          assertEquals(periods[(int)i], p);
         }
       }
     }
@@ -691,10 +691,10 @@ public class TestCopyFrom {
       vector1.allocateNew();
       assertTrue(vector1.getValueCapacity() >= vector1.INITIAL_VALUE_ALLOCATION);
       assertEquals(0, vector1.getValueCount());
-      int initialCapacity = vector1.getValueCapacity();
+      long initialCapacity = vector1.getValueCapacity();
 
       final short val = 1000;
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           continue;
         }
@@ -709,7 +709,7 @@ public class TestCopyFrom {
       assertEquals(initialCapacity, vector1.getValueCapacity());
       assertEquals(initialCapacity, vector1.getValueCount());
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           assertNull(vector1.getObject(i));
         } else {
@@ -724,7 +724,7 @@ public class TestCopyFrom {
       assertTrue(vector2.getValueCapacity() >= initialCapacity / 4);
       assertTrue(vector2.getValueCapacity() < initialCapacity / 2);
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         vector2.copyFromSafe(i, i, vector1);
       }
 
@@ -736,7 +736,7 @@ public class TestCopyFrom {
       assertTrue(vector2.getValueCapacity() >= initialCapacity * 2);
 
       /* check vector data after copy and realloc */
-      for (int i = 0; i < initialCapacity * 2; i++) {
+      for (long i = 0; i < initialCapacity * 2; i++) {
         if (((i & 1) == 0) || (i >= initialCapacity)) {
           assertNull(vector2.getObject(i));
         } else {
@@ -754,10 +754,10 @@ public class TestCopyFrom {
       vector1.allocateNew();
       assertTrue(vector1.getValueCapacity() >= vector1.INITIAL_VALUE_ALLOCATION);
       assertEquals(0, vector1.getValueCount());
-      int initialCapacity = vector1.getValueCapacity();
+      long initialCapacity = vector1.getValueCapacity();
 
       final long val = 100485765432L;
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           continue;
         }
@@ -772,7 +772,7 @@ public class TestCopyFrom {
       assertEquals(initialCapacity, vector1.getValueCapacity());
       assertEquals(initialCapacity, vector1.getValueCount());
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           assertNull(vector1.getObject(i));
         } else {
@@ -787,7 +787,7 @@ public class TestCopyFrom {
       assertTrue(vector2.getValueCapacity() >= initialCapacity / 4);
       assertTrue(vector2.getValueCapacity() < initialCapacity / 2);
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         vector2.copyFromSafe(i, i, vector1);
       }
 
@@ -799,7 +799,7 @@ public class TestCopyFrom {
       assertTrue(vector2.getValueCapacity() >= initialCapacity * 2);
 
       /* check vector data after copy and realloc */
-      for (int i = 0; i < initialCapacity * 2; i++) {
+      for (long i = 0; i < initialCapacity * 2; i++) {
         if (((i & 1) == 0) || (i >= initialCapacity)) {
           assertNull(vector2.getObject(i));
         } else {
@@ -817,14 +817,14 @@ public class TestCopyFrom {
       vector1.allocateNew();
       assertTrue(vector1.getValueCapacity() >= vector1.INITIAL_VALUE_ALLOCATION);
       assertEquals(0, vector1.getValueCount());
-      int initialCapacity = vector1.getValueCapacity();
+      long initialCapacity = vector1.getValueCapacity();
 
       final int val = 1000;
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           continue;
         }
-        vector1.setSafe(i, val + i);
+        vector1.setSafe(i, val + (int)i);
       }
 
       vector1.setValueCount(initialCapacity);
@@ -835,7 +835,7 @@ public class TestCopyFrom {
       assertEquals(initialCapacity, vector1.getValueCapacity());
       assertEquals(initialCapacity, vector1.getValueCount());
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           assertNull(vector1.getObject(i));
         } else {
@@ -850,7 +850,7 @@ public class TestCopyFrom {
       assertTrue(vector2.getValueCapacity() >= initialCapacity / 4);
       assertTrue(vector2.getValueCapacity() < initialCapacity / 2);
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         vector2.copyFromSafe(i, i, vector1);
       }
 
@@ -862,7 +862,7 @@ public class TestCopyFrom {
       assertTrue(vector2.getValueCapacity() >= initialCapacity * 2);
 
       /* check vector data after copy and realloc */
-      for (int i = 0; i < initialCapacity * 2; i++) {
+      for (long i = 0; i < initialCapacity * 2; i++) {
         if (((i & 1) == 0) || (i >= initialCapacity)) {
           assertNull(vector2.getObject(i));
         } else {
@@ -880,10 +880,10 @@ public class TestCopyFrom {
       vector1.allocateNew();
       assertTrue(vector1.getValueCapacity() >= vector1.INITIAL_VALUE_ALLOCATION);
       assertEquals(0, vector1.getValueCount());
-      int initialCapacity = vector1.getValueCapacity();
+      long initialCapacity = vector1.getValueCapacity();
 
       byte val = -128;
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           continue;
         }
@@ -900,7 +900,7 @@ public class TestCopyFrom {
       assertEquals(initialCapacity, vector1.getValueCount());
 
       val = -128;
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           assertNull(vector1.getObject(i));
         } else {
@@ -915,7 +915,7 @@ public class TestCopyFrom {
       vector2.allocateNew(initialCapacity / 4);
       assertTrue(vector2.getValueCapacity() >= initialCapacity / 4);
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         vector2.copyFromSafe(i, i, vector1);
       }
 
@@ -947,17 +947,17 @@ public class TestCopyFrom {
       vector1.allocateNew();
       assertTrue(vector1.getValueCapacity() >= vector1.INITIAL_VALUE_ALLOCATION);
       assertEquals(0, vector1.getValueCount());
-      int initialCapacity = vector1.getValueCapacity();
+      long initialCapacity = vector1.getValueCapacity();
 
       final double baseValue = 104567897654.876543654;
       final BigDecimal[] decimals = new BigDecimal[4096];
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           continue;
         }
         BigDecimal decimal = new BigDecimal(baseValue + (double) i);
         vector1.setSafe(i, decimal);
-        decimals[i] = decimal;
+        decimals[(int)i] = decimal;
       }
 
       vector1.setValueCount(initialCapacity);
@@ -968,12 +968,12 @@ public class TestCopyFrom {
       assertEquals(initialCapacity, vector1.getValueCapacity());
       assertEquals(initialCapacity, vector1.getValueCount());
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           assertNull(vector1.getObject(i));
         } else {
           final BigDecimal decimal = vector1.getObject(i);
-          assertEquals(decimals[i], decimal);
+          assertEquals(decimals[(int)i], decimal);
         }
       }
 
@@ -984,7 +984,7 @@ public class TestCopyFrom {
       assertTrue(vector2.getValueCapacity() >= initialCapacity / 4);
       assertTrue(vector2.getValueCapacity() < initialCapacity / 2);
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         vector2.copyFromSafe(i, i, vector1);
       }
 
@@ -1015,10 +1015,10 @@ public class TestCopyFrom {
       vector1.allocateNew();
       assertTrue(vector1.getValueCapacity() >= vector1.INITIAL_VALUE_ALLOCATION);
       assertEquals(0, vector1.getValueCount());
-      int initialCapacity = vector1.getValueCapacity();
+      long initialCapacity = vector1.getValueCapacity();
 
       final long val = 20145678912L;
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           continue;
         }
@@ -1033,7 +1033,7 @@ public class TestCopyFrom {
       assertEquals(initialCapacity, vector1.getValueCapacity());
       assertEquals(initialCapacity, vector1.getValueCount());
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         if ((i & 1) == 0) {
           assertNull(vector1.getObject(i));
         } else {
@@ -1048,7 +1048,7 @@ public class TestCopyFrom {
       assertTrue(vector2.getValueCapacity() >= initialCapacity / 4);
       assertTrue(vector2.getValueCapacity() < initialCapacity / 2);
 
-      for (int i = 0; i < initialCapacity; i++) {
+      for (long i = 0; i < initialCapacity; i++) {
         vector2.copyFromSafe(i, i, vector1);
       }
 

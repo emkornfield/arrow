@@ -87,7 +87,7 @@ public class BitVectorHelperBenchmarks {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public int getNullCountBenchmark() {
+  public long getNullCountBenchmark() {
     return BitVectorHelper.getNullCount(validityBuffer, VALIDITY_BUFFER_CAPACITY);
   }
 

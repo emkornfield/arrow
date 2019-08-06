@@ -18,8 +18,8 @@
 package org.apache.arrow.algorithm.sort;
 
 import org.apache.arrow.vector.BaseVariableWidthVector;
+import org.apache.arrow.vector.BigIntVector;
 import org.apache.arrow.vector.BitVectorHelper;
-import org.apache.arrow.vector.IntVector;
 
 import io.netty.buffer.ArrowBuf;
 import io.netty.util.internal.PlatformDependent;
@@ -46,7 +46,7 @@ public class VariableWidthOutOfPlaceVectorSorter<V extends BaseVariableWidthVect
     ArrowBuf dstOffsetBuffer = dstVector.getOffsetBuffer();
 
     // sort value indices
-    try (IntVector sortedIndices = new IntVector("", srcVector.getAllocator())) {
+    try (BigIntVector sortedIndices = new BigIntVector("", srcVector.getAllocator())) {
       sortedIndices.allocateNew(srcVector.getValueCount());
       sortedIndices.setValueCount(srcVector.getValueCount());
       indexSorter.sort(srcVector, sortedIndices, comparator);
@@ -56,7 +56,7 @@ public class VariableWidthOutOfPlaceVectorSorter<V extends BaseVariableWidthVect
 
       // copy sorted values to the output vector
       for (int dstIndex = 0; dstIndex < sortedIndices.getValueCount(); dstIndex++) {
-        int srcIndex = sortedIndices.get(dstIndex);
+        long srcIndex = sortedIndices.get(dstIndex);
         if (srcVector.isNull(srcIndex)) {
           BitVectorHelper.setValidityBit(dstValidityBuffer, dstIndex, 0);
         } else {

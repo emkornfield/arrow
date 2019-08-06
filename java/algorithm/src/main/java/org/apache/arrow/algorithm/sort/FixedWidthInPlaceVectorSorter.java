@@ -54,15 +54,15 @@ public class FixedWidthInPlaceVectorSorter<V extends BaseFixedWidthVector> imple
     }
   }
 
-  private void quickSort(int low, int high) {
+  private void quickSort(long low, long high) {
     if (low < high) {
-      int mid = partition(low, high);
+      long mid = partition(low, high);
       quickSort(low, mid - 1);
       quickSort(mid + 1, high);
     }
   }
 
-  private int partition(int low, int high) {
+  private long partition(long low, long high) {
     pivotBuffer.copyFrom(low, 0, vec);
 
     while (low < high) {

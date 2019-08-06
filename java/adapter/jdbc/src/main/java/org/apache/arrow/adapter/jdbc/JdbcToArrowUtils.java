@@ -366,7 +366,7 @@ public class JdbcToArrowUtils {
 
     allocateVectors(root, DEFAULT_BUFFER_SIZE);
 
-    int rowCount = 0;
+    long rowCount = 0;
     while (rs.next()) {
       for (int i = 1; i <= columnCount; i++) {
         jdbcToFieldVector(
@@ -386,7 +386,7 @@ public class JdbcToArrowUtils {
       ResultSet rs,
       int columnIndex,
       int jdbcColType,
-      int rowCount,
+      long rowCount,
       FieldVector vector,
       JdbcToArrowConfig config)
           throws SQLException, IOException {
@@ -492,7 +492,7 @@ public class JdbcToArrowUtils {
     }
   }
 
-  private static void updateVector(BitVector bitVector, boolean value, boolean isNonNull, int rowCount) {
+  private static void updateVector(BitVector bitVector, boolean value, boolean isNonNull, long rowCount) {
     NullableBitHolder holder = new NullableBitHolder();
     holder.isSet = isNonNull ? 1 : 0;
     if (isNonNull) {
@@ -502,7 +502,7 @@ public class JdbcToArrowUtils {
     bitVector.setValueCount(rowCount + 1);
   }
 
-  private static void updateVector(TinyIntVector tinyIntVector, int value, boolean isNonNull, int rowCount) {
+  private static void updateVector(TinyIntVector tinyIntVector, int value, boolean isNonNull, long rowCount) {
     NullableTinyIntHolder holder = new NullableTinyIntHolder();
     holder.isSet = isNonNull ? 1 : 0;
     if (isNonNull) {
@@ -512,7 +512,7 @@ public class JdbcToArrowUtils {
     tinyIntVector.setValueCount(rowCount + 1);
   }
 
-  private static void updateVector(SmallIntVector smallIntVector, int value, boolean isNonNull, int rowCount) {
+  private static void updateVector(SmallIntVector smallIntVector, int value, boolean isNonNull, long rowCount) {
     NullableSmallIntHolder holder = new NullableSmallIntHolder();
     holder.isSet = isNonNull ? 1 : 0;
     if (isNonNull) {
@@ -522,7 +522,7 @@ public class JdbcToArrowUtils {
     smallIntVector.setValueCount(rowCount + 1);
   }
 
-  private static void updateVector(IntVector intVector, int value, boolean isNonNull, int rowCount) {
+  private static void updateVector(IntVector intVector, int value, boolean isNonNull, long rowCount) {
     NullableIntHolder holder = new NullableIntHolder();
     holder.isSet = isNonNull ? 1 : 0;
     if (isNonNull) {
@@ -532,7 +532,7 @@ public class JdbcToArrowUtils {
     intVector.setValueCount(rowCount + 1);
   }
 
-  private static void updateVector(BigIntVector bigIntVector, long value, boolean isNonNull, int rowCount) {
+  private static void updateVector(BigIntVector bigIntVector, long value, boolean isNonNull, long rowCount) {
     NullableBigIntHolder holder = new NullableBigIntHolder();
     holder.isSet = isNonNull ? 1 : 0;
     if (isNonNull) {
@@ -542,7 +542,7 @@ public class JdbcToArrowUtils {
     bigIntVector.setValueCount(rowCount + 1);
   }
 
-  private static void updateVector(DecimalVector decimalVector, BigDecimal value, boolean isNonNull, int rowCount) {
+  private static void updateVector(DecimalVector decimalVector, BigDecimal value, boolean isNonNull, long rowCount) {
     NullableDecimalHolder holder = new NullableDecimalHolder();
     holder.isSet = isNonNull ? 1 : 0;
     if (isNonNull) {
@@ -556,7 +556,7 @@ public class JdbcToArrowUtils {
     decimalVector.setValueCount(rowCount + 1);
   }
 
-  private static void updateVector(Float4Vector float4Vector, float value, boolean isNonNull, int rowCount) {
+  private static void updateVector(Float4Vector float4Vector, float value, boolean isNonNull, long rowCount) {
     NullableFloat4Holder holder = new NullableFloat4Holder();
     holder.isSet = isNonNull ? 1 : 0;
     if (isNonNull) {
@@ -566,7 +566,7 @@ public class JdbcToArrowUtils {
     float4Vector.setValueCount(rowCount + 1);
   }
 
-  private static void updateVector(Float8Vector float8Vector, double value, boolean isNonNull, int rowCount) {
+  private static void updateVector(Float8Vector float8Vector, double value, boolean isNonNull, long rowCount) {
     NullableFloat8Holder holder = new NullableFloat8Holder();
     holder.isSet = isNonNull ? 1 : 0;
     if (isNonNull) {
@@ -576,7 +576,7 @@ public class JdbcToArrowUtils {
     float8Vector.setValueCount(rowCount + 1);
   }
 
-  private static void updateVector(VarCharVector varcharVector, String value, boolean isNonNull, int rowCount) {
+  private static void updateVector(VarCharVector varcharVector, String value, boolean isNonNull, long rowCount) {
     NullableVarCharHolder holder = new NullableVarCharHolder();
     holder.isSet = isNonNull ? 1 : 0;
     varcharVector.setIndexDefined(rowCount);
@@ -593,7 +593,7 @@ public class JdbcToArrowUtils {
     varcharVector.setValueCount(rowCount + 1);
   }
 
-  private static void updateVector(DateMilliVector dateMilliVector, Date date, boolean isNonNull, int rowCount) {
+  private static void updateVector(DateMilliVector dateMilliVector, Date date, boolean isNonNull, long rowCount) {
     NullableDateMilliHolder holder = new NullableDateMilliHolder();
     holder.isSet = isNonNull ? 1 : 0;
     if (isNonNull) {
@@ -603,7 +603,7 @@ public class JdbcToArrowUtils {
     dateMilliVector.setValueCount(rowCount + 1);
   }
 
-  private static void updateVector(TimeMilliVector timeMilliVector, Time time, boolean isNonNull, int rowCount) {
+  private static void updateVector(TimeMilliVector timeMilliVector, Time time, boolean isNonNull, long rowCount) {
     NullableTimeMilliHolder holder = new NullableTimeMilliHolder();
     holder.isSet = isNonNull ? 1 : 0;
     if (isNonNull && time != null) {
@@ -617,7 +617,7 @@ public class JdbcToArrowUtils {
       TimeStampVector timeStampVector,
       Timestamp timestamp,
       boolean isNonNull,
-      int rowCount) {
+      long rowCount) {
     //TODO: Need to handle precision such as milli, micro, nano
     timeStampVector.setValueCount(rowCount + 1);
     if (timestamp != null) {
@@ -631,7 +631,7 @@ public class JdbcToArrowUtils {
       VarBinaryVector varBinaryVector,
       InputStream is,
       boolean isNonNull,
-      int rowCount) throws IOException {
+      long rowCount) throws IOException {
     varBinaryVector.setValueCount(rowCount + 1);
     if (isNonNull && is != null) {
       VarBinaryHolder holder = new VarBinaryHolder();
@@ -660,7 +660,7 @@ public class JdbcToArrowUtils {
       VarCharVector varcharVector,
       Clob clob,
       boolean isNonNull,
-      int rowCount) throws SQLException, IOException {
+      long rowCount) throws SQLException, IOException {
     varcharVector.setValueCount(rowCount + 1);
     if (isNonNull && clob != null) {
       VarCharHolder holder = new VarCharHolder();
@@ -686,7 +686,7 @@ public class JdbcToArrowUtils {
     }
   }
 
-  private static void updateVector(VarBinaryVector varBinaryVector, Blob blob, boolean isNonNull, int rowCount)
+  private static void updateVector(VarBinaryVector varBinaryVector, Blob blob, boolean isNonNull, long rowCount)
       throws SQLException, IOException {
     updateVector(varBinaryVector, blob != null ? blob.getBinaryStream() : null, isNonNull, rowCount);
   }
@@ -695,7 +695,7 @@ public class JdbcToArrowUtils {
       ListVector listVector,
       ResultSet resultSet,
       int arrayIndex,
-      int rowCount,
+      long rowCount,
       JdbcToArrowConfig config)
       throws SQLException, IOException {
 
@@ -704,7 +704,7 @@ public class JdbcToArrowUtils {
       throw new IllegalArgumentException("Column " + arrayIndex + " is an array of unknown type.");
     }
 
-    final int valueCount = listVector.getValueCount();
+    final long valueCount = listVector.getValueCount();
     final Array array = resultSet.getArray(arrayIndex);
 
     FieldVector fieldVector = listVector.getDataVector();

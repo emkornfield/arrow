@@ -87,7 +87,7 @@ public abstract class VectorValueComparator<V extends ValueVector> {
    *     an integer smaller than 0, if the first value is smaller; or 0, if both
    *     values are equal.
    */
-  public int compare(int index1, int index2) {
+  public int compare(long index1, long index2) {
     boolean isNull1 = vector1.isNull(index1);
     boolean isNull2 = vector2.isNull(index2);
 
@@ -114,5 +114,5 @@ public abstract class VectorValueComparator<V extends ValueVector> {
    *     an integer smaller than 0, if the first value is smaller; or 0, if both
    *     values are equal.
    */
-  public abstract int compareNotNull(int index1, int index2);
+  public abstract int compareNotNull(long index1, long index2);
 }

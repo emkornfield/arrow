@@ -97,7 +97,7 @@ public class DictionaryEncoder {
     transfer.getTo().allocateNewSafe();
 
     BaseIntVector baseIntVector = (BaseIntVector) indices;
-    for (int i = 0; i < count; i++) {
+    for (long i = 0; i < count; i++) {
       if (!baseIntVector.isNull(i)) {
         int indexAsInt = (int) baseIntVector.getValueAsLong(i);
         if (indexAsInt > dictionaryCount) {

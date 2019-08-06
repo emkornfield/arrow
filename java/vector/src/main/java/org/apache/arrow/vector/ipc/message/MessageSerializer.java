@@ -172,7 +172,7 @@ public class MessageSerializer {
   public static ArrowBlock serialize(WriteChannel out, ArrowRecordBatch batch) throws IOException {
 
     long start = out.getCurrentPosition();
-    int bodyLength = batch.computeBodyLength();
+    long bodyLength = batch.computeBodyLength();
     assert bodyLength % 8 == 0;
 
     FlatBufferBuilder builder = new FlatBufferBuilder();
@@ -350,7 +350,7 @@ public class MessageSerializer {
    */
   public static ArrowBlock serialize(WriteChannel out, ArrowDictionaryBatch batch) throws IOException {
     long start = out.getCurrentPosition();
-    int bodyLength = batch.computeBodyLength();
+    long bodyLength = batch.computeBodyLength();
     assert bodyLength % 8 == 0;
 
     FlatBufferBuilder builder = new FlatBufferBuilder();
@@ -513,7 +513,7 @@ public class MessageSerializer {
       FlatBufferBuilder builder,
       byte headerType,
       int headerOffset,
-      int bodyLength) {
+      long bodyLength) {
     Message.startMessage(builder);
     Message.addHeaderType(builder, headerType);
     Message.addHeader(builder, headerOffset);

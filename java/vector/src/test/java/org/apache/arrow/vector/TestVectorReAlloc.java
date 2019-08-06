@@ -56,7 +56,7 @@ public class TestVectorReAlloc {
       vector.allocateNew();
 
       assertTrue(vector.getValueCapacity() >= 512);
-      int initialCapacity = vector.getValueCapacity();
+      long initialCapacity = vector.getValueCapacity();
 
       try {
         vector.set(initialCapacity, 0);
@@ -80,7 +80,7 @@ public class TestVectorReAlloc {
       vector.allocateNew();
 
       assertTrue(vector.getValueCapacity() >= 512);
-      int initialCapacity = vector.getValueCapacity();
+      long initialCapacity = vector.getValueCapacity();
 
       try {
         vector.set(initialCapacity, "foo".getBytes(StandardCharsets.UTF_8));
@@ -151,7 +151,7 @@ public class TestVectorReAlloc {
        */
       vector.allocateNewSafe(); // Initial allocation
       vector.reAlloc(); // Double the allocation size.
-      int savedValueCapacity = vector.getValueCapacity();
+      long savedValueCapacity = vector.getValueCapacity();
 
       /*
        * Clear and allocate again.
@@ -174,8 +174,8 @@ public class TestVectorReAlloc {
        */
       vector.allocateNewSafe(); // Initial allocation
       vector.reAlloc(); // Double the allocation size.
-      int savedValueCapacity = vector.getValueCapacity();
-      int savedValueBufferSize = vector.valueBuffer.capacity();
+      long savedValueCapacity = vector.getValueCapacity();
+      long savedValueBufferSize = vector.valueBuffer.capacity();
 
       /*
        * Clear and allocate again.
@@ -197,7 +197,7 @@ public class TestVectorReAlloc {
       vector.allocateNewSafe(); // Initial allocation
       vector.clear(); // clear vector.
       vector.setSafe(0, 10);
-      int savedValueCapacity = vector.getValueCapacity();
+      long savedValueCapacity = vector.getValueCapacity();
 
       for (int i = 0; i < 1024; ++i) {
         vector.clear(); // clear vector.
@@ -216,7 +216,7 @@ public class TestVectorReAlloc {
 
       vector.clear(); // clear vector.
       vector.setSafe(0, "hello world".getBytes());
-      int savedValueCapacity = vector.getValueCapacity();
+      long savedValueCapacity = vector.getValueCapacity();
 
       for (int i = 0; i < 1024; ++i) {
         vector.clear(); // clear vector.

@@ -132,7 +132,7 @@ public class TestPerf {
         try {
           BigIntVector a = (BigIntVector) root.getVector("a");
           while (stream.next()) {
-            int rows = root.getRowCount();
+            long rows = root.getRowCount();
             long aSum = r.aSum;
             for (int i = 0; i < rows; i++) {
               if (VALIDATE) {

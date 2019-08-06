@@ -73,7 +73,7 @@ public class DefaultVectorComparators {
     }
 
     @Override
-    public int compareNotNull(int index1, int index2) {
+    public int compareNotNull(long index1, long index2) {
       byte value1 = vector1.get(index1);
       byte value2 = vector2.get(index2);
       return value1 - value2;
@@ -91,7 +91,7 @@ public class DefaultVectorComparators {
     }
 
     @Override
-    public int compareNotNull(int index1, int index2) {
+    public int compareNotNull(long index1, long index2) {
       short value1 = vector1.get(index1);
       short value2 = vector2.get(index2);
       return value1 - value2;
@@ -109,7 +109,7 @@ public class DefaultVectorComparators {
     }
 
     @Override
-    public int compareNotNull(int index1, int index2) {
+    public int compareNotNull(long index1, long index2) {
       int value1 = vector1.get(index1);
       int value2 = vector2.get(index2);
       return value1 - value2;
@@ -127,7 +127,7 @@ public class DefaultVectorComparators {
     }
 
     @Override
-    public int compareNotNull(int index1, int index2) {
+    public int compareNotNull(long index1, long index2) {
       long value1 = vector1.get(index1);
       long value2 = vector2.get(index2);
 
@@ -146,7 +146,7 @@ public class DefaultVectorComparators {
     }
 
     @Override
-    public int compareNotNull(int index1, int index2) {
+    public int compareNotNull(long index1, long index2) {
       float value1 = vector1.get(index1);
       float value2 = vector2.get(index2);
 
@@ -178,7 +178,7 @@ public class DefaultVectorComparators {
     }
 
     @Override
-    public int compareNotNull(int index1, int index2) {
+    public int compareNotNull(long index1, long index2) {
       double value1 = vector1.get(index1);
       double value2 = vector2.get(index2);
 
@@ -206,7 +206,7 @@ public class DefaultVectorComparators {
   public static class VariableWidthComparator extends VectorValueComparator<BaseVariableWidthVector> {
 
     @Override
-    public int compareNotNull(int index1, int index2) {
+    public int compareNotNull(long index1, long index2) {
       int start1 = vector1.getOffsetBuffer().getInt(index1 * OFFSET_WIDTH);
       int start2 = vector2.getOffsetBuffer().getInt(index2 * OFFSET_WIDTH);
 

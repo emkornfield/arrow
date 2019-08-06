@@ -77,7 +77,7 @@ public class VariableWidthVectorBenchmarks {
   @Benchmark
   @BenchmarkMode(Mode.AverageTime)
   @OutputTimeUnit(TimeUnit.NANOSECONDS)
-  public int getValueCapacity() {
+  public long getValueCapacity() {
     return vector.getValueCapacity();
   }
 

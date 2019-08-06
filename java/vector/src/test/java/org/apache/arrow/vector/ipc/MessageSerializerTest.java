@@ -58,7 +58,7 @@ public class MessageSerializerTest {
   }
 
   public static byte[] array(ArrowBuf buf) {
-    byte[] bytes = new byte[buf.readableBytes()];
+    byte[] bytes = new byte[(int)buf.readableBytes()];
     buf.readBytes(bytes);
     return bytes;
   }

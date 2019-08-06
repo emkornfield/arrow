@@ -27,7 +27,7 @@ import io.netty.buffer.ArrowBuf;
  * Client manages the lifecycle of the arrow buffer - to release the reference.
  */
 public abstract class SelectionVector {
-  private int recordCount;
+  private long recordCount;
   private ArrowBuf buffer;
 
   public SelectionVector(ArrowBuf buffer) {
@@ -41,14 +41,14 @@ public abstract class SelectionVector {
   /*
    * The maximum number of records that the selection vector can hold.
    */
-  public final int getMaxRecords() {
+  public final long getMaxRecords() {
     return buffer.capacity() / getRecordSize();
   }
 
   /*
    * The number of records held by the selection vector.
    */
-  public final int getRecordCount() {
+  public final long getRecordCount() {
     return this.recordCount;
   }
 

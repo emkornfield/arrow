@@ -17,9 +17,9 @@
 
 package org.apache.arrow.algorithm.sort;
 
-import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
-import org.apache.arrow.vector.IntVector;
+import org.apache.arrow.vector.BigIntVector;
 import org.apache.arrow.vector.ValueVector;
 
 /**
@@ -36,7 +36,7 @@ public class IndexSorter<V extends ValueVector> {
   /**
    * Vector indices to sort.
    */
-  private IntVector indices;
+  private BigIntVector indices;
 
   /**
    * Sorts indices, by quick-sort. Suppose the vector is denoted by v.
@@ -46,28 +46,28 @@ public class IndexSorter<V extends ValueVector> {
    * @param indices the vector for storing the sorted indices.
    * @param comparator the comparator to sort indices.
    */
-  public void sort(V vector, IntVector indices, VectorValueComparator<V> comparator) {
+  public void sort(V vector, BigIntVector indices, VectorValueComparator<V> comparator) {
     comparator.attachVector(vector);
 
     this.indices = indices;
 
-    IntStream.range(0, vector.getValueCount()).forEach(i -> indices.set(i, i));
+    LongStream.range(0, vector.getValueCount()).forEach(i -> indices.set(i, i));
 
     this.comparator = comparator;
 
     quickSort(0, indices.getValueCount() - 1);
   }
 
-  private void quickSort(int low, int high) {
+  private void quickSort(long low, long high) {
     if (low < high) {
-      int mid = partition(low, high);
+      long mid = partition(low, high);
       quickSort(low, mid - 1);
       quickSort(mid + 1, high);
     }
   }
 
-  private int partition(int low, int high) {
-    int pivotIndex = indices.get(low);
+  private long partition(long low, long high) {
+    long pivotIndex = indices.get(low);
 
     while (low < high) {
       while (low < high && comparator.compare(indices.get(high), pivotIndex) >= 0) {

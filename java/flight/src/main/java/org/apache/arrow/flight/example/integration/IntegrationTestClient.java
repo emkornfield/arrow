@@ -104,7 +104,7 @@ class IntegrationTestClient {
 
             @Override
             public void onNext(PutResult val) {
-              final byte[] metadataRaw = new byte[val.getApplicationMetadata().readableBytes()];
+              final byte[] metadataRaw = new byte[(int)val.getApplicationMetadata().readableBytes()];
               val.getApplicationMetadata().readBytes(metadataRaw);
               final String metadata = new String(metadataRaw, StandardCharsets.UTF_8);
               if (!Integer.toString(counter).equals(metadata)) {

@@ -156,7 +156,8 @@ public class BitVector extends BaseFixedWidthVector {
    * @param length     length of the split.
    * @param target     destination vector
    */
-  public void splitAndTransferTo(int startIndex, int length, BaseFixedWidthVector target) {
+  @Override
+  public void splitAndTransferTo(long startIndex, long length, BaseFixedWidthVector target) {
     compareTypes(target, "splitAndTransferTo");
     target.clear();
     target.validityBuffer = splitAndTransferBuffer(startIndex, length, target,
@@ -168,8 +169,8 @@ public class BitVector extends BaseFixedWidthVector {
   }
 
   private ArrowBuf splitAndTransferBuffer(
-      int startIndex,
-      int length,
+      long startIndex,
+      long length,
       BaseFixedWidthVector target,
       ArrowBuf sourceBuffer,
       ArrowBuf destBuffer) {
@@ -273,7 +274,7 @@ public class BitVector extends BaseFixedWidthVector {
   }
 
   /**
-   * Same as {@link #get(int)}.
+   * Same as {@link #get(long)}.
    *
    * @param index position of element
    * @return element at given index
@@ -457,7 +458,7 @@ public class BitVector extends BaseFixedWidthVector {
   }
 
   /**
-   * Same as {@link #setToOne(int)} except that it handles the case when
+   * Same as {@link #setToOne(long)} except that it handles the case when
    * index is greater than or equal to current value capacity of the vector.
    *
    * @param index position of the element

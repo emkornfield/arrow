@@ -60,7 +60,7 @@ final class DictionaryUtils {
     for (Long id : dictionaryIds) {
       final Dictionary dictionary = provider.lookup(id);
       final FieldVector vector = dictionary.getVector();
-      final int count = vector.getValueCount();
+      final long count = vector.getValueCount();
       // Do NOT close this root, as it does not actually own the vector.
       final VectorSchemaRoot dictRoot = new VectorSchemaRoot(
           Collections.singletonList(vector.getField()),

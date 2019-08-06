@@ -72,7 +72,7 @@ public class TestVectorSearcher {
       VectorValueComparator<IntVector> comparator =
               DefaultVectorComparators.createDefaultComparator(rawVector);
       for (int i = 0; i < VECTOR_LENGTH; i++) {
-        int result = VectorSearcher.binarySearch(rawVector, comparator, rawVector, i);
+        long result = VectorSearcher.binarySearch(rawVector, comparator, rawVector, i);
         assertEquals(i, result);
       }
 
@@ -143,7 +143,7 @@ public class TestVectorSearcher {
       VectorValueComparator<BaseVariableWidthVector> comparator =
               DefaultVectorComparators.createDefaultComparator(rawVector);
       for (int i = 0; i < VECTOR_LENGTH; i++) {
-        int result = VectorSearcher.binarySearch(rawVector, comparator, rawVector, i);
+        long result = VectorSearcher.binarySearch(rawVector, comparator, rawVector, i);
         assertEquals(i, result);
       }
 
