@@ -186,7 +186,7 @@ public class TestArrowBufPointer {
     }
 
     @Override
-    public int hashCode(ArrowBuf buf, int offset, int length) {
+    public int hashCode(ArrowBuf buf, long offset, long length) {
       counter += 1;
       return DirectHasher.INSTANCE.hashCode(buf, offset, length);
     }
