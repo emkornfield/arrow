@@ -145,7 +145,7 @@ public class BitVectorHelper {
     if (valueCount == 0) {
       return 0;
     }
-    int count = 0;
+    long count = 0;
     final long sizeInBytes = getValidityBufferSize(valueCount);
     // If value count is not a multiple of 8, then calculate number of used bits in the last byte
     final long remainder = valueCount % 8;
