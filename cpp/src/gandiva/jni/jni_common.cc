@@ -502,7 +502,7 @@ bool ParseProtobuf(uint8_t* buf, int bufLen, google::protobuf::Message* msg) {
   return msg->ParseFromCodedStream(&cis);
 }
 
-Status make_record_batch_with_buf_addrs(SchemaPtr schema, int num_rows,
+Status make_record_batch_with_buf_addrs(SchemaPtr schema, int64_t num_rows,
                                         jlong* in_buf_addrs, jlong* in_buf_sizes,
                                         int in_bufs_len,
                                         std::shared_ptr<arrow::RecordBatch>* batch) {
@@ -725,8 +725,8 @@ Status JavaResizableBuffer::Resize(const int64_t new_size, bool shrink_to_fit) {
 
 JNIEXPORT void JNICALL
 Java_org_apache_arrow_gandiva_evaluator_JniWrapper_evaluateProjector(
-    JNIEnv* env, jobject object, jobject jexpander, jlong module_id, jint num_rows,
-    jlongArray buf_addrs, jlongArray buf_sizes, jint sel_vec_type, jint sel_vec_rows,
+    JNIEnv* env, jobject object, jobject jexpander, jlong module_id, jlong num_rows,
+    jlongArray buf_addrs, jlongArray buf_sizes, jint sel_vec_type, jlong sel_vec_rows,
     jlong sel_vec_addr, jlong sel_vec_size, jlongArray out_buf_addrs,
     jlongArray out_buf_sizes) {
   Status status;
@@ -768,7 +768,7 @@ Java_org_apache_arrow_gandiva_evaluator_JniWrapper_evaluateProjector(
     std::shared_ptr<gandiva::SelectionVector> selection_vector;
     auto selection_buffer = std::make_shared<arrow::Buffer>(
         reinterpret_cast<uint8_t*>(sel_vec_addr), sel_vec_size);
-    int output_row_count = 0;
+    int64_t output_row_count = 0;
     switch (sel_vec_type) {
       case types::SV_NONE: {
         output_row_count = num_rows;

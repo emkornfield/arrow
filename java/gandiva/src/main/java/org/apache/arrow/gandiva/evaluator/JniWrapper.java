@@ -62,9 +62,9 @@ public class JniWrapper {
    * @param outSizes The allocated size of the output buffers. On successful evaluation,
    *                 the result is stored in the output buffers
    */
-  native void evaluateProjector(Object expander, long moduleId, int numRows,
+  native void evaluateProjector(Object expander, long moduleId, long numRows,
                                 long[] bufAddrs, long[] bufSizes,
-                                int selectionVectorType, int selectionVectorSize,
+                                int selectionVectorType, long selectionVectorSize,
                                 long selectionVectorBufferAddr, long selectionVectorBufferSize,
                                 long[] outAddrs, long[] outSizes) throws GandivaException;
 
@@ -107,7 +107,7 @@ public class JniWrapper {
    * @param outSize The allocated size of the output buffer. On successful evaluation,
    *                the result is stored in the output buffer
    */
-  native int evaluateFilter(long moduleId, int numRows, long[] bufAddrs, long[] bufSizes,
+  native int evaluateFilter(long moduleId, long numRows, long[] bufAddrs, long[] bufSizes,
                             int selectionVectorType,
                             long outAddr, long outSize) throws GandivaException;
 

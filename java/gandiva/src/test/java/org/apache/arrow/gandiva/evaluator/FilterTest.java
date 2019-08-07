@@ -37,7 +37,7 @@ import io.netty.buffer.ArrowBuf;
 public class FilterTest extends BaseEvaluatorTest {
 
   private int[] selectionVectorToArray(SelectionVector vector) {
-    int[] actual = new int[vector.getRecordCount()];
+    int[] actual = new int[(int)vector.getRecordCount()];
     for (int i = 0; i < vector.getRecordCount(); ++i) {
       actual[i] = vector.getIndex(i);
     }

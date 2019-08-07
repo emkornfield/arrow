@@ -211,8 +211,8 @@ public class Projector {
         outColumns);
   }
 
-  private void evaluate(int numRows, List<ArrowBuf> buffers, List<ArrowBuffer> buffersLayout,
-                       int selectionVectorType, int selectionVectorRecordCount,
+  private void evaluate(long numRows, List<ArrowBuf> buffers, List<ArrowBuffer> buffersLayout,
+                       int selectionVectorType, long selectionVectorRecordCount,
                        long selectionVectorAddr, long selectionVectorSize,
                        List<ValueVector> outColumns) throws GandivaException {
     if (this.closed) {

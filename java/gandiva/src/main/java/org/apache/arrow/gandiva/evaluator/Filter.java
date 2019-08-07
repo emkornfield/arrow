@@ -122,7 +122,7 @@ public class Filter {
     evaluate(numRows, buffers, buffersLayout, selectionVector);
   }
 
-  private void evaluate(int numRows, List<ArrowBuf> buffers, List<ArrowBuffer> buffersLayout,
+  private void evaluate(long numRows, List<ArrowBuf> buffers, List<ArrowBuffer> buffersLayout,
       SelectionVector selectionVector) throws GandivaException {
     if (this.closed) {
       throw new EvaluatorClosedException();
