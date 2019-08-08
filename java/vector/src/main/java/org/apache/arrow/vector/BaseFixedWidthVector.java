@@ -620,23 +620,18 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
          * another part in (i+1)-th byte.
          */
         target.allocateValidityBuffer(byteSizeTarget);
+        long l = 0;
+        while (l < byteSizeTarget - 1) {
+          int byteSizeIntTarget = (int) Long.min(Integer.MAX_VALUE, (byteSizeTarget - 1) - l);
+          for (int i = 0; i < byteSizeIntTarget; i++) {
+            byte b1 = BitVectorHelper.getBitsFromCurrentByte(this.validityBuffer,
+                firstByteSource + l + i, offset);
+            byte b2 = BitVectorHelper.getBitsFromNextByte(this.validityBuffer,
+                firstByteSource + l + i + 1, offset);
 
-        int byteSizeIntTarget = (int)Long.min(Integer.MAX_VALUE, byteSizeTarget - 1);
-        for (int i = 0; i < byteSizeIntTarget; i++) {
-          byte b1 = BitVectorHelper.getBitsFromCurrentByte(this.validityBuffer,
-              firstByteSource + i, offset);
-          byte b2 = BitVectorHelper.getBitsFromNextByte(this.validityBuffer,
-              firstByteSource + i + 1, offset);
-
-          target.validityBuffer.setByte(i, (b1 + b2));
-        }
-        for (long i = byteSizeIntTarget; i < byteSizeTarget - 1; i++) {
-          byte b1 = BitVectorHelper.getBitsFromCurrentByte(this.validityBuffer,
-                  firstByteSource + i, offset);
-          byte b2 = BitVectorHelper.getBitsFromNextByte(this.validityBuffer,
-                  firstByteSource + i + 1, offset);
-
-          target.validityBuffer.setByte(i, (b1 + b2));
+            target.validityBuffer.setByte(l + i, (b1 + b2));
+          }
+          l += byteSizeIntTarget;
         }
 
         /* Copying the last piece is done in the following manner:

@@ -498,15 +498,15 @@ public class BitVector extends BaseFixedWidthVector {
       }
 
       // fill in one full byte at a time
-      int startByteIntIndex = (int) Long.min(startByteIndex, Integer.MAX_VALUE);
-      int endByteIntIndex = (int) Long.min(endByteIndex, Integer.MAX_VALUE);
-      for (int i = startByteIntIndex; i < endByteIndex; i++) {
-        validityBuffer.setByte(i, 0xFF);
-        valueBuffer.setByte(i, 0xFF);
-      }
-      for (long i = endByteIntIndex; i < endByteIndex; i++) {
-        validityBuffer.setByte(i, 0xFF);
-        valueBuffer.setByte(i, 0xFF);
+
+      long l = startByteIndex;
+      while (l < endByteIndex) {
+        int endByteIntIndex = (int) Long.min(endByteIndex - l, Integer.MAX_VALUE);
+        for (int i = 0; i < endByteIntIndex; i++) {
+          validityBuffer.setByte(l + i, 0xFF);
+          valueBuffer.setByte(l + i, 0xFF);
+        }
+        l += endByteIndex;
       }
 
       // fill in the last byte (if it's not full)

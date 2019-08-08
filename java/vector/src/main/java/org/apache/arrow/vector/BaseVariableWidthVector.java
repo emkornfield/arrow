@@ -758,22 +758,22 @@ public abstract class BaseVariableWidthVector extends BaseValueVector
          * another part in (i+1)-th byte.
          */
         target.allocateValidityBuffer(byteSizeTarget);
+        long l = 0;
+        long upperBound = byteSizeTarget - 1;
+        while (l < upperBound) {
+          int byteSizeIntTarget = (int) Long.min(Integer.MAX_VALUE, upperBound - l);
+          long byteIndexOffset = firstByteSource + l;
+          for (int i = 0; i < byteSizeIntTarget; i++) {
+            byte b1 = BitVectorHelper.getBitsFromCurrentByte(this.validityBuffer,
+                byteIndexOffset + i, offset);
+            byte b2 = BitVectorHelper.getBitsFromNextByte(this.validityBuffer,
+                byteIndexOffset + i + 1, offset);
 
-        int byteSizeIntTarget = (int)Long.min(Integer.MAX_VALUE, byteSizeTarget - 1);
-        for (int i = 0; i < byteSizeIntTarget; i++) {
-          byte b1 = BitVectorHelper.getBitsFromCurrentByte(this.validityBuffer,
-              firstByteSource + i, offset);
-          byte b2 = BitVectorHelper.getBitsFromNextByte(this.validityBuffer,
-              firstByteSource + i + 1, offset);
-
-          target.validityBuffer.setByte(i, (b1 + b2));
+            target.validityBuffer.setByte(l + i, (b1 + b2));
+          }
+          l += byteSizeIntTarget;
         }
-        for (long i = byteSizeIntTarget; i < byteSizeTarget - 1; i++) {
-          byte b1 = BitVectorHelper.getBitsFromCurrentByte(this.validityBuffer, firstByteSource + i, offset);
-          byte b2 = BitVectorHelper.getBitsFromNextByte(this.validityBuffer, firstByteSource + i + 1, offset);
 
-          target.validityBuffer.setByte(i, (b1 + b2));
-        }
         /* Copying the last piece is done in the following manner:
          * if the source vector has 1 or more bytes remaining, we copy
          * the last piece as a byte formed by shifting data
@@ -1181,13 +1181,13 @@ public abstract class BaseVariableWidthVector extends BaseValueVector
 
 
   protected final void fillHoles(long index) {
-    int lastSetInt = (int)Long.min(Integer.MAX_VALUE, lastSet + 1);
-    int intIndex = (int)Long.min(Integer.MAX_VALUE, index);
-    for (int i = lastSetInt; i < intIndex; i++) {
-      setBytes(i, emptyByteArray, 0, emptyByteArray.length);
-    }
-    for (long i = intIndex; i < index; i++) {
-      setBytes(i, emptyByteArray, 0, emptyByteArray.length);
+    long l = lastSet + 1;
+    while (l < index) {
+      int intIndex = (int) Long.min(Integer.MAX_VALUE, index - l);
+      for (int i = 0; i < intIndex; i++) {
+        setBytes(l + i, emptyByteArray, 0, emptyByteArray.length);
+      }
+      l += intIndex;
     }
     lastSet = index - 1;
   }
