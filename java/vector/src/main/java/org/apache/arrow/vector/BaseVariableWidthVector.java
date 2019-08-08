@@ -759,7 +759,16 @@ public abstract class BaseVariableWidthVector extends BaseValueVector
          */
         target.allocateValidityBuffer(byteSizeTarget);
 
-        for (long i = 0; i < byteSizeTarget - 1; i++) {
+        int byteSizeIntTarget = (int)Long.min(Integer.MAX_VALUE, byteSizeTarget - 1);
+        for (int i = 0; i < byteSizeIntTarget; i++) {
+          byte b1 = BitVectorHelper.getBitsFromCurrentByte(this.validityBuffer,
+              firstByteSource + i, offset);
+          byte b2 = BitVectorHelper.getBitsFromNextByte(this.validityBuffer,
+              firstByteSource + i + 1, offset);
+
+          target.validityBuffer.setByte(i, (b1 + b2));
+        }
+        for (long i = byteSizeIntTarget; i < byteSizeTarget - 1; i++) {
           byte b1 = BitVectorHelper.getBitsFromCurrentByte(this.validityBuffer, firstByteSource + i, offset);
           byte b2 = BitVectorHelper.getBitsFromNextByte(this.validityBuffer, firstByteSource + i + 1, offset);
 
@@ -1172,7 +1181,12 @@ public abstract class BaseVariableWidthVector extends BaseValueVector
 
 
   protected final void fillHoles(long index) {
-    for (long i = lastSet + 1; i < index; i++) {
+    int lastSetInt = (int)Long.min(Integer.MAX_VALUE, lastSet + 1);
+    int intIndex = (int)Long.min(Integer.MAX_VALUE, index);
+    for (int i = lastSetInt; i < intIndex; i++) {
+      setBytes(i, emptyByteArray, 0, emptyByteArray.length);
+    }
+    for (long i = intIndex; i < index; i++) {
       setBytes(i, emptyByteArray, 0, emptyByteArray.length);
     }
     lastSet = index - 1;

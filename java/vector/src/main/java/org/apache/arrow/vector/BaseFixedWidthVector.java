@@ -621,7 +621,16 @@ public abstract class BaseFixedWidthVector extends BaseValueVector
          */
         target.allocateValidityBuffer(byteSizeTarget);
 
-        for (long i = 0; i < byteSizeTarget - 1; i++) {
+        int byteSizeIntTarget = (int)Long.min(Integer.MAX_VALUE, byteSizeTarget - 1);
+        for (int i = 0; i < byteSizeIntTarget; i++) {
+          byte b1 = BitVectorHelper.getBitsFromCurrentByte(this.validityBuffer,
+              firstByteSource + i, offset);
+          byte b2 = BitVectorHelper.getBitsFromNextByte(this.validityBuffer,
+              firstByteSource + i + 1, offset);
+
+          target.validityBuffer.setByte(i, (b1 + b2));
+        }
+        for (long i = byteSizeIntTarget; i < byteSizeTarget - 1; i++) {
           byte b1 = BitVectorHelper.getBitsFromCurrentByte(this.validityBuffer,
                   firstByteSource + i, offset);
           byte b2 = BitVectorHelper.getBitsFromNextByte(this.validityBuffer,

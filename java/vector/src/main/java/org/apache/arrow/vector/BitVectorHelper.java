@@ -152,6 +152,14 @@ public class BitVectorHelper {
     final long fullBytesCount = remainder == 0 ? sizeInBytes : sizeInBytes - 1;
 
     long index = 0;
+    while (index + 128 <= fullBytesCount) {
+      for (int x = 0; x < 16; x++) {
+        long longValue = validityBuffer.getLong(index + (x * 8));
+        count += Long.bitCount(longValue);
+      }
+      index += 128;
+    }
+
     while (index + 8 <= fullBytesCount) {
       long longValue = validityBuffer.getLong(index);
       count += Long.bitCount(longValue);
@@ -209,9 +217,16 @@ public class BitVectorHelper {
     final int intToCompare = checkOneBits ? -1 : 0;
 
     long index = 0;
+    while (index + 128 <= fullBytesCount) {
+      for (int x = 0; x < 16; x++) {
+        if (valueUnequal(validityBuffer, intToCompare, index + (x * 8))) {
+          return false;
+        }
+      }
+      index += 128;
+    }
     while (index + 8 <= fullBytesCount) {
-      long longValue = getLong(validityBuffer.memoryAddress() + index);
-      if (longValue != (long) intToCompare) {
+      if (valueUnequal(validityBuffer, intToCompare, index)) {
         return false;
       }
       index += 8;
@@ -251,6 +266,11 @@ public class BitVectorHelper {
     return true;
   }
 
+  private static boolean valueUnequal(ArrowBuf validityBuffer, long intToCompare, long index) {
+    long longValue = getLong(validityBuffer.memoryAddress() + index);
+    return longValue != intToCompare;
+  }
+
   /** Returns the byte at index from data right-shifted by offset. */
   public static byte getBitsFromCurrentByte(final ArrowBuf data, final long index, final long offset) {
     return (byte) ((data.getByte(index) & 0xFF) >>> offset);
@@ -288,7 +308,11 @@ public class BitVectorHelper {
       }
       /* all non-NULLs */
       long fullBytesCount = valueCount / 8;
-      for (int i = 0; i < fullBytesCount; ++i) {
+      int fullBytesCountInt = (int)Long.min(Integer.MAX_VALUE, fullBytesCount);
+      for (int i = 0; i < fullBytesCountInt; ++i) {
+        newBuffer.setByte(i, 0xFF);
+      }
+      for (long i = fullBytesCountInt; i < fullBytesCount; ++i) {
         newBuffer.setByte(i, 0xFF);
       }
       long remainder = valueCount % 8;

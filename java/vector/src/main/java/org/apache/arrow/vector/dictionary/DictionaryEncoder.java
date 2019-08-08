@@ -63,8 +63,19 @@ public class DictionaryEncoder {
     indices.allocateNew();
 
     long count = vector.getValueCount();
-
-    for (long i = 0; i < count; i++) {
+    int intCount = (int)Long.min(Integer.MAX_VALUE, count);
+    for (int i = 0; i < intCount; i++) {
+      if (!vector.isNull(i)) { // if it's null leave it null
+        // note: this may fail if value was not included in the dictionary
+        //int encoded = lookUps.get(value);
+        long encoded = hashTable.getIndex(i, vector);
+        if (encoded == -1) {
+          throw new IllegalArgumentException("Dictionary encoding not defined for value:" + vector.getObject(i));
+        }
+        indices.setWithPossibleTruncate(i, encoded);
+      }
+    }
+    for (long i = intCount; i < count; i++) {
       if (!vector.isNull(i)) { // if it's null leave it null
         // note: this may fail if value was not included in the dictionary
         //int encoded = lookUps.get(value);
@@ -97,7 +108,17 @@ public class DictionaryEncoder {
     transfer.getTo().allocateNewSafe();
 
     BaseIntVector baseIntVector = (BaseIntVector) indices;
-    for (long i = 0; i < count; i++) {
+    int intCount = (int)Long.min(Integer.MAX_VALUE, count);
+    for (int i = 0; i < intCount; i++) {
+      if (!baseIntVector.isNull(i)) {
+        int indexAsInt = (int) baseIntVector.getValueAsLong(i);
+        if (indexAsInt > dictionaryCount) {
+          throw new IllegalArgumentException("Provided dictionary does not contain value for index " + indexAsInt);
+        }
+        transfer.copyValueSafe(indexAsInt, i);
+      }
+    }
+    for (long i = intCount; i < count; i++) {
       if (!baseIntVector.isNull(i)) {
         int indexAsInt = (int) baseIntVector.getValueAsLong(i);
         if (indexAsInt > dictionaryCount) {

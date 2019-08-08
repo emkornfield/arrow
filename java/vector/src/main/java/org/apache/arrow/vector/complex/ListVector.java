@@ -777,7 +777,13 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
     while (index >= getValidityAndOffsetValueCapacity()) {
       reallocValidityAndOffsetBuffers();
     }
-    for (long i = lastSet + 1; i <= index; i++) {
+    int lastSetInt = (int)Long.min(Integer.MAX_VALUE, lastSet + 1);
+    int intIndex = (int)Long.min(Integer.MAX_VALUE, index);
+    for (int i = lastSetInt; i <= intIndex; i++) {
+      final int currentOffset = offsetBuffer.getInt(i * OFFSET_WIDTH);
+      offsetBuffer.setInt((i + 1) * OFFSET_WIDTH, currentOffset);
+    }
+    for (long i = ((long)intIndex) + 1; i <= index; i++) {
       final int currentOffset = offsetBuffer.getInt(i * OFFSET_WIDTH);
       offsetBuffer.setInt((i + 1) * OFFSET_WIDTH, currentOffset);
     }
@@ -810,7 +816,14 @@ public class ListVector extends BaseRepeatedValueVector implements FieldVector, 
         /* check if validity and offset buffers need to be re-allocated */
         reallocValidityAndOffsetBuffers();
       }
-      for (long i = lastSet + 1; i < valueCount; i++) {
+      int lastSetInt = (int)Long.min(Integer.MAX_VALUE, lastSet + 1);
+      int intValueCount = (int)Long.min(Integer.MAX_VALUE, valueCount);
+      for (int i = lastSetInt; i < intValueCount; i++) {
+        /* fill the holes with offsets */
+        final int currentOffset = offsetBuffer.getInt(i * OFFSET_WIDTH);
+        offsetBuffer.setInt((i + 1) * OFFSET_WIDTH, currentOffset);
+      }
+      for (long i = intValueCount; i < valueCount; i++) {
         /* fill the holes with offsets */
         final int currentOffset = offsetBuffer.getInt(i * OFFSET_WIDTH);
         offsetBuffer.setInt((i + 1) * OFFSET_WIDTH, currentOffset);

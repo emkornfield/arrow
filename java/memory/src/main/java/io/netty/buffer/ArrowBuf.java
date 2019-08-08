@@ -862,6 +862,13 @@ public final class ArrowBuf implements AutoCloseable {
         src.position(src.position() + length);
       } else {
         // copy word at a time
+        while (length - 128 >= LONG_SIZE) {
+          for (int x = 0; x < 16; x++) {
+            PlatformDependent.putLong(dstAddress, src.getLong());
+            length -= LONG_SIZE;
+            dstAddress += LONG_SIZE;
+          }
+        }
         while (length >= LONG_SIZE) {
           PlatformDependent.putLong(dstAddress, src.getLong());
           length -= LONG_SIZE;

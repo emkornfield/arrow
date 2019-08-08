@@ -478,12 +478,12 @@ public class BitVector extends BaseFixedWidthVector {
     long startByteIndex = BitVectorHelper.byteIndex(firstBitIndex);
     final long lastBitIndex = firstBitIndex + count;
     final long endByteIndex = BitVectorHelper.byteIndex(lastBitIndex);
-    final long startByteBitIndex = BitVectorHelper.bitIndex(firstBitIndex);
-    final long endBytebitIndex = BitVectorHelper.bitIndex(lastBitIndex);
+    final int startByteBitIndex = BitVectorHelper.bitIndex(firstBitIndex);
+    final int endBytebitIndex = BitVectorHelper.bitIndex(lastBitIndex);
     if (count < 8 && startByteIndex == endByteIndex) {
       // handles the case where we don't have a first and a last byte
       byte bitMask = 0;
-      for (long i = startByteBitIndex; i < endBytebitIndex; ++i) {
+      for (int i = startByteBitIndex; i < endBytebitIndex; ++i) {
         bitMask |= (byte) (1L << i);
       }
       BitVectorHelper.setBitMaskedByte(validityBuffer, startByteIndex, bitMask);
@@ -498,7 +498,13 @@ public class BitVector extends BaseFixedWidthVector {
       }
 
       // fill in one full byte at a time
-      for (long i = startByteIndex; i < endByteIndex; i++) {
+      int startByteIntIndex = (int) Long.min(startByteIndex, Integer.MAX_VALUE);
+      int endByteIntIndex = (int) Long.min(endByteIndex, Integer.MAX_VALUE);
+      for (int i = startByteIntIndex; i < endByteIndex; i++) {
+        validityBuffer.setByte(i, 0xFF);
+        valueBuffer.setByte(i, 0xFF);
+      }
+      for (long i = endByteIntIndex; i < endByteIndex; i++) {
         validityBuffer.setByte(i, 0xFF);
         valueBuffer.setByte(i, 0xFF);
       }
