@@ -100,7 +100,7 @@ public class ParallelSearcher<V extends ValueVector> {
           return;
         }
 
-        RangeEqualsVisitor visitor = new RangeEqualsVisitor(vector, keyVector, false);
+        RangeEqualsVisitor visitor = new RangeEqualsVisitor(vector, keyVector, RangeEqualsVisitor.DEFAULT_TYPE_COMPARATOR);
         Range range = new Range(0, 0, 1);
         for (int pos = start; pos < end; pos++) {
           if (keyPosition != -1) {
