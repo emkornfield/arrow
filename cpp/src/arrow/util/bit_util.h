@@ -153,6 +153,11 @@ constexpr bool IsMultipleOf64(int64_t n) { return (n & 63) == 0; }
 
 constexpr bool IsMultipleOf8(int64_t n) { return (n & 7) == 0; }
 
+// Only valid for bit_index in the range [0, 64).
+constexpr uint64_t PartialWordMask(int64_t bit_index) {
+  return (static_cast<uint64_t>(1) << bit_index) - 1;
+}
+
 // Returns 'value' rounded up to the nearest multiple of 'factor'
 constexpr int64_t RoundUp(int64_t value, int64_t factor) {
   return CeilDiv(value, factor) * factor;
@@ -531,6 +536,8 @@ class BitmapReader {
 
   int64_t position() const { return position_; }
 
+  int64_t length() const { return length_; }
+
  private:
   const uint8_t* bitmap_;
   int64_t position_;
@@ -540,6 +547,154 @@ class BitmapReader {
   int64_t byte_offset_;
   int64_t bit_offset_;
 };
+
+struct BitRun {
+  int64_t length;
+  // Whether bits are set at this point.
+  bool set;
+
+  std::string ToString() const {
+    return std::string("{Length: ") + std::to_string(length) +
+           ", set=" + std::to_string(set) + "}";
+  }
+};
+
+static inline bool operator==(const BitRun& lhs, const BitRun& rhs) {
+  return lhs.length == rhs.length && lhs.set == rhs.set;
+}
+
+class BitRunReaderScalar {
+ public:
+  BitRunReaderScalar(const uint8_t* bitmap, int64_t start_offset, int64_t length)
+      : reader_(bitmap, start_offset, length) {}
+
+  BitRun NextRun() {
+    BitRun rl = {/*length=*/0, reader_.IsSet()};
+    // Advance while the values are equal and not at the end of list..
+    while (reader_.position() < reader_.length() && reader_.IsSet() == rl.set) {
+      rl.length++;
+      reader_.Next();
+    }
+    return rl;
+  }
+
+ private:
+  BitmapReader reader_;
+};
+
+#if defined(ARROW_LITTLE_ENDIAN)
+/// A convenience class for counting the number of continguous set/unset bits
+/// in a bitmap.
+class BitRunReader {
+ public:
+  BitRunReader(const uint8_t* bitmap, int64_t start_offset, int64_t length)
+      : bitmap_(bitmap + (start_offset / 8)),
+        position_(start_offset % 8),
+        length_(position_ + length) {
+    if (ARROW_PREDICT_FALSE(length == 0)) {
+      word_ = 0;
+      return;
+    }
+    // NextRun always inverts the word and state
+    // so this prepares it for current
+    // prepare by inverting here.
+    current_run_bit_set_ = !BitUtil::GetBit(bitmap, start_offset);
+
+    LoadWord();
+    // Ensure that  shift bits are set (so they get cleared on the first inversion).
+    word_ = word_ | BitUtil::PartialWordMask(position_);
+  }
+
+  /// Returns a new BitRun containin the number of contiguous
+  /// bits with the same value.  length == 0 indicates the
+  /// end of the bitmap.
+  BitRun NextRun() {
+    if (ARROW_PREDICT_FALSE(position_ >= length_)) {
+      return {/*length=*/0, false};
+    }
+    // This implementation relies on a efficient implementations of
+    // CountTrailingZeros and assumes that runs are more often then
+    // not. The logic is to incrementally find the next bit change
+    // from the current position.  This is done by zeroing all
+    // bits_ in word up to position_ and using the TrailingZeroCount
+    // to find the index of the next set bit.
+    //
+    // The runs alternate on each call, so flip the bit.
+    current_run_bit_set_ = !current_run_bit_set_;
+
+    // Inverter the word for proper use of CountTrailingZeros.
+    // See commentson bit-inversion in LoadWord for details.
+    InvertRemainingBits();
+
+    int64_t start_position = position_;
+    // Go  forward until the next change from unset to set.
+    int64_t new_bits = BitUtil::CountTrailingZeros(word_) - (start_position % 64);
+    position_ += new_bits;
+
+    // Continue extending position while we can adcance and entire word.
+    while (ARROW_PREDICT_FALSE(position_ % 64 == 0) &&
+           ARROW_PREDICT_TRUE(position_ < length_)) {
+      // Advance the position of the bitmap for loading.
+      bitmap_ += sizeof(uint64_t);
+      // Load the next word.
+      LoadWord();
+
+      new_bits = BitUtil::CountTrailingZeros(word_);
+      if (new_bits == 0) {
+        break;
+      }
+      // Continue calculating run length.
+      position_ = position_ + new_bits;
+    }
+
+    return {/*length=*/position_ - start_position, current_run_bit_set_};
+  }
+
+ private:
+  void InvertRemainingBits() {
+    // Mask applied everying above the lowest bit.
+    word_ = ~word_ & ~(word_ ^ (word_ - 1));
+  }
+  void LoadWord() {
+    word_ = 0;
+    // On the initial load if there is an offset we need to account for this when
+    // loading bytes.  Every other call to this method should only occur when
+    // position_ is a multiple of 64.
+    int64_t shift_offset = position_ % 8;
+    int64_t bits_remaining = (length_ - position_) + shift_offset;
+
+    if (ARROW_PREDICT_TRUE(bits_remaining >= 64)) {
+      std::memcpy(&word_, bitmap_, 8);
+    } else {
+      int64_t bytes_to_load = BitUtil::BytesForBits(bits_remaining);
+      auto word_ptr = reinterpret_cast<uint8_t*>(&word_);
+      std::memcpy(word_ptr, bitmap_, bytes_to_load);
+      // Ensure stoppage at last bit by reversing the next higher
+      // order bit.
+      //
+      BitUtil::SetBitTo(word_ptr, bits_remaining,
+                        !BitUtil::GetBit(word_ptr, bits_remaining - 1));
+    }
+
+    // Two cases:
+    //   1. For unset, CountTrailingZeros works natually so we don't
+    //   invert the word.
+    //   2. For set, CountTrailingZeros is optimized so we wish to use
+    //   it in this case we need to invert the bits.
+    if (current_run_bit_set_) {
+      word_ = ~word_;
+    }
+  }
+
+  const uint8_t* bitmap_;
+  int64_t position_;
+  int64_t length_;
+  uint64_t word_;
+  bool current_run_bit_set_;
+};
+#else
+using BitRunReader = BitRunReaderScalar;
+#endif
 
 class BitmapWriter {
   // A sequential bitwise writer that preserves surrounding bit values.
