@@ -149,7 +149,7 @@ class RleDecoder {
   template <typename T>
   bool NextCounts();
 
-  /// Utility method for retrieving spaced values.
+  /// Utility methods for retrieving spaced values.
   template <typename T, typename RunType, typename Converter>
   int GetSpaced(Converter converter, int batch_size, int null_count,
                 const uint8_t* valid_bits, int64_t valid_bits_offset, T* out);
@@ -338,8 +338,16 @@ inline int RleDecoder::GetSpaced(Converter converter, int batch_size, int null_c
   int values_read = 0;
   int remaining_nulls = null_count;
 
-  arrow::internal::BitRunReader bit_reader(valid_bits, valid_bits_offset, batch_size);
-  arrow::internal::BitRun valid_run = bit_reader.NextRun();
+  arrow::internal::BitRun valid_run;
+  // Assume no bits to start.
+  arrow::internal::BitRunReader bit_reader(valid_bits, valid_bits_offset, /*length=*/0);
+  if (null_count == 0) {
+    valid_run.length = batch_size;
+    valid_run.set = true;
+  } else {
+    bit_reader = arrow::internal::BitRunReader(valid_bits, valid_bits_offset, batch_size);
+    valid_run = bit_reader.NextRun();
+  }
   while (values_read < batch_size) {
     if (valid_run.length == 0) {
       valid_run = bit_reader.NextRun();
@@ -394,8 +402,9 @@ inline int RleDecoder::GetSpaced(Converter converter, int batch_size, int null_c
         RunType indices[kBufferSize];
         literal_batch = std::min(literal_batch, kBufferSize);
         int actual_read = bit_reader_.GetBatch(bit_width_, indices, literal_batch);
-        // TODO: this should probably return early? i.e. fuzzing issue)?
-        DCHECK_EQ(actual_read, literal_batch);
+	if (ARROW_PREDICT_FALSE(actual_read != literal_batch)) {
+	  return values_read;
+	}
         if (!converter.IsValid(indices, /*length=*/actual_read)) {
           return values_read;
         }
@@ -464,67 +473,6 @@ static inline bool IndexInRange(int32_t idx, int32_t dictionary_length) {
   return idx >= 0 && idx < dictionary_length;
 }
 
-template <typename T>
-inline int RleDecoder::GetBatchWithDict(const T* dictionary, int32_t dictionary_length,
-                                        T* values, int batch_size) {
-  // Per https://github.com/apache/parquet-format/blob/master/Encodings.md,
-  // the maximum dictionary index width in Parquet is 32 bits.
-  using IndexType = int32_t;
-
-  DCHECK_GE(bit_width_, 0);
-  int values_read = 0;
-
-  auto* out = values;
-
-  while (values_read < batch_size) {
-    int remaining = batch_size - values_read;
-
-    if (repeat_count_ > 0) {
-      auto idx = static_cast<IndexType>(current_value_);
-      if (ARROW_PREDICT_FALSE(!IndexInRange(idx, dictionary_length))) {
-        return values_read;
-      }
-      T val = dictionary[idx];
-
-      int repeat_batch = std::min(remaining, repeat_count_);
-      std::fill(out, out + repeat_batch, val);
-
-      /* Upkeep counters */
-      repeat_count_ -= repeat_batch;
-      values_read += repeat_batch;
-      out += repeat_batch;
-    } else if (literal_count_ > 0) {
-      constexpr int kBufferSize = 1024;
-      IndexType indices[kBufferSize];
-
-      int literal_batch = std::min(remaining, literal_count_);
-      literal_batch = std::min(literal_batch, kBufferSize);
-
-      int actual_read = bit_reader_.GetBatch(bit_width_, indices, literal_batch);
-      if (ARROW_PREDICT_FALSE(actual_read != literal_batch)) {
-        return values_read;
-      }
-
-      for (int i = 0; i < literal_batch; ++i) {
-        IndexType index = indices[i];
-        if (ARROW_PREDICT_FALSE(!IndexInRange(index, dictionary_length))) {
-          return values_read;
-        }
-        out[i] = dictionary[index];
-      }
-
-      /* Upkeep counters */
-      literal_count_ -= literal_batch;
-      values_read += literal_batch;
-      out += literal_batch;
-    } else {
-      if (!NextCounts<IndexType>()) return values_read;
-    }
-  }
-
-  return values_read;
-}
-
 // Converter for GetSpaced that handles runs of returned dictionary
 // indices.
 template <typename T>
@@ -558,6 +506,20 @@ struct DictionaryConverter {
     }
   }
 };
+
+
+template <typename T>
+inline int RleDecoder::GetBatchWithDict(const T* dictionary, int32_t dictionary_length,
+                                        T* values, int batch_size) {
+  // Per https://github.com/apache/parquet-format/blob/master/Encodings.md,
+  // the maximum dictionary index width in Parquet is 32 bits.
+  using IndexType = int32_t;
+  DictionaryConverter<T> converter;
+  converter.dictionary = dictionary;
+  converter.dictionary_length = dictionary_length;
+  return GetSpaced<T, /*RunType=*/IndexType, DictionaryConverter<T>>(
+      converter, batch_size, /*null_count=*/0, /*valid_bits=*/nullptr, /*valid_bits_offset=*/0, values);
+}
 
 template <typename T>
 inline int RleDecoder::GetBatchWithDictSpaced(const T* dictionary,
