@@ -115,7 +115,7 @@ std::shared_ptr<::arrow::Table> TableFromVector(
       std::generate(valid_bytes.begin(), valid_bytes.end(), [&n] { return n++ % 2; });
     } else {
       std::default_random_engine rng(500);
-      double valid_probability = 1.0 - (static_cast<double>(null_percentage) / 100);
+      double valid_probability = 1.0 - (static_cast<double>(null_percentage) / 100.0);
       std::bernoulli_distribution dist(valid_probability);
       std::generate(valid_bytes.begin(), valid_bytes.end(),
                     [&] { return static_cast<uint8_t>(dist(rng)); });
@@ -145,7 +145,7 @@ std::shared_ptr<::arrow::Table> TableFromVector<BooleanType>(const std::vector<b
                     [&n] { return n++ % 2 != 0; });
     } else {
       std::default_random_engine rng(500);
-      double valid_probability = 1.0 - (static_cast<double>(null_percentage) / 100);
+      double valid_probability = 1.0 - (static_cast<double>(null_percentage) / 100.0);
       std::bernoulli_distribution dist(valid_probability);
       std::generate(valid_bytes.begin(), valid_bytes.end(),
                     [&] { return static_cast<uint8_t>(dist(rng)); });

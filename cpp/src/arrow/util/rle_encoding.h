@@ -362,36 +362,19 @@ inline int RleDecoder::GetSpaced(Converter converter, int batch_size, int null_c
       }
 
       if (repeat_count_ > 0) {
-        int repeat_batch = 0;
-        // Consume the entire repeat counts incrementing repeat_batch to
-        // be the total of nulls + values consumed, we only need to
-        // get the total count because we can fill in the same value for
-        // nulls and non-nulls.
-        while (repeat_count_ > 0 && (values_read + repeat_batch) < batch_size) {
-          DCHECK_GT(valid_run.length, 0);
-          if (valid_run.set) {
-            int update_size = std::min(static_cast<int>(valid_run.length), repeat_count_);
-            repeat_count_ -= update_size;
-            repeat_batch += update_size;
-            valid_run.length -= update_size;
-          } else {
-            // We can consume all nulls here because we would do so on
-            //  the next loop anyways.
-            remaining_nulls -= valid_run.length;
-            repeat_batch += valid_run.length;
-            valid_run.length = 0;
-          }
-          if (valid_run.length == 0) {
-            valid_run = bit_reader.NextRun();
-          }
-        }
+        DCHECK_GT(valid_run.length, 0);
+        int update_size = std::min(static_cast<int>(valid_run.length), repeat_count_);
+        repeat_count_ -= update_size;
+
         RunType current_value = static_cast<RunType>(current_value_);
         if (ARROW_PREDICT_FALSE(!converter.IsValid(current_value))) {
           return values_read;
         }
-        converter.Fill(out, out + repeat_batch, current_value);
-        out += repeat_batch;
-        values_read += repeat_batch;
+
+        converter.Fill(out, out + update_size, current_value);
+        out += update_size;
+        values_read += update_size;
+        valid_run.length -= update_size;
       } else if (literal_count_ > 0) {
         int literal_batch =
             std::min(batch_size - values_read - remaining_nulls, literal_count_);
