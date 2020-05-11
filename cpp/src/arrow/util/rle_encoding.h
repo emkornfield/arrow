@@ -349,6 +349,12 @@ template <typename T, typename RunType, typename Converter>
 inline int RleDecoder::GetSpaced(Converter converter, int batch_size, int null_count,
                                  const uint8_t* valid_bits, int64_t valid_bits_offset,
                                  T* out) {
+  constexpr int kBufferSize = 1024;
+  RunType literal_buffer[kBufferSize];
+  int literal_buffer_position = 0;
+  int literal_buffer_values_left = 0;
+
+
   DCHECK_GE(bit_width_, 0);
   int values_read = 0;
   int remaining_nulls = null_count;
@@ -390,16 +396,13 @@ inline int RleDecoder::GetSpaced(Converter converter, int batch_size, int null_c
         values_read += update_size;
         valid_run.length -= update_size;
       } else if (literal_count_ > 0) {
-        int literal_batch = std::min(static_cast<int>(valid_run.length), literal_count_);
+        int literal_batch = std::min(static_cast<int>(kBufferSize), literal_count_);
         DCHECK_GT(literal_batch, 0);
         // Decode the literals
-        constexpr int kBufferSize = 1024;
-        RunType indices[kBufferSize];
         RunType* read_into = nullptr;
         if (!std::is_same<RunType, T>::value) {
           // only use the buffer if it is need because the types aren't the same.
           read_into = indices;
-          literal_batch = std::min(literal_batch, kBufferSize);
         } else {
           Assigner<T, RunType, std::is_same<T, RunType>::value>::AssignIfPossible(
               out, &read_into);
@@ -411,15 +414,16 @@ inline int RleDecoder::GetSpaced(Converter converter, int batch_size, int null_c
         if (!converter.IsValid(read_into, /*length=*/actual_read)) {
           return values_read;
         }
+	int values_to_copy = std::min(literal_batch, static_cast<int>(valid_run.length));
         if (std::is_same<RunType, T>::value) {
-          converter.Translate(out, read_into, literal_batch);
+          converter.Translate(out, read_into, values_to_copy);
         } else {
-          converter.Copy(out, read_into, literal_batch);
+          converter.Copy(out, read_into, values_to_copy);
         }
-        out += literal_batch;
-        valid_run.length -= literal_batch;
-        literal_count_ -= literal_batch;
-        values_read += literal_batch;
+        out += values_to_copy;
+        valid_run.length -= values_to_copy;
+        literal_count_ -= values_to_copy;
+        values_read += values_to_copy;
       }
     } else {
       converter.FillZero(out, out + valid_run.length);
