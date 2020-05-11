@@ -402,9 +402,9 @@ inline int RleDecoder::GetSpaced(Converter converter, int batch_size, int null_c
         RunType indices[kBufferSize];
         literal_batch = std::min(literal_batch, kBufferSize);
         int actual_read = bit_reader_.GetBatch(bit_width_, indices, literal_batch);
-	if (ARROW_PREDICT_FALSE(actual_read != literal_batch)) {
-	  return values_read;
-	}
+        if (ARROW_PREDICT_FALSE(actual_read != literal_batch)) {
+          return values_read;
+        }
         if (!converter.IsValid(indices, /*length=*/actual_read)) {
           return values_read;
         }
@@ -507,7 +507,6 @@ struct DictionaryConverter {
   }
 };
 
-
 template <typename T>
 inline int RleDecoder::GetBatchWithDict(const T* dictionary, int32_t dictionary_length,
                                         T* values, int batch_size) {
@@ -518,7 +517,8 @@ inline int RleDecoder::GetBatchWithDict(const T* dictionary, int32_t dictionary_
   converter.dictionary = dictionary;
   converter.dictionary_length = dictionary_length;
   return GetSpaced<T, /*RunType=*/IndexType, DictionaryConverter<T>>(
-      converter, batch_size, /*null_count=*/0, /*valid_bits=*/nullptr, /*valid_bits_offset=*/0, values);
+      converter, batch_size, /*null_count=*/0, /*valid_bits=*/nullptr,
+      /*valid_bits_offset=*/0, values);
 }
 
 template <typename T>
