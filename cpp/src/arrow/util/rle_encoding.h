@@ -330,6 +330,21 @@ inline int RleDecoder::GetBatch(T* values, int batch_size) {
   return values_read;
 }
 
+template <typename T, typename RunType, bool is_same_type>
+struct Assigner {};
+
+template <typename T, typename RunType>
+struct Assigner<T, RunType, true> {
+  static void AssignIfPossible(T* output, RunType** read_into) { *read_into = output; }
+};
+
+template <typename T, typename RunType>
+struct Assigner<T, RunType, false> {
+  static void AssignIfPossible(T* output, RunType** read_into) {
+    ARROW_CHECK(false) << "Types not equal";
+  }
+};
+
 template <typename T, typename RunType, typename Converter>
 inline int RleDecoder::GetSpaced(Converter converter, int batch_size, int null_count,
                                  const uint8_t* valid_bits, int64_t valid_bits_offset,
@@ -380,15 +395,27 @@ inline int RleDecoder::GetSpaced(Converter converter, int batch_size, int null_c
         // Decode the literals
         constexpr int kBufferSize = 1024;
         RunType indices[kBufferSize];
-        literal_batch = std::min(literal_batch, kBufferSize);
-        int actual_read = bit_reader_.GetBatch(bit_width_, indices, literal_batch);
+        RunType* read_into = nullptr;
+        if (!std::is_same<RunType, T>::value) {
+          // only use the buffer if it is need because the types aren't the same.
+          read_into = indices;
+          literal_batch = std::min(literal_batch, kBufferSize);
+        } else {
+          Assigner<T, RunType, std::is_same<T, RunType>::value>::AssignIfPossible(
+              out, &read_into);
+        }
+        int actual_read = bit_reader_.GetBatch(bit_width_, read_into, literal_batch);
         if (ARROW_PREDICT_FALSE(actual_read != literal_batch)) {
           return values_read;
         }
-        if (!converter.IsValid(indices, /*length=*/actual_read)) {
+        if (!converter.IsValid(read_into, /*length=*/actual_read)) {
           return values_read;
         }
-        converter.Copy(out, indices, literal_batch);
+        if (std::is_same<RunType, T>::value) {
+          converter.Translate(out, read_into, literal_batch);
+        } else {
+          converter.Copy(out, read_into, literal_batch);
+        }
         out += literal_batch;
         valid_run.length -= literal_batch;
         literal_count_ -= literal_batch;
@@ -421,6 +448,9 @@ struct PlainRleConverter {
   inline void Copy(T* out, const T* values, int length) const {
     std::memcpy(out, values, length * sizeof(T));
   }
+  inline void Translate(T* values, T* indices, int length) const {
+    /* nothing to do here*/
+  }
 };
 
 template <typename T>
@@ -431,56 +461,77 @@ inline int RleDecoder::GetBatchSpaced(int batch_size, int null_count,
       PlainRleConverter<T>(), batch_size, null_count, valid_bits, valid_bits_offset, out);
 }
 
-static inline bool IndexInRange(int32_t idx, int32_t dictionary_length) {
-  return idx >= 0 && idx < dictionary_length;
-}
-
 // Converter for GetSpaced that handles runs of returned dictionary
 // indices.
 template <typename T>
 struct DictionaryConverter {
+  // Per https://github.com/apache/parquet-format/blob/master/Encodings.md,
+  // the maximum dictionary index width in Parquet is 32 bits.
+  using IndexType = int32_t;
   T kZero = {};
   const T* dictionary;
   int32_t dictionary_length;
 
-  inline bool IsValid(int32_t value) { return IndexInRange(value, dictionary_length); }
+  inline bool IndexInRange(int32_t idx) const {
+    return idx >= 0 && idx < dictionary_length;
+  }
 
-  inline bool IsValid(const int32_t* values, int32_t length) const {
-    using IndexType = int32_t;
+  inline bool IsValid(IndexType value) { return IndexInRange(value); }
+
+  inline bool IsValid(const IndexType* values, int32_t length) const {
     IndexType min_index = std::numeric_limits<IndexType>::max();
     IndexType max_index = std::numeric_limits<IndexType>::min();
     for (int x = 0; x < length; x++) {
       min_index = std::min(values[x], min_index);
       max_index = std::max(values[x], max_index);
     }
-
-    return IndexInRange(min_index, dictionary_length) &&
-           IndexInRange(max_index, dictionary_length);
+    return IndexInRange(min_index) && IndexInRange(max_index);
   }
-  inline void Fill(T* begin, T* end, const int32_t& run_value) const {
+  inline void Fill(T* begin, T* end, const IndexType& run_value) const {
     std::fill(begin, end, dictionary[run_value]);
   }
   inline void FillZero(T* begin, T* end) { std::fill(begin, end, kZero); }
 
-  inline void Copy(T* out, const int32_t* values, int length) const {
+  inline void Copy(T* out, const IndexType* values, int length) const {
     for (int x = 0; x < length; x++) {
       out[x] = dictionary[values[x]];
     }
   }
+  void Translate(T* values, const IndexType* indices, int length) const {
+    // Copy is afe to call on the same values.
+    Copy(values, indices, length);
+  }
 };
+
+/*
+// Translate values in place.
+  template<typename T>
+  typename std::enable_if<std::is_same<T, typename
+DictionaryConverter<T>::IndexType>::value>::type DictionaryConverter<T>::Translate(const
+typename DictionaryConverter<T>::IndexType* values, int length) const {
+     // The implementation of copy is safe to use on the same array.
+          DictionaryConverter<T>::Copy(static_cast<T*>(values), values, length);
+          }
+          */
+/*
+  template<typename T>
+  typename std::enable_if<!std::is_same<T,
+  DictionaryConverter<T>::IndexType>::value>::type DictionaryConverter<T>::Translate(const
+  DictionaryConverter<T>::IndexType* values, int length) const {
+     ARROW_DCHECK(std::is_same<T, IndexType>::value);
+  }
+*/
 
 template <typename T>
 inline int RleDecoder::GetBatchWithDict(const T* dictionary, int32_t dictionary_length,
                                         T* values, int batch_size) {
-  // Per https://github.com/apache/parquet-format/blob/master/Encodings.md,
-  // the maximum dictionary index width in Parquet is 32 bits.
-  using IndexType = int32_t;
   DictionaryConverter<T> converter;
   converter.dictionary = dictionary;
   converter.dictionary_length = dictionary_length;
-  return GetSpaced<T, /*RunType=*/IndexType, DictionaryConverter<T>>(
-      converter, batch_size, /*null_count=*/0, /*valid_bits=*/nullptr,
-      /*valid_bits_offset=*/0, values);
+  return GetSpaced<T, /*RunType=*/typename DictionaryConverter<T>::IndexType,
+                   DictionaryConverter<T>>(converter, batch_size, /*null_count=*/0,
+                                           /*valid_bits=*/nullptr,
+                                           /*valid_bits_offset=*/0, values);
 }
 
 template <typename T>
@@ -489,12 +540,12 @@ inline int RleDecoder::GetBatchWithDictSpaced(const T* dictionary,
                                               int batch_size, int null_count,
                                               const uint8_t* valid_bits,
                                               int64_t valid_bits_offset) {
-  using IndexType = int32_t;
   DictionaryConverter<T> converter;
   converter.dictionary = dictionary;
   converter.dictionary_length = dictionary_length;
-  return GetSpaced<T, /*RunType=*/IndexType, DictionaryConverter<T>>(
-      converter, batch_size, null_count, valid_bits, valid_bits_offset, out);
+  return GetSpaced<T, /*RunType=*/typename DictionaryConverter<T>::IndexType,
+                   DictionaryConverter<T>>(converter, batch_size, null_count, valid_bits,
+                                           valid_bits_offset, out);
 }
 
 template <typename T>
