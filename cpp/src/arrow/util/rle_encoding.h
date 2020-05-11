@@ -362,7 +362,6 @@ inline int RleDecoder::GetSpaced(Converter converter, int batch_size, int null_c
       }
 
       if (repeat_count_ > 0) {
-        DCHECK_GT(valid_run.length, 0);
         int update_size = std::min(static_cast<int>(valid_run.length), repeat_count_);
         repeat_count_ -= update_size;
 
@@ -376,10 +375,8 @@ inline int RleDecoder::GetSpaced(Converter converter, int batch_size, int null_c
         values_read += update_size;
         valid_run.length -= update_size;
       } else if (literal_count_ > 0) {
-        int literal_batch =
-            std::min(batch_size - values_read - remaining_nulls, literal_count_);
+        int literal_batch = std::min(static_cast<int>(valid_run.length), literal_count_);
         DCHECK_GT(literal_batch, 0);
-
         // Decode the literals
         constexpr int kBufferSize = 1024;
         RunType indices[kBufferSize];
@@ -391,29 +388,11 @@ inline int RleDecoder::GetSpaced(Converter converter, int batch_size, int null_c
         if (!converter.IsValid(indices, /*length=*/actual_read)) {
           return values_read;
         }
-        int skipped = 0;
-        int literals_read = 0;
-        while (literals_read < literal_batch) {
-          if (valid_run.set) {
-            int update_size = std::min(literal_batch - literals_read,
-                                       static_cast<int>(valid_run.length));
-            converter.Copy(out, indices + literals_read, update_size);
-            literals_read += update_size;
-            out += update_size;
-            valid_run.length -= update_size;
-          } else {
-            converter.FillZero(out, out + valid_run.length);
-            out += valid_run.length;
-            skipped += valid_run.length;
-            valid_run.length = 0;
-          }
-          if (valid_run.length == 0) {
-            valid_run = bit_reader.NextRun();
-          }
-        }
+        converter.Copy(out, indices, literal_batch);
+        out += literal_batch;
+        valid_run.length -= literal_batch;
         literal_count_ -= literal_batch;
-        values_read += literal_batch + skipped;
-        remaining_nulls -= skipped;
+        values_read += literal_batch;
       }
     } else {
       converter.FillZero(out, out + valid_run.length);
