@@ -137,14 +137,15 @@ struct SumState {
  private:
   ThisType ConsumeDense(const ArrayType& array) const {
     ThisType local;
-    const auto values = array.raw_values();
+    const T __attribute__((aligned (64))) * values =  array.raw_values();
     const int64_t length = array.length();
-
-    constexpr int64_t kRoundFactor = 8;
+    // This provides at least some parallelization for all bitdwith types.
+    constexpr int64_t kRoundFactor = 64;
     const int64_t length_rounded = BitUtil::RoundDown(length, kRoundFactor);
     typename SumType::c_type sum_rounded[kRoundFactor] = {0};
 
-    // Unrolled the loop to add the results in parrel
+    // Unrolled the loop to add the results in parrallel/auto vectorize
+    // operations.
     for (int64_t i = 0; i < length_rounded; i += kRoundFactor) {
       for (int64_t k = 0; k < kRoundFactor; k++) {
         sum_rounded[k] += values[i + k];
