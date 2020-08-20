@@ -133,9 +133,21 @@ struct PARQUET_EXPORT LevelInfo {
 };
 
 void PARQUET_EXPORT DefinitionLevelsToBitmap(
-    const int16_t* def_levels, int64_t num_def_levels, const int16_t max_definition_level,
-    const int16_t max_repetition_level, int64_t* values_read, int64_t* null_count,
+    const int16_t* def_levels, int64_t num_def_levels, const LevelInfo level_info, 
+    int64_t* values_read, int64_t* null_count,
     uint8_t* valid_bits, int64_t valid_bits_offset);
+
+int32_t* PARQUET_EXPORT RepLevelsToLengths(
+    const int16_t* def_levels, const int16_t* rep_levels, 
+    int64_t num_def_rep_levels, const LevelInfo level_info, 
+    int32_t* lengths);
+
+int64_t* PARQUET_EXPORT RepLevelsToLargeLengths(
+    const int16_t* def_levels, const int16_t* rep_levels, 
+    int64_t num_def_rep_levels, const LevelInfo level_info, 
+    int64_t* lengths);
+
+
 
 // These APIs are likely to be revised as part of ARROW-8494 to reduce duplicate code.
 // They currently represent minimal functionality for vectorized computation of definition

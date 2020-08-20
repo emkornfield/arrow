@@ -314,27 +314,6 @@ class DictionaryRecordReader : virtual public RecordReader {
   virtual std::shared_ptr<::arrow::ChunkedArray> GetResult() = 0;
 };
 
-// TODO(itaiin): another code path split to merge when the general case is done
-static inline bool HasSpacedValues(const ColumnDescriptor* descr) {
-  if (descr->max_repetition_level() > 0) {
-    // repeated+flat case
-    return !descr->schema_node()->is_required();
-  } else {
-    // non-repeated+nested case
-    // Find if a node forces nulls in the lowest level along the hierarchy
-    const schema::Node* node = descr->schema_node().get();
-    while (node) {
-      if (node->is_optional()) {
-        return true;
-      }
-      node = node->parent();
-    }
-    return false;
-  }
-}
-
-}  // namespace internal
-
 using BoolReader = TypedColumnReader<BooleanType>;
 using Int32Reader = TypedColumnReader<Int32Type>;
 using Int64Reader = TypedColumnReader<Int64Type>;
