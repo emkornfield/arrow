@@ -208,7 +208,8 @@ namespace internal {
 class RecordReader {
  public:
   static std::shared_ptr<RecordReader> Make(
-      const ColumnDescriptor* descr,
+      const ColumnDescriptor* descr, int null_slot_spacing,
+      int16_t repeated_ancestor_def_level,
       ::arrow::MemoryPool* pool = ::arrow::default_memory_pool(),
       const bool read_dictionary = false);
 
@@ -323,4 +324,4 @@ using DoubleReader = TypedColumnReader<DoubleType>;
 using ByteArrayReader = TypedColumnReader<ByteArrayType>;
 using FixedLenByteArrayReader = TypedColumnReader<FLBAType>;
 
-}  // namespace parquet
+}  // namespace internal

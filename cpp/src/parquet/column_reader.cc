@@ -1008,8 +1008,15 @@ class TypedRecordReader : public ColumnReaderImplBase<DType>,
  public:
   using T = typename DType::c_type;
   using BASE = ColumnReaderImplBase<DType>;
-  TypedRecordReader(const ColumnDescriptor* descr, MemoryPool* pool) : BASE(descr, pool) {
-    nullable_values_ = internal::HasSpacedValues(descr);
+  TypedRecordReader(const ColumnDescriptor* descr, int null_slot_usage,
+                    int16_t repeated_ancestor_def_level, MemoryPool* pool)
+      : BASE(descr, pool) {
+    level_metadata_.null_slot_usage = null_slot_usage;
+    level_metadata_.def_level = max_def_level_;
+    level_metadata_.rep_level = max_rep_level_;
+    level_metadata_.repetition_ancestor_def_level_;
+
+    nullable_values_ = level_metadata_.RequiresSpacing();
     at_record_start_ = true;
     records_read_ = 0;
     values_written_ = 0;
@@ -1612,25 +1619,28 @@ std::shared_ptr<RecordReader> MakeByteArrayRecordReader(const ColumnDescriptor* 
 }
 
 std::shared_ptr<RecordReader> RecordReader::Make(const ColumnDescriptor* descr,
+                                                 int null_slot_spacing,
+                                                 int16_t repeated_ancestor_def_level,
                                                  MemoryPool* pool,
                                                  const bool read_dictionary) {
+#define PRIMITIVE_READER_CASE(PhysicalType, DataType)     \
+  case Type::PhysicalType:                                \
+    return std::make_shared<TypedRecordReader<DataType>>( \
+        descr, null_slot_count, repeated_ancestor_def_level, pool);
+
   switch (descr->physical_type()) {
-    case Type::BOOLEAN:
-      return std::make_shared<TypedRecordReader<BooleanType>>(descr, pool);
-    case Type::INT32:
-      return std::make_shared<TypedRecordReader<Int32Type>>(descr, pool);
-    case Type::INT64:
-      return std::make_shared<TypedRecordReader<Int64Type>>(descr, pool);
-    case Type::INT96:
-      return std::make_shared<TypedRecordReader<Int96Type>>(descr, pool);
-    case Type::FLOAT:
-      return std::make_shared<TypedRecordReader<FloatType>>(descr, pool);
-    case Type::DOUBLE:
-      return std::make_shared<TypedRecordReader<DoubleType>>(descr, pool);
+    PRIMITIVE_READER_CASE(BOOLEAN, BooleanType);
+    PRIMITIVE_READER_CASE(INT32, Int32Type);
+    PRIMITIVE_READER_CASE(INT64, Int64Type);
+    PRIMITIVE_READER_CASE(INT96, Int96Type);
+    PRIMITIVE_READER_CASE(FLOAT, FloatType);
+    PRIMITIVE_READER_CASE(DOUBLE, DoubleType);
     case Type::BYTE_ARRAY:
-      return MakeByteArrayRecordReader(descr, pool, read_dictionary);
+      return MakeByteArrayRecordReader(
+          descr, null_slot_usage, repeated_ancestor_def_level, pool, read_dictionary);
     case Type::FIXED_LEN_BYTE_ARRAY:
-      return std::make_shared<FLBARecordReader>(descr, pool);
+      return std::make_shared<FLBARecordReader>(descr, null_slot_usage,
+                                                repeated_ancestor_def_level, pool);
     default: {
       // PARQUET-1481: This can occur if the file is corrupt
       std::stringstream ss;
@@ -1638,6 +1648,7 @@ std::shared_ptr<RecordReader> RecordReader::Make(const ColumnDescriptor* descr,
       throw ParquetException(ss.str());
     }
   }
+#undef PRIMITIVE_READER_CASE
   // Unreachable code, but suppress compiler warning
   return nullptr;
 }

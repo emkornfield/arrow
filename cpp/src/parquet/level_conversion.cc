@@ -152,8 +152,8 @@ void DefinitionLevelsToBitmapLittleEndian(
   } else {
     // No BMI2 intsturctions are used for non-repeated case.
     DefinitionLevelsToBitmapSimd</*has_repeated_parent=*/false>(
-        def_levels, num_def_levels, level_meatadata, values_read, null_count,
-        valid_bits, valid_bits_offset);
+        def_levels, num_def_levels, level_meatadata, values_read, null_count, valid_bits,
+        valid_bits_offset);
   }
 }
 
@@ -207,9 +207,10 @@ LengthType RepLevelsToLengthsScalar<int32_t>(
 	  }
 	 }
     }
-    return lengths;
+  }
+  return lengths;
 }
-}
+}  // namespace internal
 
 // These prop
 int64_t* PARQUET_EXPORT RepLevelsToLengths(
@@ -230,7 +231,5 @@ return  RepLevelsToLengthsScalar<int32_t, /*inner_most=*/false>(
 	}
 }
 
-
-
-}  // namespace internal
+}  // namespace parquet
 }  // namespace parquet
