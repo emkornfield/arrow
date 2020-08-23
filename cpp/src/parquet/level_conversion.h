@@ -151,13 +151,13 @@ int64_t* PARQUET_EXPORT RepLevelsToLargeLengths(
 int32_t* PARQUET_EXPORT RepLevelsToLengths(const int16_t* def_levels,
                                            const int16_t* rep_levels,
                                            int64_t num_def_rep_levels,
-                                           const LevelMetadata level_metadata,
+                                           const LevelInfo level_info,
                                            int32_t* lengths);
 
 int64_t* PARQUET_EXPORT RepLevelsToLargeLengths(const int16_t* def_levels,
                                                 const int16_t* rep_levels,
                                                 int64_t num_def_rep_levels,
-                                                const LevelMetadata level_metadata,
+                                                const LevelInfo level_info,
                                                 int64_t* lengths);
 
 // These APIs are likely to be revised as part of ARROW-8494 to reduce duplicate code.
