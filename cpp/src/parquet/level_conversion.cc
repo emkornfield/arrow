@@ -60,15 +60,11 @@ inline void DefinitionLevelsToBitmapScalar(
   for (int i = 0; i < num_def_levels; ++i) {
     if (def_levels[i] == level_info.def_level) {
       valid_bits_writer.Set();
-    } else if (def_levels[i] < level_info.repeated_ancestor_def_level {
+    } else if (def_levels[i] < level_info.repeated_ancestor_def_level) {
       continue;
     } else if (def_levels[i] >= level_info.repeated_ancestor_def_level)  { 
-      if (def_levels[i] <= level_info.max_def_level) {
         valid_bits_writer.Clear();
         *null_count += 1;
-      } else {
-        throw ParquetException("definition level exceeds maximum");
-      }
     }
     valid_bits_writer.Next();
   }
@@ -81,7 +77,6 @@ template <bool has_repeated_parent>
 int64_t DefinitionLevelsBatchToBitmap(const int16_t* def_levels, const int64_t batch_size,
                                       const LevelInfo level_info, 
                                       ::arrow::internal::FirstTimeBitmapWriter* writer) {
-  CheckLevelRange(def_levels, batch_size, required_definition_level);
   uint64_t defined_bitmap =
       internal::GreaterThanBitmap(def_levels, batch_size, level_info.def_level - 1);
 
@@ -152,7 +147,7 @@ void DefinitionLevelsToBitmapLittleEndian(
   } else {
     // No BMI2 intsturctions are used for non-repeated case.
     DefinitionLevelsToBitmapSimd</*has_repeated_parent=*/false>(
-        def_levels, num_def_levels, level_meatadata, values_read, null_count, valid_bits,
+        def_levels, num_def_levels, level_info, values_read, null_count, valid_bits,
         valid_bits_offset);
   }
 }
@@ -176,7 +171,7 @@ void DefinitionLevelsToBitmap(const int16_t* def_levels, int64_t num_def_levels,
                                  valid_bits, valid_bits_offset);
 
 #endif
-  if (ARROW_PREDICT_FALSE(level_info.null_spacing > 1 && null_count > 0)) {
+  if (ARROW_PREDICT_FALSE(level_info.null_slot_usage > 1 && *null_count > 0)) {
 	// TODO(ARROW-9796): Support this case.
 	throw ParquetException("Null values ucrrently unsuppored for FixedSizeLists.");
   }
@@ -192,8 +187,8 @@ int32_t* PARQUET_EXPORT RepLevelsToLengths(
     int32_t* lengths);
 }
 
-template<class LengthType, bool inner_most, bool outer_most>
-LengthType RepLevelsToLengthsScalar<int32_t>(
+template<class LengthType>
+LengthType RepLevelsToLengthsScalar(
     const int16_t* def_levels, const int16_t* rep_levels, 
     int64_t num_def_rep_levels, const LevelInfo level_info, 
     LengthType* lengths) {

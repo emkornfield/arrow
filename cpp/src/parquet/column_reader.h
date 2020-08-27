@@ -69,12 +69,35 @@ class PARQUET_EXPORT LevelDecoder {
   // Decodes a batch of levels into an array and returns the number of levels decoded
   int Decode(int batch_size, int16_t* levels);
 
+  Struct SkipInfo {
+    SkipInfo() : specific_column(0), start_range(0) {}
+    /// A specific_value_index to compare that is less then start_range.
+    int16_t specific_value_index;
+    /// The start range to use for comparison.
+    int16_t start_range; 
+  }
+
+  struct CompareResult {
+    int values_compared
+    util::optional<int16_t> out_of_range = 0;
+  };
+
+  /// Compares up to 64 elements at a time (less if the batch has reached its end)
+  /// and populate bitmaps with the results.
+  /// This method will compare the next 64 elements for every value from 0 to num_bitmaps.
+  /// If values from skip_info are set, then it will skip some comparisons (i.e. won't
+  /// modify the bitmaps).
+  CompareResult BatchCompare64(SkipInfo info, int16_t num_bitmaps, uint64_t* bitmaps);
+
+
  private:
   int bit_width_;
   int num_values_remaining_;
   Encoding::type encoding_;
   std::unique_ptr<::arrow::util::RleDecoder> rle_decoder_;
   std::unique_ptr<::arrow::BitUtil::BitReader> bit_packed_decoder_;
+  std::vector<int16_t> literal_buffer;
+  int level_buffer_offset;
 };
 
 struct CryptoContext {
@@ -315,6 +338,8 @@ class DictionaryRecordReader : virtual public RecordReader {
   virtual std::shared_ptr<::arrow::ChunkedArray> GetResult() = 0;
 };
 
+}  // namespace internal
+
 using BoolReader = TypedColumnReader<BooleanType>;
 using Int32Reader = TypedColumnReader<Int32Type>;
 using Int64Reader = TypedColumnReader<Int64Type>;
@@ -324,4 +349,5 @@ using DoubleReader = TypedColumnReader<DoubleType>;
 using ByteArrayReader = TypedColumnReader<ByteArrayType>;
 using FixedLenByteArrayReader = TypedColumnReader<FLBAType>;
 
-}  // namespace internal
+
+}

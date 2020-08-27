@@ -1157,6 +1157,9 @@ class TypedRecordReader : public ColumnReaderImplBase<DType>,
     const int16_t* def_levels = this->def_levels() + levels_position_;
     const int16_t* rep_levels = this->rep_levels() + levels_position_;
 
+    // Should only be called when there is at least one repeated
+    // fields (othewise every def level entry represents a new 
+    // record.
     DCHECK_GT(this->max_rep_level_, 0);
 
     // Count logical records and number of values to read

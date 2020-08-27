@@ -115,6 +115,19 @@ class RleDecoder {
   template <typename T>
   bool Get(T* val);
 
+  struct State {
+    int repeat_count = 0;
+    int literal_count = 0; 
+  };
+
+  bool GetState(State* output);
+
+  /// Get up to batch_size values if the current value is repeated encoded. 
+  /// Returns false if no more values are available.
+  ///
+  template <typename T>
+  bool GetRepeated(T* val, int batch_size);
+
   /// Gets a batch of values.  Returns the number of decoded elements.
   template <typename T>
   int GetBatch(T* values, int batch_size);
@@ -296,6 +309,43 @@ class RleEncoder {
 template <typename T>
 inline bool RleDecoder::Get(T* val) {
   return GetBatch(val, 1) == 1;
+}
+
+template<typename T>
+inline bool RleDecoder::GetState(RleDecoer::State* state) {
+  if (repeat_count_ <= 0 && literal_count_ <= 0) {
+	if (!NextCounts<T>()) { return false; } 
+  }
+  state->repeat_count = repeat_count_;
+  state->literal_count = literal_count_; 
+  return true;
+}
+
+
+template<typename T>
+inline bool RleDecoder::GetRepeated(T* val, int batch_size, int* values_read) {
+  if (repeat_count_ <= 0 && literal_count_ <= 0) {
+	if (!NextCounts<T>()) { return false; } 
+  }
+  if (literal_count_ > 0) {
+     return true;
+  }
+  *val = current_value_; 
+  *values_read = 0;
+  while (repeat_count_ > 0 && *values_read < batch_size) {
+    int available_values = std::min(repeat_count_, (batch_size - values_read)); 
+    repeat_count_ -= available_values; 
+    values_read += available_values;
+    if (repeat_count_ == 0) {
+	if (!NextCounts<T>()) { 
+		return false; 
+	} 
+        if (repeat_count_ > 0 && *val != current_value_) {
+	  return true;
+	}
+    }
+  }
+  return true;
 }
 
 template <typename T>
