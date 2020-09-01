@@ -192,6 +192,28 @@ static inline uint64_t GreaterThanBitmap(const int16_t* levels, int64_t num_leve
   return LevelsToBitmap(levels, num_levels, [rhs](int16_t value) { return value > rhs; });
 }
 
+struct MinMax {
+  int16_t min;
+  int16_t max;
+};
+
+inline MinMax CheckLevelRange(const int16_t* levels, int64_t num_levels,
+                            const int16_t max_expected_level) {
+  MinMax values;
+  values.min = std::numeric_limits<int16_t>::max();
+  values.max = std::numeric_limits<int16_t>::min();
+  for (int x = 0; x < num_levels; x++) {
+    values.min = std::min(levels[x], values.min);
+    values.max = std::max(levels[x], values.max);
+  }
+  if (ARROW_PREDICT_FALSE(num_levels > 0 &&
+                          (values.min < 0 || value.max > max_expected_level))) {
+    throw ParquetException("definition or repetition level out of range");
+  }
+  return values;
+}
+
+
 #endif
 
 }  // namespace internal

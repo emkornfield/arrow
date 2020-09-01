@@ -77,17 +77,12 @@ class PARQUET_EXPORT LevelDecoder {
     int16_t start_range; 
   }
 
-  struct CompareResult {
-    int values_compared
-    util::optional<int16_t> out_of_range = 0;
-  };
-
   /// Compares up to 64 elements at a time (less if the batch has reached its end)
   /// and populate bitmaps with the results.
   /// This method will compare the next 64 elements for every value from 0 to num_bitmaps.
   /// If values from skip_info are set, then it will skip some comparisons (i.e. won't
   /// modify the bitmaps).
-  CompareResult BatchCompare64(SkipInfo info, int16_t num_bitmaps, uint64_t* bitmaps);
+  int BatchGtCompare(SkipInfo info, int16_t num_bitmaps, int batch_size, uint8_t* bitmaps);
 
 
  private:

@@ -29,19 +29,6 @@
 namespace parquet {
 namespace internal {
 namespace {
-inline void CheckLevelRange(const int16_t* levels, int64_t num_levels,
-                            const int16_t max_expected_level) {
-  int16_t min_level = std::numeric_limits<int16_t>::max();
-  int16_t max_level = std::numeric_limits<int16_t>::min();
-  for (int x = 0; x < num_levels; x++) {
-    min_level = std::min(levels[x], min_level);
-    max_level = std::max(levels[x], max_level);
-  }
-  if (ARROW_PREDICT_FALSE(num_levels > 0 &&
-                          (min_level < 0 || max_level > max_expected_level))) {
-    throw ParquetException("definition level exceeds maximum");
-  }
-}
 
 #if !defined(ARROW_HAVE_AVX512)
 

@@ -139,6 +139,100 @@ int LevelDecoder::Decode(int batch_size, int16_t* levels) {
   return num_decoded;
 }
 
+struct MinMax {
+  int16_t min;
+  int16_t max;
+};
+
+uint64_t ValuesToBitmap(int16_t level, int16_t* buffer, int values) {
+  if (values >= 32) {
+    // SIMD only gets triggered for values of 64 bits.  At a certain point using SIMD
+    // will outweight the extra work done. Based on instruction counts this boundary
+    // should be someplace close to 32 values. 
+    return GreaterThanBitmap(buffer, 64, level) & LeastSignficantBitMask(values);
+  } 
+  return ;
+}
+
+void BatchGtCompare64(int values, const int16_t* buffer, int shift, SkipInfo skip_info, int num_bitmaps, uint64_t* bitmaps) {
+  MinMax level_range = CheckLevelRange(buffer, values); 
+  for (int x = std::max(skip_info.start_range, level_range.min + 1); x <= std::min(num_bitmaps - 1, level_range.max) ; x++) {
+    bitmaps[x] |= GreaterThanBitmap(buffers, values, x) << shift; 
+ }
+  // Specific level only needs to be handled if it isn't in the range of values that will
+  // be populated.
+  if (skip_info.specific_value_index < skip_info.start_range ) {
+     if (level_range.min > skip_info.specific_value_index) {
+         bitmaps[skip_info.specific_value_index] |= LeastSignficantBitMask(values) << shift;
+     } else {
+       bitmaps[skip_info.specific_value_index] |= GreaterThanBitmap(buffer, values, skip_info.specific_value_index) << shift;
+     }
+  }
+  uint64_t mask = LeastSignficantBitMask(values) << shift;
+  for (int x = level_range.max + 1; x < num_bitmaps - 1; x++) {
+    bitmaps[x] |= mask; 
+  }
+}
+
+// 
+int BatchGtCompare64(SkipInfo info, int16_t num_bitmaps, uint64_t* bitmaps, ::arrow::util::RleDecoder* rle_decoder) {
+  RleDecoder::State state = rle_decoder->GetState();
+  constexpr int kBatchSize64 = 64;
+  int remaining = kBatchSize64;
+  while (state.HasMoreElements() && remaining > 0) {
+    // Handle RLE Case.
+    if (state.repeat_count > 0) {
+       int16_t value = -1;
+       int read = rle_decoder->GetValue(value, std::min(remaining, state.literal_count));
+       if (ARROW_PREDICT_FALSE(value < 0 || value > num_bitmaps ) {
+          throw ParquetException("level out of bounds maximum: " + std::string_value(value));
+       }
+       remaining -= read;
+       uint64_t mask = 0;
+       if (read == kBatchSize64) {
+         bitmaps[skip_info.specific_value_index] = value > skip_info.specific_value_index ? ~int64_t{0}  : 0;
+         mask = ~int64_t{0};
+       } else {
+         bitmaps[skip_info.specific_value_index] |= value > skip_info.specific_value_index ? LeastSignficantBitMask(read) << (64 - remaining) : 0; 
+	 mask = value > skip_info.start_range ? LeastSignficantBitMask(read) << (64 - remaining) : 0;  
+       }
+       for (int x = skip_info.start_range; x <= std::min(value, num_bitmaps - 1); x++) {
+         bitmaps[x] << read;
+       }
+       for (int x = value + 1; x < num_bitmaps; x++) {
+         bitmaps[x] << read;
+         bitmaps[x] |= mask;
+       }
+    } else {
+       int values_to_read = std::min(remaining, state.literal_count);
+       int read = rle_decoder->GetBatch(compare_buffer_.data(), values_to_read); 
+       DCHECK_EQ(read, values_to_read);
+       BatchGtCompare64(read, /*shift=*/64-remaining, info, num_bitmaps, bitmaps);
+       remaining -=  read;
+    }
+  }
+  DCHECK_LE(remaining, kBatchSize64);
+  return kBatchSize64 - remaining;
+}
+
+int BatchGtCompare64(SkipInfo info, int16_t num_bitmaps, uint64_t* bitmaps) {
+  int decoded = 0; 
+  if (encoder_ == Encoding::RLE) {
+     num_decoded = BatchGtCompare64(info, num_bitmaps, bitmaps, rle_decoder_);
+  } else {
+     int read = bit_packed_decoder_->GetBatch();
+     num_decoded = BatchGtCompare(/*batch_size=*/64 info, num_bitmaps, bitmaps, bit_packed_decoder_);
+  } 
+
+  num_values_remaining_ -= num_decoded;
+  if (!ARROW_LITTLE_ENDIAN) {
+    for (int64_t* bitmap = bitmaps; bitmap < bitmaps + num_bitmaps; ++bitmap) {
+      *bitmap = ToLittleEndian(*bitmap);
+    }
+  }
+  return num_decoded;
+}	
+
 ReaderProperties default_reader_properties() {
   static ReaderProperties default_reader_properties;
   return default_reader_properties;
