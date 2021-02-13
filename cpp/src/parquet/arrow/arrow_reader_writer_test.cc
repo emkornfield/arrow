@@ -32,6 +32,7 @@
 #include "arrow/array/builder_binary.h"
 #include "arrow/array/builder_decimal.h"
 #include "arrow/array/builder_dict.h"
+#include "arrow/array/builder_nested.h"
 #include "arrow/array/builder_primitive.h"
 #include "arrow/chunked_array.h"
 #include "arrow/compute/api.h"
@@ -2474,6 +2475,30 @@ TEST(TestArrowReadWrite, TableWithChunkedColumns) {
     ASSERT_NO_FATAL_FAILURE(CheckSimpleRoundtrip(table, 10));
   }
 }
+
+TEST(TestArrowReadWrite, ManySmallLists) {
+    std::shared_ptr<::arrow::Int32Builder> value_builder = std::make_shared<::arrow::Int32Builder>();
+
+    // Long stream of nulls with 1 at the end.
+    constexpr int64_t kValueSize = 1 << 20;
+    auto type = ::arrow::list(::arrow::int32());
+    ::arrow::ListBuilder list_builder(default_memory_pool(), value_builder, type);
+    ASSERT_OK(list_builder.AppendNulls(kValueSize));
+    std::shared_ptr<Buffer> value_buffer;
+    ASSERT_OK(list_builder.Append()); 
+    ASSERT_OK(value_builder->Append(1));
+
+
+    std::vector<std::shared_ptr<Array>> arrays(1);
+    ASSERT_OK(list_builder.Finish(&arrays[0]));
+    
+    auto field = ::arrow::field("fname", type);
+    auto schema = ::arrow::schema({field});
+    auto table = Table::Make(schema, {std::make_shared<ChunkedArray>(arrays)});
+    CheckSimpleRoundtrip(table, kValueSize + 1);
+}
+
+
 
 TEST(TestArrowReadWrite, TableWithDuplicateColumns) {
   // See ARROW-1974
