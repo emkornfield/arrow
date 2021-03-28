@@ -18,7 +18,6 @@
 aws-sdk-cpp
 benchmark=1.5.2
 boost-cpp>=1.68.0
-brotli
 bzip2
 c-ares
 cmake
