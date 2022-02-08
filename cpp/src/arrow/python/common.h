@@ -196,7 +196,7 @@ struct BoundFunction<void(PyObject*, Args...)> {
   using Bound = Status(Args...);
 
   BoundFunction(Unbound* unbound, PyObject* bound_arg)
-      : bound_arg_(bound_arg), unbound_(unbound) {}
+      : unbound_(unbound), bound_arg_(bound_arg) {}
 
   Status Invoke(Args... args) const {
     PyAcquireGIL lock;

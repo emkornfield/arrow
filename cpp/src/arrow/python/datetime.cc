@@ -496,39 +496,6 @@ PyObject* MonthDayNanoIntervalToNamedTuple(
   return tuple.detach();
 }
 
-namespace {
-
-// Wrapper around a Python list object that mimics dereference and assignment
-// operations.
-struct PyListAssigner {
- public:
-  explicit PyListAssigner(PyObject* list) : list_(list) { DCHECK(PyList_Check(list_)); }
-
-  PyListAssigner& operator*() { return *this; }
-
-  void operator=(PyObject* obj) {
-    if (ARROW_PREDICT_FALSE(PyList_SetItem(list_, current_index_, obj) == -1)) {
-      Py_FatalError("list did not have the correct preallocated size.");
-    }
-  }
-
-  PyListAssigner& operator++() {
-    current_index_++;
-    return *this;
-  }
-
-  PyListAssigner& operator+=(int64_t offset) {
-    current_index_ += offset;
-    return *this;
-  }
-
- private:
-  PyObject* list_;
-  int64_t current_index_ = 0;
-};
-
-}  // namespace
-
 Result<PyObject*> MonthDayNanoIntervalArrayToPyList(
     const MonthDayNanoIntervalArray& array) {
   OwnedRef out_list(PyList_New(array.length()));
